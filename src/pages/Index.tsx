@@ -221,6 +221,7 @@ const Index = () => {
         <p className="text-center text-lg text-muted-foreground mt-2 font-playfair italic">
           Safety Driven...Community Powered
         </p>
+        <div className="w-full h-1.5 bg-chicago-blue rounded-full mt-3"></div>
       </header>
 
       {/* Main Content */}
