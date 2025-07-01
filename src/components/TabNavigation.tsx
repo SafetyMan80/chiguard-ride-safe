@@ -7,8 +7,9 @@ interface TabNavigationProps {
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   const tabs = [
-    { id: "emergency", label: "Emergency", emoji: "🆘" },
-    { id: "incidents", label: "Incidents", emoji: "📢" },
+    { id: "home", label: "Home", emoji: "🏠" },
+    { id: "emergency", label: "SOS", emoji: "🆘" },
+    { id: "incidents", label: "Reports", emoji: "📢" },
     { id: "groups", label: "Groups", emoji: "👥" },
     { id: "schedule", label: "Schedule", emoji: "🚊" },
     { id: "settings", label: "Settings", emoji: "⚙️" },
