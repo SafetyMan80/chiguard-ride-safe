@@ -14,10 +14,46 @@ interface TrainArrival {
 }
 
 const CTA_LINES = [
-  { name: "Red Line", color: "bg-chicago-red", stations: ["95th/Dan Ryan", "Fullerton", "Howard"] },
-  { name: "Blue Line", color: "bg-chicago-blue", stations: ["O'Hare", "Forest Park", "UIC-Halsted"] },
-  { name: "Green Line", color: "bg-green-600", stations: ["Harlem/Lake", "Cottage Grove", "Ashland/63rd"] },
-  { name: "Brown Line", color: "bg-amber-700", stations: ["Kimball", "Loop", "Belmont"] },
+  { 
+    name: "Red Line", 
+    color: "bg-chicago-red", 
+    stations: ["95th/Dan Ryan", "87th", "79th", "69th", "63rd", "55th-56th-57th", "47th", "Garfield", "35th-Bronzeville-IIT", "Cermak-Chinatown", "Roosevelt", "Harrison", "Jackson", "Monroe", "Lake", "Grand", "Chicago", "North/Clybourn", "Fullerton", "Belmont", "Addison", "Sheridan", "Wilson", "Lawrence", "Argyle", "Berwyn", "Bryn Mawr", "Thorndale", "Granville", "Loyola", "Morse", "Jarvis", "Howard"] 
+  },
+  { 
+    name: "Blue Line", 
+    color: "bg-chicago-blue", 
+    stations: ["O'Hare", "Rosemont", "Cumberland", "Harwood Heights", "Norridge", "Park Ridge", "Des Plaines", "Dee Road", "Mount Prospect", "Prospect Heights", "Rosemont", "River Road", "Mannheim", "Schiller Park", "Franklin Park", "Bensenville", "Wood Dale", "Addison", "Elk Grove Village", "Higgins", "Rosemont", "Irving Park", "Montrose", "Jefferson Park", "Harlem (Forest Park)", "Oak Park", "Austin", "Cicero", "Pulaski", "Kostner", "Kedzie", "California", "Western", "Damen", "Division", "Chicago", "Grand", "Clark/Lake", "Washington", "Monroe", "Jackson", "LaSalle", "Clinton", "UIC-Halsted", "Racine", "Illinois Medical District", "Western", "Kedzie-Homan", "Pulaski", "Cicero", "Austin", "Oak Park", "Harlem", "Forest Park"] 
+  },
+  { 
+    name: "Green Line", 
+    color: "bg-green-600", 
+    stations: ["Harlem/Lake", "Oak Park", "Ridgeland", "Austin", "Central", "Laramie", "Cicero", "Pulaski", "Conservatory", "Kedzie", "California", "Ashland", "Morgan", "Clinton", "Clark/Lake", "State/Lake", "Randolph/Wabash", "Madison/Wabash", "Adams/Wabash", "Roosevelt", "Cermak-McCormick Place", "35th-Bronzeville-IIT", "Indiana", "43rd", "47th", "51st", "Garfield", "King Drive", "Cottage Grove", "Halsted", "Ashland/63rd"] 
+  },
+  { 
+    name: "Brown Line", 
+    color: "bg-amber-700", 
+    stations: ["Kimball", "Kedzie", "Francisco", "Rockwell", "Western", "Damen", "Montrose", "Irving Park", "Addison", "Paulina", "Southport", "Belmont", "Wellington", "Diversey", "Fullerton", "Armitage", "Sedgwick", "Chicago", "Merchandise Mart", "Clark/Lake", "State/Lake", "Randolph/Wabash", "Madison/Wabash", "Adams/Wabash", "Library", "LaSalle/Van Buren", "Quincy", "Washington/Wells", "Clark/Lake"] 
+  },
+  { 
+    name: "Orange Line", 
+    color: "bg-orange-500", 
+    stations: ["Midway", "Pulaski", "Kedzie", "Western", "35th/Archer", "Ashland", "Halsted", "Roosevelt", "LaSalle/Van Buren", "Library", "Adams/Wabash", "Madison/Wabash", "Randolph/Wabash", "State/Lake", "Clark/Lake"] 
+  },
+  { 
+    name: "Pink Line", 
+    color: "bg-pink-500", 
+    stations: ["54th/Cermak", "Cicero", "Kostner", "Pulaski", "Central Park", "Kedzie", "California", "Western", "Damen", "18th", "Polk", "Ashland", "Morgan", "Clinton", "Clark/Lake", "State/Lake", "Randolph/Wabash", "Madison/Wabash", "Adams/Wabash", "Library", "LaSalle/Van Buren", "Quincy", "Washington/Wells", "Clark/Lake"] 
+  },
+  { 
+    name: "Purple Line", 
+    color: "bg-purple-600", 
+    stations: ["Linden", "Central", "Noyes", "Foster", "Davis", "Dempster", "Main", "South Boulevard", "Howard", "Jarvis", "Morse", "Loyola", "Granville", "Thorndale", "Bryn Mawr", "Berwyn", "Argyle", "Lawrence", "Wilson", "Sheridan", "Addison", "Belmont", "Fullerton", "Armitage", "Sedgwick", "Chicago", "Merchandise Mart", "Clark/Lake", "State/Lake", "Randolph/Wabash", "Madison/Wabash", "Adams/Wabash", "Library", "LaSalle/Van Buren", "Quincy", "Washington/Wells", "Clark/Lake"] 
+  },
+  { 
+    name: "Yellow Line", 
+    color: "bg-yellow-500", 
+    stations: ["Skokie", "Oakton", "Dempster"] 
+  }
 ];
 
 export const CTASchedule = () => {
@@ -68,57 +104,86 @@ export const CTASchedule = () => {
 
   return (
     <div className="space-y-6">
+      {/* CTA System Map */}
       <Card>
         <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-chicago-blue rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-white rounded-full"></div>
+          <CardTitle className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-chicago-blue rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+            </div>
+            CTA System Map
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {CTA_LINES.map(line => (
+              <Button
+                key={line.name}
+                variant={selectedLine === line.name ? "chicago" : "chicago-outline"}
+                size="sm"
+                onClick={() => {
+                  setSelectedLine(selectedLine === line.name ? "" : line.name);
+                  setSelectedStation("");
+                }}
+                className="justify-start text-xs h-8"
+              >
+                <div className={`w-3 h-3 rounded-full ${line.color} mr-2`} />
+                {line.name}
+              </Button>
+            ))}
           </div>
-          CTA Real-Time Schedule
-        </CardTitle>
+        </CardContent>
+      </Card>
+
+      {/* Schedule Interface */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-chicago-blue" />
+            Real-Time Schedule
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Select value={selectedLine} onValueChange={setSelectedLine}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select CTA line" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Lines</SelectItem>
-              {CTA_LINES.map(line => (
-                <SelectItem key={line.name} value={line.name}>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${line.color}`} />
-                    {line.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           {selectedLine && (
-            <Select value={selectedStation} onValueChange={setSelectedStation}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select station" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Stations</SelectItem>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`w-4 h-4 rounded-full ${getLineColor(selectedLine)}`} />
+                <h3 className="font-semibold">{selectedLine} Stations</h3>
+              </div>
+              
+              <div className="max-h-48 overflow-y-auto space-y-1">
                 {selectedLineStations.map(station => (
-                  <SelectItem key={station} value={station}>
+                  <Button
+                    key={station}
+                    variant={selectedStation === station ? "chicago" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedStation(selectedStation === station ? "" : station)}
+                    className="w-full justify-start text-xs h-8"
+                  >
                     {station}
-                  </SelectItem>
+                  </Button>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            </div>
           )}
 
-          <Button 
-            variant="chicago" 
-            onClick={fetchSchedule}
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? "Updating..." : "Refresh Schedule"}
-          </Button>
+          {!selectedLine && (
+            <div className="text-center py-8 text-muted-foreground">
+              <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>Select a CTA line above to view stations and schedule</p>
+            </div>
+          )}
+
+          {selectedLine && (
+            <Button 
+              variant="chicago" 
+              onClick={fetchSchedule}
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? "Loading Schedule..." : `Get ${selectedLine} Schedule`}
+            </Button>
+          )}
 
           {lastUpdated && (
             <p className="text-xs text-muted-foreground text-center">

@@ -56,7 +56,7 @@ const Index = () => {
           <h1 className="text-2xl font-bold text-chicago-blue">CHIGUARD</h1>
         </div>
         <p className="text-center text-sm text-muted-foreground mt-1">
-          Chicago CTA Safety Network
+          Safety Driven...Community Powered
         </p>
       </header>
 

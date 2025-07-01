@@ -99,7 +99,14 @@ export const UniversityRides = () => {
             ))}
           </div>
           
-          <Button variant="chicago" className="w-full">
+          <Button 
+            variant="chicago" 
+            className="w-full"
+            onClick={() => {
+              // TODO: Implement group ride request functionality
+              alert("Group ride request feature coming soon!");
+            }}
+          >
             Request a Group Ride
           </Button>
         </CardContent>
@@ -145,7 +152,15 @@ export const UniversityRides = () => {
                 
                 <p className="text-sm text-muted-foreground mb-3">{request.description}</p>
                 
-                <Button variant="chicago-outline" size="sm" className="w-full">
+                <Button 
+                  variant="chicago-outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => {
+                    // TODO: Implement join group ride functionality
+                    alert(`Joining ride with ${request.user}. Feature coming soon!`);
+                  }}
+                >
                   Join Group Ride
                 </Button>
               </CardContent>
