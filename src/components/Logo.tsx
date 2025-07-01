@@ -1,7 +1,16 @@
 export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => (
-  <img
-    src="/lovable-uploads/ee3a477e-d587-4e3a-8f76-28f971d4d63a.png"
-    alt="ChiGuard Logo"
-    className={`${className} object-contain`}
-  />
+  <svg
+    viewBox="0 0 100 100"
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Shield shape */}
+    <path
+      d="M50 5L20 20V45C20 70 50 95 50 95C50 95 80 70 80 45V20L50 5Z"
+      fill="hsl(var(--chicago-blue))"
+      stroke="hsl(var(--chicago-red))"
+      strokeWidth="2"
+    />
+  </svg>
 );
