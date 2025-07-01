@@ -50,7 +50,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)]">
+      <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)] safe-area-top">
         <div className="flex items-center justify-center gap-4">
           <Logo className="w-10 h-10 drop-shadow-md" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent tracking-tight">
@@ -68,7 +68,7 @@ const Index = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border/50 shadow-[var(--shadow-floating)]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border/50 shadow-[var(--shadow-floating)] safe-area-bottom">
         <div className="max-w-md mx-auto">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
