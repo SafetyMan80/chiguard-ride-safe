@@ -146,7 +146,7 @@ const Index = () => {
       <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)] safe-area-top">
         <div className="flex items-center justify-center gap-4">
           <Logo className="w-10 h-10 drop-shadow-md" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent tracking-tight">
+          <h1 className="text-3xl font-black bg-gradient-to-r from-chicago-red to-chicago-blue bg-clip-text text-transparent tracking-tight">
             CHIGUARD
           </h1>
         </div>
