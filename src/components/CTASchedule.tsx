@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Train, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ctaSystemMap from "@/assets/cta-system-map.jpg";
 
 interface CTAArrival {
   staId: string;
@@ -160,6 +161,28 @@ export const CTASchedule = () => {
 
   return (
     <div className="space-y-6">
+      {/* CTA System Map */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="w-5 h-5" />
+            CTA System Map
+          </CardTitle>
+          <CardDescription>
+            Chicago Transit Authority rail network overview
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full overflow-hidden rounded-lg border">
+            <img 
+              src={ctaSystemMap} 
+              alt="Chicago CTA System Map showing all colored rail lines" 
+              className="w-full h-auto object-contain"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
