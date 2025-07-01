@@ -50,10 +50,14 @@ export const Settings = ({ user }: SettingsProps) => {
       // Request location permission
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log("Location enabled:", position.coords);
+          if (process.env.NODE_ENV === 'development') {
+            console.log("Location enabled:", position.coords);
+          }
         },
         (error) => {
-          console.error("Location access denied:", error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error("Location access denied:", error);
+          }
           setLocationEnabled(false);
         }
       );

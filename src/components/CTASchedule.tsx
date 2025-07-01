@@ -50,26 +50,38 @@ export const CTASchedule = () => {
   const fetchRoutes = async () => {
     try {
       setRoutesLoading(true);
-      console.log('Fetching CTA routes...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Fetching CTA routes...');
+      }
       
       const { data, error } = await supabase.functions.invoke('cta-schedule');
       
-      console.log('CTA routes response:', { data, error });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('CTA routes response:', { data, error });
+      }
       
       if (error) {
-        console.error('Supabase function error:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Supabase function error:', error);
+        }
         throw error;
       }
       
       if (data && data.type === 'routes' && Array.isArray(data.data)) {
-        console.log('Setting routes:', data.data);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Setting routes:', data.data);
+        }
         setRoutes(data.data);
       } else {
-        console.warn('Unexpected routes data format:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Unexpected routes data format:', data);
+        }
         setRoutes([]);
       }
     } catch (error: any) {
-      console.error('Error fetching routes:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching routes:', error);
+      }
       toast({
         title: "Routes Loading Error",
         description: error.message || "Failed to load CTA routes. You can still search by stop ID.",
@@ -93,21 +105,29 @@ export const CTASchedule = () => {
 
     setLoading(true);
     try {
-      console.log('Fetching arrivals for stop:', stopId.trim());
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Fetching arrivals for stop:', stopId.trim());
+      }
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         body: { stopId: stopId.trim() }
       });
       
-      console.log('CTA arrivals response:', { data, error });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('CTA arrivals response:', { data, error });
+      }
       
       if (error) {
-        console.error('Supabase function error:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Supabase function error:', error);
+        }
         throw error;
       }
       
       if (data && data.type === 'arrivals') {
-        console.log('Setting arrivals:', data.data);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Setting arrivals:', data.data);
+        }
         setArrivals(data.data || []);
         setLastUpdated(data.timestamp);
         
@@ -118,11 +138,15 @@ export const CTASchedule = () => {
           });
         }
       } else {
-        console.warn('Unexpected arrivals data format:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Unexpected arrivals data format:', data);
+        }
         setArrivals([]);
       }
     } catch (error: any) {
-      console.error('Error fetching arrivals:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching arrivals:', error);
+      }
       toast({
         title: "Error",
         description: error.message || "Failed to fetch arrival times. Please check the stop ID and try again.",

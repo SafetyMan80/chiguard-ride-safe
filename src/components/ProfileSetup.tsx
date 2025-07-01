@@ -47,7 +47,9 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
       .order("name");
 
     if (error) {
-      console.error("Error fetching universities:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching universities:", error);
+      }
     } else {
       setUniversities(data || []);
     }
@@ -64,7 +66,9 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
       .maybeSingle();
 
     if (error) {
-      console.error("Error checking profile:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error checking profile:", error);
+      }
     } else if (data) {
       setFormData({
         full_name: data.full_name || "",

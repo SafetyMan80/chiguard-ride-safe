@@ -47,7 +47,9 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.5);
     } catch (error) {
-      console.warn('Audio playback failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Audio playback failed:', error);
+      }
     }
   };
 

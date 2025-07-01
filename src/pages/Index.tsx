@@ -60,7 +60,11 @@ const Index = () => {
     const currentUrl = window.location.href;
     QRCode.toDataURL(currentUrl)
       .then(url => setQrCodeUrl(url))
-      .catch(err => console.error('Error generating QR code:', err));
+      .catch(err => {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error generating QR code:', err);
+        }
+      });
   }, []);
 
   const checkUserSetup = async () => {
@@ -85,7 +89,9 @@ const Index = () => {
 
       setHasIDVerification(!!verification);
     } catch (error) {
-      console.error("Error checking user setup:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error checking user setup:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -118,7 +124,9 @@ const Index = () => {
         });
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error sharing:', error);
+      }
     }
   };
 
