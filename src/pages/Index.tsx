@@ -216,7 +216,7 @@ const Index = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)] safe-area-top">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-1">
           <Logo className="w-20 h-20 drop-shadow-md" />
           <h1 className="text-3xl font-black bg-gradient-to-r from-chicago-red to-chicago-blue bg-clip-text text-transparent tracking-tight">
             CHIGUARD
