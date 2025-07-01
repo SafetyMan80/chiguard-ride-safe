@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { TermsOfService } from "./TermsOfService";
 import { PrivacyPolicy } from "./PrivacyPolicy";
 import { SafetyGuidelines } from "./SafetyGuidelines";
+import { ProfileSetup } from "./ProfileSetup";
+import { IDVerification } from "./IDVerification";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -18,7 +20,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'verification'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -68,6 +70,14 @@ export const Settings = ({ user }: SettingsProps) => {
 
   if (activeView === 'safety') {
     return <SafetyGuidelines onBack={() => setActiveView('settings')} />;
+  }
+
+  if (activeView === 'profile') {
+    return <ProfileSetup onProfileComplete={() => setActiveView('settings')} />;
+  }
+
+  if (activeView === 'verification') {
+    return <IDVerification onVerificationComplete={() => setActiveView('settings')} />;
   }
 
   return (
@@ -180,10 +190,18 @@ export const Settings = ({ user }: SettingsProps) => {
               Signed in as {user.email}
             </p>
           )}
-          <Button variant="outline" className="w-full justify-start">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('profile')}
+          >
             Edit Profile
           </Button>
-          <Button variant="outline" className="w-full justify-start">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('verification')}
+          >
             ID Verification Status
           </Button>
           <Button 
