@@ -143,10 +143,6 @@ const Index = () => {
         return (
           <div className="space-y-8">
             <div className="text-center space-y-6">
-              <div>
-                <div className="w-full h-2 bg-chicago-blue/70 rounded-full mb-4"></div>
-                <p className="text-muted-foreground font-playfair italic text-lg">How Chicago Commutes</p>
-              </div>
               
               <div className="grid grid-cols-2 gap-4">
                 {navigationItems.map((item) => (
@@ -222,7 +218,7 @@ const Index = () => {
             CHIGUARD
           </h1>
         </div>
-        <p className="text-center text-sm text-muted-foreground mt-2 font-playfair italic">
+        <p className="text-center text-lg text-muted-foreground mt-2 font-playfair italic">
           Safety Driven...Community Powered
         </p>
       </header>
