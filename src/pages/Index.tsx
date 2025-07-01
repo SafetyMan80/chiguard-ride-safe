@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("emergency");
+  const [activeTab, setActiveTab] = useState("home");
   const [user, setUser] = useState<User | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   const [hasIDVerification, setHasIDVerification] = useState(false);
@@ -85,6 +85,37 @@ const Index = () => {
     });
   };
 
+  const navigationItems = [
+    {
+      id: "emergency",
+      title: "Emergency",
+      icon: "🚨",
+      description: "Activate SOS Alert",
+      color: "bg-chicago-red text-white",
+    },
+    {
+      id: "incidents",
+      title: "Report",
+      icon: "📝",
+      description: "Report Incidents",
+      color: "bg-chicago-blue text-white",
+    },
+    {
+      id: "groups",
+      title: "Groups",
+      icon: "👥",
+      description: "University Rides",
+      color: "bg-chicago-light-blue text-white",
+    },
+    {
+      id: "schedule",
+      title: "Schedule",
+      icon: "🚇",
+      description: "CTA Times",
+      color: "bg-chicago-dark-blue text-white",
+    },
+  ];
+
   const renderActiveTab = () => {
     switch (activeTab) {
       case "emergency":
@@ -107,6 +138,38 @@ const Index = () => {
         return <CTASchedule />;
       case "settings":
         return <Settings user={user} />;
+      case "home":
+        return (
+          <div className="space-y-8">
+            <div className="text-center space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to CHIGUARD</h2>
+                <p className="text-muted-foreground">Choose an option below to get started</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {navigationItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`
+                      ${item.color} p-6 rounded-xl shadow-[var(--shadow-card)] 
+                      hover:scale-105 hover:shadow-[var(--shadow-floating)] 
+                      transition-all duration-300 flex flex-col items-center space-y-3
+                      border border-white/20
+                    `}
+                  >
+                    <div className="text-3xl">{item.icon}</div>
+                    <div>
+                      <h3 className="font-bold text-lg">{item.title}</h3>
+                      <p className="text-sm opacity-90">{item.description}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }

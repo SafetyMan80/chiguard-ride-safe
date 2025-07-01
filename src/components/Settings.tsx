@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TermsOfService } from "./TermsOfService";
 import { PrivacyPolicy } from "./PrivacyPolicy";
+import { SafetyGuidelines } from "./SafetyGuidelines";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -17,7 +18,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -63,6 +64,10 @@ export const Settings = ({ user }: SettingsProps) => {
 
   if (activeView === 'privacy') {
     return <PrivacyPolicy onBack={() => setActiveView('settings')} />;
+  }
+
+  if (activeView === 'safety') {
+    return <SafetyGuidelines onBack={() => setActiveView('settings')} />;
   }
 
   return (
@@ -150,7 +155,11 @@ export const Settings = ({ user }: SettingsProps) => {
             <div className="w-4 h-4 mr-2 text-xs">📋</div>
             Terms of Service
           </Button>
-          <Button variant="chicago-outline" className="w-full justify-start">
+          <Button 
+            variant="chicago-outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('safety')}
+          >
             <div className="w-4 h-4 mr-2 text-xs">🛡</div>
             Safety Guidelines
           </Button>
