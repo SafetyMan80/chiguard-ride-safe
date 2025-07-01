@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -173,13 +174,29 @@ export const CTASchedule = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="w-full overflow-hidden rounded-lg border">
-            <img 
-              src={ctaSystemMap} 
-              alt="Chicago CTA System Map showing all colored rail lines" 
-              className="w-full h-auto object-contain"
-            />
-          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <div className="w-full overflow-hidden rounded-lg border cursor-pointer hover:opacity-80 transition-opacity">
+                <img 
+                  src={ctaSystemMap} 
+                  alt="Chicago CTA System Map showing all colored rail lines" 
+                  className="w-full h-auto object-contain"
+                />
+                <div className="p-2 bg-muted/50 text-xs text-center text-muted-foreground">
+                  Click to view full size
+                </div>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl w-full max-h-[90vh]">
+              <div className="w-full h-full overflow-auto">
+                <img 
+                  src={ctaSystemMap} 
+                  alt="Chicago CTA System Map showing all colored rail lines - Full Size" 
+                  className="w-full h-auto object-contain"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
 
