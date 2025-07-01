@@ -7,7 +7,7 @@ export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => (
   >
     {/* Shield shape */}
     <path
-      d="M50 5L20 20V45C20 70 50 95 50 95C50 95 80 70 80 45V20L50 5Z"
+      d="M50 10L15 25V50C15 70 50 90 50 90C50 90 85 70 85 50V25L50 10Z"
       fill="hsl(var(--chicago-blue))"
       stroke="hsl(var(--chicago-red))"
       strokeWidth="2"
