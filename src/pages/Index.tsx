@@ -11,6 +11,10 @@ import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
 import { IDVerification } from "@/components/IDVerification";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Share, QrCode } from "lucide-react";
+import QRCode from "qrcode";
 import chicagoTrainGraphic from "@/assets/chicago-train-graphic.jpg";
 import type { User } from "@supabase/supabase-js";
 
@@ -20,6 +24,7 @@ const Index = () => {
   const [hasProfile, setHasProfile] = useState(false);
   const [hasIDVerification, setHasIDVerification] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -49,6 +54,14 @@ const Index = () => {
       checkUserSetup();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Generate QR code with current URL
+    const currentUrl = window.location.href;
+    QRCode.toDataURL(currentUrl)
+      .then(url => setQrCodeUrl(url))
+      .catch(err => console.error('Error generating QR code:', err));
+  }, []);
 
   const checkUserSetup = async () => {
     if (!user) return;
@@ -84,6 +97,29 @@ const Index = () => {
       description: "Your location has been shared and help is on the way.",
       variant: "destructive"
     });
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const shareData = {
+      title: 'CHIGUARD - Safety App for Chicago Riders',
+      text: 'Join me on CHIGUARD for safer transit in Chicago!',
+      url: url
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied!",
+          description: "Share this link with other riders.",
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   };
 
   const navigationItems = [
@@ -172,6 +208,44 @@ const Index = () => {
                   className="w-full max-w-md h-32 object-cover rounded-lg opacity-60"
                 />
               </div>
+              
+              {/* Share Section */}
+              <Card className="mt-8 bg-chicago-accent border-chicago-blue/20">
+                <CardHeader className="text-center pb-3">
+                  <CardTitle className="text-lg text-chicago-blue flex items-center justify-center gap-2">
+                    <Share className="w-5 h-5" />
+                    Share CHIGUARD
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Help build a safer transit community by sharing with other riders
+                  </p>
+                  
+                  <div className="flex flex-col items-center space-y-4">
+                    {qrCodeUrl && (
+                      <div className="flex flex-col items-center space-y-2">
+                        <QrCode className="w-4 h-4 text-chicago-blue" />
+                        <img 
+                          src={qrCodeUrl} 
+                          alt="QR Code to share app" 
+                          className="w-24 h-24 border-2 border-chicago-blue/20 rounded-lg"
+                        />
+                        <p className="text-xs text-muted-foreground">Scan to join</p>
+                      </div>
+                    )}
+                    
+                    <Button 
+                      onClick={handleShare}
+                      variant="chicago"
+                      className="w-full"
+                    >
+                      <Share className="w-4 h-4 mr-2" />
+                      Share with Other Riders
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         );
