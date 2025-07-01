@@ -4,14 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Camera, Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { Camera, Upload, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface IDVerificationProps {
   onVerificationComplete: () => void;
+  onBack?: () => void;
 }
 
-export const IDVerification = ({ onVerificationComplete }: IDVerificationProps) => {
+export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificationProps) => {
   const [idType, setIdType] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -121,13 +122,22 @@ export const IDVerification = ({ onVerificationComplete }: IDVerificationProps) 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-chicago-blue" />
-          ID Verification
-        </CardTitle>
-        <CardDescription>
-          Upload a clear photo of your ID for verification. This helps ensure the safety of all ChiGuard users.
-        </CardDescription>
+        <div className="flex items-center gap-2">
+          {onBack && (
+            <Button variant="ghost" size="sm" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-chicago-blue" />
+              ID Verification
+            </CardTitle>
+            <CardDescription>
+              Upload a clear photo of your ID for verification. This helps ensure the safety of all ChiGuard users.
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">

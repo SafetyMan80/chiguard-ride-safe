@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface University {
@@ -17,9 +18,10 @@ interface University {
 
 interface ProfileSetupProps {
   onProfileComplete: () => void;
+  onBack?: () => void;
 }
 
-export const ProfileSetup = ({ onProfileComplete }: ProfileSetupProps) => {
+export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) => {
   const [formData, setFormData] = useState({
     full_name: "",
     phone_number: "",
@@ -116,10 +118,19 @@ export const ProfileSetup = ({ onProfileComplete }: ProfileSetupProps) => {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Complete Your Profile</CardTitle>
-        <CardDescription>
-          Please provide your information to continue with ChiGuard
-        </CardDescription>
+        <div className="flex items-center gap-2">
+          {onBack && (
+            <Button variant="ghost" size="sm" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
+          <div>
+            <CardTitle>Complete Your Profile</CardTitle>
+            <CardDescription>
+              Please provide your information to continue with ChiGuard
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">

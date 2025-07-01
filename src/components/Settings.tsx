@@ -73,11 +73,11 @@ export const Settings = ({ user }: SettingsProps) => {
   }
 
   if (activeView === 'profile') {
-    return <ProfileSetup onProfileComplete={() => setActiveView('settings')} />;
+    return <ProfileSetup onProfileComplete={() => setActiveView('settings')} onBack={() => setActiveView('settings')} />;
   }
 
   if (activeView === 'verification') {
-    return <IDVerification onVerificationComplete={() => setActiveView('settings')} />;
+    return <IDVerification onVerificationComplete={() => setActiveView('settings')} onBack={() => setActiveView('settings')} />;
   }
 
   return (
