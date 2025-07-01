@@ -60,11 +60,29 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     // Initial tone
     createEmergencyTone();
 
-    // Voice announcement
-    const utterance = new SpeechSynthesisUtterance("Emergency alert activated. Police are on their way!");
-    utterance.rate = 1.2;
-    utterance.volume = 0.8;
-    speechSynthesis.speak(utterance);
+    // Voice announcement every 5 seconds for the full duration
+    const announceMessage = () => {
+      const utterance = new SpeechSynthesisUtterance("Emergency alert activated. Police are on their way!");
+      utterance.rate = 1.1;
+      utterance.volume = 0.9;
+      speechSynthesis.speak(utterance);
+    };
+    
+    // Initial announcement
+    announceMessage();
+    
+    // Repeat announcement every 5 seconds
+    const voiceInterval = setInterval(announceMessage, 5000);
+    
+    // Store voice interval to clear later
+    intervalRef.current = setInterval(() => {
+      createEmergencyTone();
+    }, 2000);
+    
+    // Clear voice interval after 30 seconds
+    setTimeout(() => {
+      clearInterval(voiceInterval);
+    }, 30000);
   };
 
   const stopEmergencyAlert = () => {
@@ -119,17 +137,17 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         size="lg"
         onClick={handleEmergencyClick}
         className={`
-          w-32 h-32 rounded-full text-xl font-bold
-          ${isActive ? 'animate-pulse-emergency' : 'hover:scale-105'}
-          transition-all duration-200
+          w-36 h-36 rounded-full text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20
+          ${isActive ? 'animate-pulse-emergency' : 'hover:scale-105 hover:shadow-[var(--shadow-floating)]'}
+          transition-all duration-300 backdrop-blur-sm
         `}
       >
         <div className="flex flex-col items-center">
-          <div className="w-8 h-8 mb-2 bg-white rounded-full flex items-center justify-center text-chicago-red font-bold text-lg">!</div>
+          <div className="w-10 h-10 mb-3 bg-white rounded-full flex items-center justify-center text-chicago-red font-bold text-xl shadow-md">!</div>
           {isActive ? (
-            <span className="text-sm">{countdown}s</span>
+            <span className="text-base font-semibold">{countdown}s</span>
           ) : (
-            <span>SOS</span>
+            <span className="text-lg font-bold tracking-wide">SOS</span>
           )}
         </div>
       </Button>

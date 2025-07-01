@@ -50,23 +50,25 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-border p-4">
-        <div className="flex items-center justify-center gap-3">
-          <Logo className="w-8 h-8" />
-          <h1 className="text-2xl font-bold text-chicago-blue">CHIGUARD</h1>
+      <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)]">
+        <div className="flex items-center justify-center gap-4">
+          <Logo className="w-10 h-10 drop-shadow-md" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent tracking-tight">
+            CHIGUARD
+          </h1>
         </div>
-        <p className="text-center text-sm text-muted-foreground mt-1">
+        <p className="text-center text-sm text-muted-foreground mt-2 font-medium">
           Safety Driven...Community Powered
         </p>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 pb-20 max-w-md mx-auto w-full">
+      <main className="flex-1 p-6 pb-24 max-w-md mx-auto w-full">
         {renderActiveTab()}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border/50 shadow-[var(--shadow-floating)]">
         <div className="max-w-md mx-auto">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>

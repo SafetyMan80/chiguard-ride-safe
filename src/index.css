@@ -32,19 +32,25 @@ All colors MUST be HSL.
     --destructive: 0 70% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Chicago theme colors */
-    --chicago-blue: 203 65% 66%;
-    --chicago-red: 0 70% 45%;
-    --chicago-light-blue: 203 50% 85%;
-    --chicago-dark-blue: 203 65% 45%;
+    /* Chicago theme colors - Premium palette */
+    --chicago-blue: 213 77% 54%;
+    --chicago-red: 0 84% 60%;
+    --chicago-light-blue: 213 35% 91%;
+    --chicago-dark-blue: 213 87% 35%;
+    --chicago-navy: 213 92% 20%;
+    --chicago-accent: 213 20% 95%;
     
-    /* Custom gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--chicago-blue)), hsl(var(--chicago-dark-blue)));
-    --gradient-emergency: linear-gradient(135deg, hsl(var(--chicago-red)), hsl(0 70% 35%));
+    /* Premium gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--chicago-blue)), hsl(var(--chicago-navy)));
+    --gradient-emergency: linear-gradient(135deg, hsl(var(--chicago-red)), hsl(0 84% 45%));
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--chicago-accent)), rgba(255,255,255,0.8));
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px hsl(var(--chicago-blue) / 0.1);
-    --shadow-emergency: 0 4px 20px hsl(var(--chicago-red) / 0.2);
+    /* Premium shadows */
+    --shadow-soft: 0 8px 32px hsl(var(--chicago-blue) / 0.12);
+    --shadow-emergency: 0 8px 32px hsl(var(--chicago-red) / 0.25);
+    --shadow-card: 0 4px 24px hsl(213 20% 20% / 0.08);
+    --shadow-floating: 0 12px 40px hsl(213 20% 20% / 0.15);
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
