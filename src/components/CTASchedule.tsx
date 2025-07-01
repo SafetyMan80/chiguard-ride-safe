@@ -39,6 +39,7 @@ export const CTASchedule = () => {
   const [arrivals, setArrivals] = useState<CTAArrival[]>([]);
   const [routes, setRoutes] = useState<CTARoute[]>([]);
   const [loading, setLoading] = useState(false);
+  const [routesLoading, setRoutesLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -48,20 +49,35 @@ export const CTASchedule = () => {
 
   const fetchRoutes = async () => {
     try {
+      setRoutesLoading(true);
+      console.log('Fetching CTA routes...');
+      
       const { data, error } = await supabase.functions.invoke('cta-schedule');
       
-      if (error) throw error;
+      console.log('CTA routes response:', { data, error });
       
-      if (data.type === 'routes') {
-        setRoutes(data.data);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
       }
-    } catch (error) {
+      
+      if (data && data.type === 'routes' && Array.isArray(data.data)) {
+        console.log('Setting routes:', data.data);
+        setRoutes(data.data);
+      } else {
+        console.warn('Unexpected routes data format:', data);
+        setRoutes([]);
+      }
+    } catch (error: any) {
       console.error('Error fetching routes:', error);
       toast({
-        title: "Error",
-        description: "Failed to load CTA routes",
+        title: "Routes Loading Error",
+        description: error.message || "Failed to load CTA routes. You can still search by stop ID.",
         variant: "destructive",
       });
+      setRoutes([]);
+    } finally {
+      setRoutesLoading(false);
     }
   };
 
@@ -77,30 +93,42 @@ export const CTASchedule = () => {
 
     setLoading(true);
     try {
+      console.log('Fetching arrivals for stop:', stopId.trim());
+      
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         body: { stopId: stopId.trim() }
       });
       
-      if (error) throw error;
+      console.log('CTA arrivals response:', { data, error });
       
-      if (data.type === 'arrivals') {
-        setArrivals(data.data);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+      
+      if (data && data.type === 'arrivals') {
+        console.log('Setting arrivals:', data.data);
+        setArrivals(data.data || []);
         setLastUpdated(data.timestamp);
         
-        if (data.data.length === 0) {
+        if (!data.data || data.data.length === 0) {
           toast({
             title: "No arrivals found",
-            description: "No upcoming arrivals for this stop",
+            description: "No upcoming arrivals for this stop. Please verify the stop ID.",
           });
         }
+      } else {
+        console.warn('Unexpected arrivals data format:', data);
+        setArrivals([]);
       }
     } catch (error: any) {
       console.error('Error fetching arrivals:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to fetch arrival times",
+        description: error.message || "Failed to fetch arrival times. Please check the stop ID and try again.",
         variant: "destructive",
       });
+      setArrivals([]);
     } finally {
       setLoading(false);
     }
@@ -198,7 +226,7 @@ export const CTASchedule = () => {
             </div>
           )}
 
-          {routes.length > 0 && (
+          {!routesLoading && routes.length > 0 && (
             <div className="space-y-3">
               <h3 className="font-semibold">Available Routes</h3>
               <div className="grid grid-cols-2 gap-2">
@@ -220,6 +248,13 @@ export const CTASchedule = () => {
                   </Button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {routesLoading && (
+            <div className="text-center text-muted-foreground">
+              <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-2" />
+              Loading routes...
             </div>
           )}
         </CardContent>

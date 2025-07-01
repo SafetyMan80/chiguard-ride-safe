@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { TermsOfService } from "./TermsOfService";
+import { PrivacyPolicy } from "./PrivacyPolicy";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -14,6 +17,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -32,6 +36,7 @@ export const Settings = ({ user }: SettingsProps) => {
       });
     }
   };
+
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emergencyContactsEnabled, setEmergencyContactsEnabled] = useState(false);
@@ -51,6 +56,14 @@ export const Settings = ({ user }: SettingsProps) => {
       );
     }
   };
+
+  if (activeView === 'terms') {
+    return <TermsOfService onBack={() => setActiveView('settings')} />;
+  }
+
+  if (activeView === 'privacy') {
+    return <PrivacyPolicy onBack={() => setActiveView('settings')} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -121,11 +134,19 @@ export const Settings = ({ user }: SettingsProps) => {
         </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button variant="chicago-outline" className="w-full justify-start">
+          <Button 
+            variant="chicago-outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('privacy')}
+          >
             <div className="w-4 h-4 mr-2 text-xs">👁</div>
             Privacy Policy
           </Button>
-          <Button variant="chicago-outline" className="w-full justify-start">
+          <Button 
+            variant="chicago-outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('terms')}
+          >
             <div className="w-4 h-4 mr-2 text-xs">📋</div>
             Terms of Service
           </Button>
