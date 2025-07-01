@@ -229,7 +229,7 @@ const Index = () => {
                         <img 
                           src={qrCodeUrl} 
                           alt="QR Code to share app" 
-                          className="w-24 h-24 border-2 border-chicago-blue/20 rounded-lg"
+                          className="w-32 h-32 border-2 border-chicago-blue/20 rounded-lg"
                         />
                         <p className="text-xs text-muted-foreground">Scan to join</p>
                       </div>
