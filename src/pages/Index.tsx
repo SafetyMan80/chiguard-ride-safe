@@ -11,6 +11,7 @@ import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
 import { IDVerification } from "@/components/IDVerification";
 import { useToast } from "@/hooks/use-toast";
+import chicagoTrainGraphic from "@/assets/chicago-train-graphic.jpg";
 import type { User } from "@supabase/supabase-js";
 
 const Index = () => {
@@ -105,7 +106,7 @@ const Index = () => {
       title: "GROUPRIDE",
       icon: "👥",
       description: "Join Rides",
-      color: "bg-chicago-light-blue text-white",
+      color: "bg-chicago-blue/80 text-white",
     },
     {
       id: "schedule",
@@ -166,6 +167,14 @@ const Index = () => {
                     </div>
                   </button>
                 ))}
+              </div>
+              
+              <div className="mt-8 flex justify-center">
+                <img 
+                  src={chicagoTrainGraphic} 
+                  alt="Chicago L Train" 
+                  className="w-full max-w-md h-32 object-cover rounded-lg opacity-60"
+                />
               </div>
             </div>
           </div>
