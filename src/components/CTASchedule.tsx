@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Train, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ctaSystemMap from "@/assets/cta-system-map-readable.jpg";
 
 interface CTAArrival {
   staId: string;
@@ -174,29 +172,57 @@ export const CTASchedule = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Dialog>
-            <DialogTrigger asChild>
-              <div className="w-full overflow-hidden rounded-lg border cursor-pointer hover:opacity-80 transition-opacity">
-                <img 
-                  src={ctaSystemMap} 
-                  alt="Chicago CTA System Map showing all colored rail lines" 
-                  className="w-full h-auto object-contain"
-                />
-                <div className="p-2 bg-muted/50 text-xs text-center text-muted-foreground">
-                  Click to view full size
-                </div>
+          <div className="space-y-4">
+            <div className="text-center">
+              <Button 
+                variant="chicago" 
+                size="lg"
+                onClick={() => window.open('/cta-system-map.pdf', '_blank')}
+                className="w-full"
+              >
+                <MapPin className="w-5 h-5 mr-2" />
+                View Official CTA System Map
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2">
+                Opens the official Chicago Transit Authority system map
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <span className="text-xs">Red Line</span>
               </div>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl w-full max-h-[90vh]">
-              <div className="w-full h-full overflow-auto">
-                <img 
-                  src={ctaSystemMap} 
-                  alt="Chicago CTA System Map showing all colored rail lines - Full Size" 
-                  className="w-full h-auto object-contain"
-                />
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                <span className="text-xs">Blue Line</span>
               </div>
-            </DialogContent>
-          </Dialog>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-amber-700 rounded"></div>
+                <span className="text-xs">Brown Line</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500 rounded"></div>
+                <span className="text-xs">Green Line</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                <span className="text-xs">Orange Line</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-pink-500 rounded"></div>
+                <span className="text-xs">Pink Line</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-purple-500 rounded"></div>
+                <span className="text-xs">Purple Line</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+                <span className="text-xs">Yellow Line</span>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
