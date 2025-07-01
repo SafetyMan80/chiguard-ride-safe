@@ -177,14 +177,14 @@ export const CTASchedule = () => {
               <Button 
                 variant="chicago" 
                 size="lg"
-                onClick={() => window.open('/cta-system-map.pdf', '_blank')}
+                onClick={() => window.open('https://www.transitchicago.com/assets/1/6/ctamap_Lsystem.pdf', '_blank')}
                 className="w-full"
               >
                 <MapPin className="w-5 h-5 mr-2" />
                 View Official CTA System Map
               </Button>
               <p className="text-sm text-muted-foreground mt-2">
-                Opens the official Chicago Transit Authority system map
+                Opens the official CTA map from transitchicago.com
               </p>
             </div>
             
