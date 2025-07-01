@@ -145,7 +145,7 @@ const Index = () => {
             <div className="text-center space-y-6">
               <div>
                 <div className="w-full h-2 bg-chicago-blue/70 rounded-full mb-4"></div>
-                <p className="text-muted-foreground font-medium">How Chicago Commutes</p>
+                <p className="text-muted-foreground font-playfair italic text-lg">How Chicago Commutes</p>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -217,12 +217,12 @@ const Index = () => {
       {/* Header */}
       <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)] safe-area-top">
         <div className="flex items-center justify-center gap-4">
-          <Logo className="w-10 h-10 drop-shadow-md" />
+          <Logo className="w-16 h-16 drop-shadow-md" />
           <h1 className="text-3xl font-black bg-gradient-to-r from-chicago-red to-chicago-blue bg-clip-text text-transparent tracking-tight">
             CHIGUARD
           </h1>
         </div>
-        <p className="text-center text-sm text-muted-foreground mt-2 font-medium">
+        <p className="text-center text-sm text-muted-foreground mt-2 font-playfair italic">
           Safety Driven...Community Powered
         </p>
       </header>
