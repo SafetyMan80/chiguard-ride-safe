@@ -144,8 +144,7 @@ const Index = () => {
           <div className="space-y-8">
             <div className="text-center space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-4">Welcome to CHIGUARD</h2>
-                <div className="w-full h-1 bg-muted-foreground/60 rounded-full mb-3"></div>
+                <div className="w-full h-2 bg-chicago-blue/70 rounded-full mb-4"></div>
                 <p className="text-muted-foreground font-medium">How Chicago Commutes</p>
               </div>
               
