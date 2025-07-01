@@ -48,7 +48,9 @@ export const CTASchedule = () => {
 
   const fetchRoutes = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('cta-schedule');
+      const { data, error } = await supabase.functions.invoke('cta-schedule', {
+        method: 'GET'
+      });
       
       if (error) throw error;
       
@@ -78,7 +80,8 @@ export const CTASchedule = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        body: { stopId: stopId.trim() }
+        method: 'GET',
+        body: JSON.stringify({ stopId: stopId.trim() })
       });
       
       if (error) throw error;

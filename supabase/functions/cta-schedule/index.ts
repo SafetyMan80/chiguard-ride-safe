@@ -12,9 +12,19 @@ serve(async (req) => {
   }
 
   try {
-    const { searchParams } = new URL(req.url);
-    const stopId = searchParams.get('stopId');
-    const routeId = searchParams.get('routeId');
+    let stopId: string | null = null;
+    let routeId: string | null = null;
+
+    // Handle both GET (query params) and POST (body) requests
+    if (req.method === 'GET') {
+      const { searchParams } = new URL(req.url);
+      stopId = searchParams.get('stopId');
+      routeId = searchParams.get('routeId');
+    } else if (req.method === 'POST') {
+      const body = await req.json();
+      stopId = body.stopId;
+      routeId = body.routeId;
+    }
     
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
     if (!CTA_API_KEY) {
