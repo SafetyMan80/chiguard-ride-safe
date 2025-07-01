@@ -176,6 +176,27 @@ export const Settings = ({ user }: SettingsProps) => {
         </CardContent>
       </Card>
 
+      {/* About */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-chicago-blue rounded text-white flex items-center justify-center text-xs font-bold">ℹ</div>
+            About CHIGUARD
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="text-sm space-y-2">
+            <p><span className="font-medium">Established:</span> 2025</p>
+            <p><span className="font-medium">Mission:</span> Community-powered safety for Chicago commuters</p>
+            <p><span className="font-medium">Coverage:</span> All CTA routes and stops across Chicago</p>
+            <p><span className="font-medium">Disclaimer:</span> Not affiliated with the Chicago Transit Authority (CTA)</p>
+            <p className="text-muted-foreground italic pt-2">
+              CHIGUARD is an independent safety platform built by and for the Chicago community to enhance transit safety through real-time incident reporting and group ride coordination.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Account */}
       <Card>
         <CardHeader>
