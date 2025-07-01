@@ -3,9 +3,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { MapPin } from "lucide-react";
+import { MapPin, LogOut, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-export const Settings = () => {
+interface SettingsProps {
+  user: SupabaseUser | null;
+}
+
+export const Settings = ({ user }: SettingsProps) => {
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emergencyContactsEnabled, setEmergencyContactsEnabled] = useState(false);
@@ -106,6 +132,37 @@ export const Settings = () => {
           <Button variant="chicago-outline" className="w-full justify-start">
             <div className="w-4 h-4 mr-2 text-xs">🛡</div>
             Safety Guidelines
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Account */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" />
+            Account
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {user?.email && (
+            <p className="text-sm text-muted-foreground">
+              Signed in as {user.email}
+            </p>
+          )}
+          <Button variant="outline" className="w-full justify-start">
+            Edit Profile
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            ID Verification Status
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={handleSignOut}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
           </Button>
         </CardContent>
       </Card>

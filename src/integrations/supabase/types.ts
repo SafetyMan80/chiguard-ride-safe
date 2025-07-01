@@ -9,7 +9,117 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      id_verifications: {
+        Row: {
+          created_at: string
+          id: string
+          id_image_url: string | null
+          id_type: string
+          rejection_reason: string | null
+          updated_at: string
+          user_id: string
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          id_image_url?: string | null
+          id_type: string
+          rejection_reason?: string | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          id_image_url?: string | null
+          id_type?: string
+          rejection_reason?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          phone_number: string | null
+          student_id_number: string | null
+          student_status: boolean | null
+          university_name: string | null
+          updated_at: string
+          user_id: string
+          verification_status: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone_number?: string | null
+          student_id_number?: string | null
+          student_status?: boolean | null
+          university_name?: string | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone_number?: string | null
+          student_id_number?: string | null
+          student_status?: boolean | null
+          university_name?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
+      universities: {
+        Row: {
+          city: string
+          created_at: string
+          domain: string | null
+          id: string
+          name: string
+          state: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          domain?: string | null
+          id?: string
+          name: string
+          state: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          domain?: string | null
+          id?: string
+          name?: string
+          state?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
