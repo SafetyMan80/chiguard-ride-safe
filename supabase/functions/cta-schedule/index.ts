@@ -27,8 +27,11 @@ serve(async (req) => {
     }
     
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
+    console.log('CTA_API_KEY exists:', !!CTA_API_KEY);
+    console.log('CTA_API_KEY length:', CTA_API_KEY?.length || 0);
+    
     if (!CTA_API_KEY) {
-      throw new Error('CTA API key not configured');
+      throw new Error('CTA API key not configured in Supabase secrets');
     }
 
     let apiUrl: string;
@@ -45,7 +48,7 @@ serve(async (req) => {
       apiUrl = `http://lapi.transitchicago.com/api/1.0/getroutes.aspx?key=${CTA_API_KEY}&outputType=JSON`;
     }
 
-    console.log(`Fetching CTA data from: ${apiUrl.replace(CTA_API_KEY, '[REDACTED]')}`);
+    console.log(`Fetching CTA data from: ${apiUrl.replace(CTA_API_KEY, '[API_KEY_REDACTED]')}`);
 
     const response = await fetch(apiUrl);
     
