@@ -208,14 +208,6 @@ const Index = () => {
                 ))}
               </div>
               
-              <div className="mt-8 flex justify-center">
-                <img 
-                  src="/lovable-uploads/ee3a477e-d587-4e3a-8f76-28f971d4d63a.png"
-                  alt="Chicago L Train Graphic" 
-                  className="w-full max-w-md h-32 object-cover rounded-lg opacity-60"
-                />
-              </div>
-              
               {/* Share Section */}
               <Card className="mt-8 bg-chicago-accent border-chicago-blue/20">
                 <CardHeader className="text-center pb-3">
@@ -296,8 +288,8 @@ const Index = () => {
         <div className="flex items-center justify-center gap-1">
           <Logo className="w-20 h-20 drop-shadow-md" />
           <h1 className="text-4xl font-black text-chicago-blue tracking-tight" style={{
-            WebkitTextStroke: '2px hsl(var(--chicago-red))',
-            textShadow: '2px 2px 0 hsl(var(--chicago-red)), -2px -2px 0 hsl(var(--chicago-red)), 2px -2px 0 hsl(var(--chicago-red)), -2px 2px 0 hsl(var(--chicago-red))'
+            WebkitTextStroke: '0.5px hsl(var(--chicago-red) / 0.3)',
+            textShadow: '1px 1px 0 hsl(var(--chicago-red) / 0.2)'
           }}>
             CHIGUARD
           </h1>
