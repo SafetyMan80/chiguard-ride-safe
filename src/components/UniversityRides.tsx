@@ -78,25 +78,29 @@ export const UniversityRides = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="space-y-3 mb-4">
             <Button
               variant={selectedUniversity === "" ? "chicago" : "chicago-outline"}
-              size="sm"
+              size="default"
               onClick={() => setSelectedUniversity("")}
+              className="w-full h-10"
             >
               All Universities
             </Button>
-            {CHICAGO_UNIVERSITIES.slice(0, 5).map(uni => (
-              <Button
-                key={uni}
-                variant={selectedUniversity === uni ? "chicago" : "chicago-outline"}
-                size="sm"
-                onClick={() => setSelectedUniversity(uni)}
-                className="text-xs h-8"
-              >
-                {uni.split(' ').map(word => word[0]).join('')}
-              </Button>
-            ))}
+            
+            <div className="grid grid-cols-1 gap-2">
+              {CHICAGO_UNIVERSITIES.slice(0, 6).map(uni => (
+                <Button
+                  key={uni}
+                  variant={selectedUniversity === uni ? "chicago" : "chicago-outline"}
+                  size="default"
+                  onClick={() => setSelectedUniversity(uni)}
+                  className="h-12 text-sm font-medium text-left justify-start px-4"
+                >
+                  {uni}
+                </Button>
+              ))}
+            </div>
           </div>
           
           <Button 
