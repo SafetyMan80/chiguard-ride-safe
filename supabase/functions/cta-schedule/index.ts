@@ -35,7 +35,7 @@ serve(async (req) => {
     let responseData: any;
 
     if (stopId) {
-      // Get arrivals for a specific stop
+      // Get arrivals for a specific stop - CTA uses 'key' parameter and 'stpid'
       apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`;
     } else if (routeId) {
       // Get vehicles for a specific route
