@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MapPin, Search, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ctaSystemMap from "@/assets/cta-system-map.jpg";
 
 interface Station {
   name: string;
@@ -103,7 +102,7 @@ export const CTAMap = () => {
             <div className="space-y-4">
               <div className="border rounded-lg overflow-hidden">
                 <img
-                  src={ctaSystemMap}
+                  src="/cta-system-map.pdf"
                   alt="CTA System Map"
                   className="w-full h-auto"
                 />

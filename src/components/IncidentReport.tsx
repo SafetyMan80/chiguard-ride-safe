@@ -30,6 +30,8 @@ const CTA_LINES = [
 const INCIDENT_TYPES = [
   "Harassment",
   "Theft/Pickpocketing", 
+  "Assault",
+  "Public Indecency",
   "Suspicious Activity",
   "Medical Emergency",
   "Safety Concern",
