@@ -296,7 +296,7 @@ const Index = () => {
       <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)] safe-area-top">
         <div className="flex items-center justify-center gap-1">
           <Logo className="w-24 h-24 drop-shadow-md" />
-          <h1 className="text-4xl font-black text-chicago-blue tracking-tight" style={{
+          <h1 className="text-4xl font-black text-chicago-gunmetal tracking-tight" style={{
             WebkitTextStroke: '0.5px hsl(var(--chicago-red) / 0.3)',
             textShadow: '1px 1px 0 hsl(var(--chicago-red) / 0.2)'
           }}>
