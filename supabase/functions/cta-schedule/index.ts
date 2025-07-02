@@ -50,10 +50,23 @@ serve(async (req) => {
     const response = await fetch(apiUrl);
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`CTA API HTTP Error: ${response.status} ${response.statusText}`);
+      console.error(`Response body: ${errorText}`);
       throw new Error(`CTA API request failed: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const responseText = await response.text();
+    console.log(`CTA API Response (first 200 chars): ${responseText.substring(0, 200)}`);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse CTA API response as JSON');
+      console.error(`Response text: ${responseText}`);
+      throw new Error(`CTA API returned invalid JSON: ${parseError.message}`);
+    }
     
     // Handle CTA API error responses
     if (data.ctatt?.errCd && data.ctatt.errCd !== '0') {
