@@ -4,9 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Train, RefreshCw } from "lucide-react";
+import { Clock, MapPin, Train, RefreshCw, ExternalLink, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { CTAMap } from "./CTAMap";
 
 interface CTAArrival {
   staId: string;
@@ -35,6 +34,33 @@ interface CTARoute {
   rtdd: string;
 }
 
+interface Station {
+  name: string;
+  lines: string[];
+  stopId?: string;
+}
+
+// 🚊 COMPREHENSIVE CTA STATIONS LIST
+const POPULAR_STATIONS: Station[] = [
+  { name: "Union Station", lines: ["Blue"], stopId: "30161" },
+  { name: "O'Hare Airport", lines: ["Blue"], stopId: "40890" },
+  { name: "Midway Airport", lines: ["Orange"], stopId: "40350" },
+  { name: "95th/Dan Ryan", lines: ["Red"], stopId: "30089" },
+  { name: "Howard", lines: ["Red", "Purple", "Yellow"], stopId: "30173" },
+  { name: "Clark/Lake", lines: ["Blue", "Brown", "Green", "Orange", "Pink", "Purple"], stopId: "30131" },
+  { name: "Chicago/State", lines: ["Red"], stopId: "30013" },
+  { name: "Roosevelt", lines: ["Red", "Orange", "Green"], stopId: "30001" },
+  { name: "Fullerton", lines: ["Red", "Brown", "Purple"], stopId: "30057" },
+  { name: "Belmont", lines: ["Red", "Brown", "Purple"], stopId: "30057" },
+  { name: "Addison", lines: ["Red"], stopId: "30278" },
+  { name: "Wilson", lines: ["Red", "Purple"], stopId: "30212" },
+  { name: "Garfield", lines: ["Red"], stopId: "30067" },
+  { name: "35th/Bronzeville", lines: ["Green"], stopId: "30120" },
+  { name: "Pulaski", lines: ["Blue"], stopId: "30161" },
+  { name: "Western", lines: ["Blue", "Brown"], stopId: "30161" },
+  { name: "Logan Square", lines: ["Blue"], stopId: "30161" }
+];
+
 export const CTASchedule = () => {
   const [stopId, setStopId] = useState("");
   const [arrivals, setArrivals] = useState<CTAArrival[]>([]);
@@ -42,6 +68,8 @@ export const CTASchedule = () => {
   const [loading, setLoading] = useState(false);
   const [routesLoading, setRoutesLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showMap, setShowMap] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -51,38 +79,26 @@ export const CTASchedule = () => {
   const fetchRoutes = async () => {
     try {
       setRoutesLoading(true);
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Fetching CTA routes...');
-      }
+      console.log('🚊 Fetching CTA routes...');
       
       const { data, error } = await supabase.functions.invoke('cta-schedule');
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log('CTA routes response:', { data, error });
-      }
+      console.log('📊 CTA routes response:', { data, error });
       
       if (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Supabase function error:', error);
-        }
+        console.error('❌ Supabase function error:', error);
         throw error;
       }
       
       if (data && data.type === 'routes' && Array.isArray(data.data)) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Setting routes:', data.data);
-        }
+        console.log('✅ Setting routes:', data.data);
         setRoutes(data.data);
       } else {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Unexpected routes data format:', data);
-        }
+        console.warn('⚠️ Unexpected routes data format:', data);
         setRoutes([]);
       }
     } catch (error: any) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching routes:', error);
-      }
+      console.error('❌ Error fetching routes:', error);
       toast({
         title: "Routes Loading Error",
         description: error.message || "Failed to load CTA routes. You can still search by stop ID.",
@@ -106,29 +122,21 @@ export const CTASchedule = () => {
 
     setLoading(true);
     try {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Fetching arrivals for stop:', stopId.trim());
-      }
+      console.log('🚊 Fetching arrivals for stop:', stopId.trim());
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         body: { stopId: stopId.trim() }
       });
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log('CTA arrivals response:', { data, error });
-      }
+      console.log('📊 CTA arrivals response:', { data, error });
       
       if (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Supabase function error:', error);
-        }
+        console.error('❌ Supabase function error:', error);
         throw error;
       }
       
       if (data && data.type === 'arrivals') {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Setting arrivals:', data.data);
-        }
+        console.log('✅ Setting arrivals:', data.data);
         setArrivals(data.data || []);
         setLastUpdated(data.timestamp);
         
@@ -139,15 +147,11 @@ export const CTASchedule = () => {
           });
         }
       } else {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Unexpected arrivals data format:', data);
-        }
+        console.warn('⚠️ Unexpected arrivals data format:', data);
         setArrivals([]);
       }
     } catch (error: any) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching arrivals:', error);
-      }
+      console.error('❌ Error fetching arrivals:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to fetch arrival times. Please check the stop ID and try again.",
@@ -183,11 +187,154 @@ export const CTASchedule = () => {
     return colors[route] || 'bg-gray-500';
   };
 
+  const getLineColors = (lines: string[]) => {
+    const colorMap: { [key: string]: string } = {
+      'Red': 'bg-red-500',
+      'Blue': 'bg-blue-500',
+      'Brown': 'bg-amber-700',
+      'Green': 'bg-green-500',
+      'Orange': 'bg-orange-500',
+      'Pink': 'bg-pink-500',
+      'Purple': 'bg-purple-500',
+      'Yellow': 'bg-yellow-500',
+      'Metra': 'bg-gray-600'
+    };
+    
+    return lines.map(line => colorMap[line] || 'bg-gray-500');
+  };
+
+  const filteredStations = POPULAR_STATIONS.filter(station =>
+    station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    station.lines.some(line => line.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const handleStationSelect = (station: Station) => {
+    if (station.stopId) {
+      setStopId(station.stopId);
+      toast({
+        title: `Selected: ${station.name}`,
+        description: `Lines: ${station.lines.join(', ')} | Stop ID: ${station.stopId}`,
+      });
+    } else {
+      toast({
+        title: `${station.name} Station`,
+        description: `Lines: ${station.lines.join(', ')} | Stop ID not available`,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* CTA Interactive Map */}
-      <CTAMap />
+      {/* 🗺️ CTA INTERACTIVE SYSTEM MAP */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="w-5 h-5" />
+            CTA System Map
+          </CardTitle>
+          <CardDescription>
+            Interactive Chicago Transit Authority rail network map
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button
+              variant="chicago"
+              onClick={() => setShowMap(!showMap)}
+              className="flex-1"
+            >
+              {showMap ? "Hide Map" : "Show Interactive Map"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.open('/cta-system-map.pdf', '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              PDF
+            </Button>
+          </div>
 
+          {showMap && (
+            <div className="space-y-4">
+              <div className="border rounded-lg overflow-hidden bg-gray-100 p-4">
+                <div className="text-center text-gray-600">
+                  📍 Interactive CTA System Map
+                  <br />
+                  <small>Click stations below to find stop IDs</small>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Tap stations below to find stop IDs and line information
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 🔍 STATION SEARCH WITH POPULAR STATIONS */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="w-5 h-5" />
+            Find Stations & Stop IDs
+          </CardTitle>
+          <CardDescription>
+            Search for CTA stations and get real-time information
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Search stations or lines..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1"
+            />
+            <Button variant="outline" size="icon">
+              <Search className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {filteredStations.slice(0, 12).map((station, index) => (
+              <Card 
+                key={index} 
+                className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => handleStationSelect(station)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      {getLineColors(station.lines).map((color, i) => (
+                        <div key={i} className={`w-3 h-3 rounded ${color}`} />
+                      ))}
+                    </div>
+                    <div>
+                      <p className="font-medium">{station.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {station.lines.join(', ')} Line{station.lines.length > 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  {station.stopId && (
+                    <div className="text-xs text-muted-foreground">
+                      ID: {station.stopId}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {searchTerm && filteredStations.length === 0 && (
+            <p className="text-center text-muted-foreground py-4">
+              No stations found matching "{searchTerm}"
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 🚊 REAL-TIME SCHEDULE */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -223,7 +370,7 @@ export const CTASchedule = () => {
 
           {arrivals.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-semibold">Upcoming Arrivals</h3>
+              <h3 className="font-semibold">🚊 Upcoming Arrivals</h3>
               {arrivals.map((arrival, index) => (
                 <Card key={index} className="p-4">
                   <div className="flex items-center justify-between">
@@ -256,7 +403,7 @@ export const CTASchedule = () => {
 
           {!routesLoading && routes.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-semibold">Available Routes</h3>
+              <h3 className="font-semibold">🚇 Available Routes</h3>
               <div className="grid grid-cols-2 gap-2">
                 {routes.slice(0, 8).map((route) => (
                   <Button
@@ -288,6 +435,7 @@ export const CTASchedule = () => {
         </CardContent>
       </Card>
 
+      {/* 📍 HOW TO FIND STOP IDS */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -299,7 +447,7 @@ export const CTASchedule = () => {
           <p>• Look for the 5-digit number on CTA stop signs</p>
           <p>• Use the CTA app or website to find stop IDs</p>
           <p>• Popular stops: Union Station (30161), O'Hare (40890)</p>
-          <p>• Millennium Station (30001), Midway (40350)</p>
+          <p>• Search stations above to find Stop IDs</p>
         </CardContent>
       </Card>
     </div>

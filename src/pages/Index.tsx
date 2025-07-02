@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode } from "lucide-react";
 import QRCode from "qrcode";
-
 import type { User } from "@supabase/supabase-js";
 
 const Index = () => {
@@ -99,8 +98,8 @@ const Index = () => {
 
   const handleEmergencyActivated = () => {
     toast({
-      title: "Emergency Alert Activated",
-      description: "Your location has been shared and help is on the way.",
+      title: "🚨 EMERGENCY ALERT ACTIVATED! 🚨",
+      description: "Your location has been shared and help is on the way!",
       variant: "destructive"
     });
   };
@@ -212,7 +211,7 @@ const Index = () => {
               <div className="mt-8 flex justify-center">
                 <img 
                   src="/lovable-uploads/ee3a477e-d587-4e3a-8f76-28f971d4d63a.png"
-                  alt="Chicago L Train" 
+                  alt="Chicago L Train Graphic" 
                   className="w-full max-w-md h-32 object-cover rounded-lg opacity-60"
                 />
               </div>
