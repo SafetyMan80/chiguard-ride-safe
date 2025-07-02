@@ -99,10 +99,11 @@ export const CTASchedule = () => {
       }
     } catch (error: any) {
       console.error('❌ Error fetching routes:', error);
+      // Don't show technical error messages to users
       toast({
-        title: "Routes Loading Error",
-        description: error.message || "Failed to load CTA routes. You can still search by stop ID.",
-        variant: "destructive",
+        title: "CTA Service Temporarily Unavailable",
+        description: "Real-time data is currently unavailable. You can still search stations and use stop IDs.",
+        variant: "default",
       });
       setRoutes([]);
     } finally {
@@ -152,10 +153,11 @@ export const CTASchedule = () => {
       }
     } catch (error: any) {
       console.error('❌ Error fetching arrivals:', error);
+      // Show user-friendly error message instead of technical details
       toast({
-        title: "Error",
-        description: error.message || "Failed to fetch arrival times. Please check the stop ID and try again.",
-        variant: "destructive",
+        title: "Schedule Temporarily Unavailable",
+        description: "Real-time arrival data is currently unavailable. Please try again later or check the CTA app.",
+        variant: "default",
       });
       setArrivals([]);
     } finally {
