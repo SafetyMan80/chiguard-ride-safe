@@ -36,8 +36,44 @@ const INCIDENT_TYPES = [
   "Other"
 ];
 
+// Prepopulated incidents for demo purposes
+const SAMPLE_INCIDENTS: Incident[] = [
+  {
+    id: "1",
+    type: "Harassment",
+    location: "Union Station",
+    description: "Individual making inappropriate comments to passengers",
+    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+    line: "Blue Line"
+  },
+  {
+    id: "2", 
+    type: "Theft/Pickpocketing",
+    location: "Clark/Lake",
+    description: "Suspicious person targeting passengers with bags",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    line: "Red Line"
+  },
+  {
+    id: "3",
+    type: "Medical Emergency", 
+    location: "O'Hare Airport",
+    description: "Passenger needed medical assistance, paramedics called",
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    line: "Blue Line"
+  },
+  {
+    id: "4",
+    type: "Safety Concern",
+    location: "95th/Dan Ryan",
+    description: "Broken platform lighting creating visibility issues",
+    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+    line: "Red Line"
+  }
+];
+
 export const IncidentReport = () => {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [incidents, setIncidents] = useState<Incident[]>(SAMPLE_INCIDENTS);
   const [reportType, setReportType] = useState("");
   const [location, setLocation] = useState("");
   const [line, setLine] = useState("");

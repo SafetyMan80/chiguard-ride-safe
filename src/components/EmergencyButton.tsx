@@ -37,15 +37,15 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
       
-      oscillator.frequency.setValueAtTime(800, ctx.currentTime);
-      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(1000, ctx.currentTime);
+      oscillator.type = 'square';
       
       gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
-      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+      gainNode.gain.linearRampToValueAtTime(0.8, ctx.currentTime + 0.1);
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
       
       oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.5);
+      oscillator.stop(ctx.currentTime + 0.3);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.warn('Audio playback failed:', error);
@@ -54,32 +54,27 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   };
 
   const playEmergencyAlert = () => {
-    // Play intermittent tone every 2 seconds
+    // Play loud alarm tone every 500ms
     intervalRef.current = setInterval(() => {
       createEmergencyTone();
-    }, 2000);
+    }, 500);
 
     // Initial tone
     createEmergencyTone();
 
-    // Voice announcement every 5 seconds for the full duration
+    // Voice announcement every 3 seconds for the full duration
     const announceMessage = () => {
-      const utterance = new SpeechSynthesisUtterance("Emergency alert activated. Police are on their way!");
-      utterance.rate = 1.1;
-      utterance.volume = 0.9;
+      const utterance = new SpeechSynthesisUtterance("Emergency alert activated! Police are on their way! This is an emergency!");
+      utterance.rate = 1.2;
+      utterance.volume = 1.0;
       speechSynthesis.speak(utterance);
     };
     
     // Initial announcement
     announceMessage();
     
-    // Repeat announcement every 5 seconds
-    const voiceInterval = setInterval(announceMessage, 5000);
-    
-    // Store voice interval to clear later
-    intervalRef.current = setInterval(() => {
-      createEmergencyTone();
-    }, 2000);
+    // Repeat announcement every 3 seconds for 30 seconds
+    const voiceInterval = setInterval(announceMessage, 3000);
     
     // Clear voice interval after 30 seconds
     setTimeout(() => {

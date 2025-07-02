@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Train, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CTAMap } from "./CTAMap";
 
 interface CTAArrival {
   staId: string;
@@ -184,71 +185,8 @@ export const CTASchedule = () => {
 
   return (
     <div className="space-y-6">
-      {/* CTA System Map */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            CTA System Map
-          </CardTitle>
-          <CardDescription>
-            Chicago Transit Authority rail network overview
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="text-center">
-              <Button 
-                variant="chicago" 
-                size="lg"
-                onClick={() => window.open('https://www.transitchicago.com/assets/1/6/ctamap_Lsystem.pdf', '_blank')}
-                className="w-full"
-              >
-                <MapPin className="w-5 h-5 mr-2" />
-                View Official CTA System Map
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2">
-                Opens the official CTA map from transitchicago.com
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span className="text-xs">Red Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span className="text-xs">Blue Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-amber-700 rounded"></div>
-                <span className="text-xs">Brown Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span className="text-xs">Green Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                <span className="text-xs">Orange Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-pink-500 rounded"></div>
-                <span className="text-xs">Pink Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-purple-500 rounded"></div>
-                <span className="text-xs">Purple Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span className="text-xs">Yellow Line</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* CTA Interactive Map */}
+      <CTAMap />
 
       <Card>
         <CardHeader>

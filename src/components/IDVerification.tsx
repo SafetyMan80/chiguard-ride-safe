@@ -216,9 +216,10 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
+            capture="user"
             onChange={handleFileSelect}
             className="hidden"
+            multiple={false}
           />
         </div>
 
