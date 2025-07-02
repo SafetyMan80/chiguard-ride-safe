@@ -99,10 +99,10 @@ export const CTASchedule = () => {
       }
     } catch (error: any) {
       console.error('❌ Error fetching routes:', error);
-      // Don't show technical error messages to users
+      // Show user-friendly message instead of technical errors
       toast({
-        title: "CTA Service Temporarily Unavailable",
-        description: "Real-time data is currently unavailable. You can still search stations and use stop IDs.",
+        title: "Real-time CTA schedule not guaranteed",
+        description: "Live data may be temporarily unavailable. You can still search stations and use stop IDs.",
         variant: "default",
       });
       setRoutes([]);
@@ -153,10 +153,10 @@ export const CTASchedule = () => {
       }
     } catch (error: any) {
       console.error('❌ Error fetching arrivals:', error);
-      // Show user-friendly error message instead of technical details
+      // Show user-friendly message 
       toast({
-        title: "Schedule Temporarily Unavailable",
-        description: "Real-time arrival data is currently unavailable. Please try again later or check the CTA app.",
+        title: "Real-time CTA schedule not guaranteed",
+        description: "Live arrival times may be temporarily unavailable. Please check the CTA app for updates.",
         variant: "default",
       });
       setArrivals([]);
