@@ -143,7 +143,7 @@ const Index = () => {
       title: "INCIDENTS",
       icon: "📝",
       description: "Report Issues",
-      color: "bg-chicago-blue text-white",
+      color: "bg-slate-600 text-white",
     },
     {
       id: "groups",
