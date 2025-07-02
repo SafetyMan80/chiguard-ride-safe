@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode } from "lucide-react";
 import QRCode from "qrcode";
 import type { User } from "@supabase/supabase-js";
+import chicagoTrainGraphic from "@/assets/chicago-l-train-ai.jpg";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -206,6 +207,14 @@ const Index = () => {
                     </div>
                   </button>
                 ))}
+              </div>
+              
+              <div className="mt-8 flex justify-center">
+                <img 
+                  src={chicagoTrainGraphic}
+                  alt="Chicago L Train" 
+                  className="w-full max-w-md h-32 object-cover rounded-lg opacity-70"
+                />
               </div>
               
               {/* Share Section */}
