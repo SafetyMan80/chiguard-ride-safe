@@ -59,7 +59,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       oscillator.type = 'square';
       
       gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.1);
+      gainNode.gain.linearRampToValueAtTime(1.0, ctx.currentTime + 0.1);
       gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
       
       oscillator.start(ctx.currentTime);
@@ -86,7 +86,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     const announceMessage = () => {
       console.log("📢 Playing URGENT voice announcement...");
       const utterance = new SpeechSynthesisUtterance("EMERGENCY ALERT ACTIVATED! POLICE ARE ON THEIR WAY! THIS IS AN EMERGENCY!");
-      utterance.rate = 1.3;
+      utterance.rate = 0.8;
       utterance.volume = 1.0;
       utterance.pitch = 1.3;
       speechSynthesis.speak(utterance);
