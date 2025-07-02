@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 interface EmergencyButtonProps {
   onEmergencyActivated: () => void;
@@ -11,6 +12,16 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const audioContextRef = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { 
+    latitude, 
+    longitude, 
+    accuracy,
+    error: geoError,
+    getCurrentLocation,
+    startWatching,
+    stopWatching
+  } = useGeolocation({ trackLocation: isActive });
 
   const createEmergencyTone = () => {
     try {
@@ -121,6 +132,10 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       // Start emergency
       console.log("🆘 ACTIVATING EMERGENCY PROTOCOL...");
       setIsActive(true);
+      
+      // Get current location for emergency
+      getCurrentLocation();
+      
       onEmergencyActivated();
       playEmergencyAlert();
       
@@ -174,12 +189,28 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         </div>
       </Button>
       
-      <p className="text-center text-sm text-muted-foreground max-w-xs">
-        {isActive 
-          ? "🚨 EMERGENCY ALERT ACTIVE! Tap again to cancel."
-          : "Tap to activate LOUD emergency alert and notify police."
-        }
-      </p>
+      <div className="text-center text-sm text-muted-foreground max-w-xs space-y-2">
+        <p>
+          {isActive 
+            ? "🚨 EMERGENCY ALERT ACTIVE! Tap again to cancel."
+            : "Tap to activate LOUD emergency alert and notify police."
+          }
+        </p>
+        
+        {isActive && (
+          <div className="text-xs">
+            {latitude && longitude ? (
+              <span className="text-green-600">
+                📍 Location tracked ({accuracy ? `±${Math.round(accuracy)}m` : 'GPS'})
+              </span>
+            ) : geoError ? (
+              <span className="text-destructive">⚠️ Location unavailable</span>
+            ) : (
+              <span className="text-chicago-blue">📍 Getting location...</span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

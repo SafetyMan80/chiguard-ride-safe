@@ -125,6 +125,29 @@ All colors MUST be HSL.
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    
+    /* Improved mobile touch interactions */
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Mobile-first responsive design */
+  .mobile-container {
+    @apply max-w-md mx-auto;
+  }
+
+  /* Enhanced touch targets for mobile */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile gesture support */
+  .swipe-container {
+    touch-action: pan-x pan-y;
   }
 
   /* Safe area support for mobile devices */
