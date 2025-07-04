@@ -12,6 +12,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const audioContextRef = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const voiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const { 
     latitude, 
@@ -97,12 +98,16 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     announceMessage();
     
     // Repeat announcement every 2 seconds for maximum urgency
-    const voiceInterval = setInterval(announceMessage, 2000);
+    voiceIntervalRef.current = setInterval(announceMessage, 2000);
     
     // Clear voice interval after 30 seconds
     setTimeout(() => {
       console.log("⏰ Stopping voice announcements after 30 seconds");
-      clearInterval(voiceInterval);
+      if (voiceIntervalRef.current) {
+        clearInterval(voiceIntervalRef.current);
+        voiceIntervalRef.current = null;
+      }
+      speechSynthesis.cancel();
     }, 30000);
   };
 
@@ -117,7 +122,18 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       clearInterval(countdownRef.current);
       countdownRef.current = null;
     }
+    if (voiceIntervalRef.current) {
+      clearInterval(voiceIntervalRef.current);
+      voiceIntervalRef.current = null;
+    }
+    
+    // Cancel all speech synthesis
     speechSynthesis.cancel();
+    
+    // Also cancel any pending speech
+    setTimeout(() => {
+      speechSynthesis.cancel();
+    }, 100);
   };
 
   const handleEmergencyClick = () => {
