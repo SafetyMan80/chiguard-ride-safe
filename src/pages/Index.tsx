@@ -300,7 +300,7 @@ const Index = () => {
             CHIGUARD
           </h1>
         </div>
-        <p className="text-center text-lg text-muted-foreground mt-2 font-playfair italic">
+        <p className="text-center text-lg text-muted-foreground mt-2 font-sans font-medium">
           Safety Driven...Community Powered
         </p>
         <div className="w-full h-1.5 bg-chicago-blue rounded-full mt-3"></div>

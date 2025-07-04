@@ -184,12 +184,13 @@ export const IncidentReport = () => {
   return (
     <div className="space-y-6">
       {/* Report Form */}
-      <Card>
-        <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-chicago-red rounded text-white flex items-center justify-center text-xs font-bold">!</div>
+      <Card className="border-chicago-blue/30 bg-gradient-to-br from-chicago-light-blue/5 to-white">
+        <CardHeader className="bg-gradient-to-r from-chicago-blue/10 to-chicago-light-blue/10 border-b border-chicago-blue/20">
+        <CardTitle className="flex items-center gap-2 text-chicago-dark-blue">
+          <div className="w-6 h-6 bg-chicago-blue rounded-full text-white flex items-center justify-center text-sm font-bold">📝</div>
           Report an Incident
         </CardTitle>
+        <p className="text-sm text-chicago-blue/80 mt-1">Help keep the community informed about safety concerns</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Select value={reportType} onValueChange={setReportType}>
@@ -298,9 +299,8 @@ export const IncidentReport = () => {
           </div>
 
           <Button 
-            variant="chicago" 
             onClick={handleSubmitReport}
-            className="w-full"
+            className="w-full bg-chicago-blue hover:bg-chicago-dark-blue text-white"
           >
             Submit Report
           </Button>

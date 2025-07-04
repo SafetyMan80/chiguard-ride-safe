@@ -140,6 +140,13 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       onEmergencyActivated();
       playEmergencyAlert();
       
+      // Pre-dial 911
+      try {
+        window.open('tel:911', '_self');
+      } catch (error) {
+        console.log('Unable to pre-dial 911:', error);
+      }
+      
       // Start countdown
       let timeLeft = 30;
       countdownRef.current = setInterval(() => {
@@ -160,6 +167,23 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   useEffect(() => {
     return () => {
       stopEmergencyAlert();
+      stopWatching();
+    };
+  }, [stopWatching]);
+
+  // Reset emergency state when component unmounts or page changes
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      stopEmergencyAlert();
+      setIsActive(false);
+      setCountdown(30);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload();
     };
   }, []);
 
