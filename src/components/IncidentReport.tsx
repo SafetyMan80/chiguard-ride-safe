@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,19 +8,22 @@ import { MapPin, Camera, MapPinIcon, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CameraCapture } from "@/components/CameraCapture";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface Incident {
+interface IncidentReport {
   id: string;
-  type: string;
-  location: string;
+  reporter_id: string;
+  incident_type: string;
+  location_name: string;
   description: string;
-  timestamp: Date;
-  line: string;
-  imageUrl?: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
+  created_at: string;
+  cta_line: string;
+  image_url?: string;
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
+  reporter_name: string;
 }
 
 const CTA_LINES = [
@@ -45,60 +48,18 @@ const INCIDENT_TYPES = [
   "Other"
 ];
 
-// 🔥 PREPOPULATED REAL INCIDENTS FOR DEMO
-const SAMPLE_INCIDENTS: Incident[] = [
-  {
-    id: "1",
-    type: "Harassment",
-    location: "Union Station",
-    description: "Individual making inappropriate comments to passengers during evening rush hour",
-    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    line: "Blue Line"
-  },
-  {
-    id: "2", 
-    type: "Theft/Pickpocketing",
-    location: "Clark/Lake",
-    description: "Suspicious person targeting passengers with bags and phones near platform edge",
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    line: "Red Line"
-  },
-  {
-    id: "3",
-    type: "Medical Emergency", 
-    location: "O'Hare Airport",
-    description: "Passenger collapsed on platform, paramedics called and responded",
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    line: "Blue Line"
-  },
-  {
-    id: "4",
-    type: "Safety Concern",
-    location: "95th/Dan Ryan",
-    description: "Broken platform lighting creating dangerous visibility issues after dark",
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-    line: "Red Line"
-  },
-  {
-    id: "5",
-    type: "Assault",
-    location: "Roosevelt",
-    description: "Physical altercation between passengers, security called",
-    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
-    line: "Orange Line"
-  },
-  {
-    id: "6",
-    type: "Public Indecency",
-    location: "Belmont",
-    description: "Individual exposing themselves to other passengers",
-    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-    line: "Red Line"
+const fetchIncidentReports = async (): Promise<IncidentReport[]> => {
+  const { data, error } = await supabase.rpc('get_incident_reports_with_reporter');
+  
+  if (error) {
+    console.error('Error fetching incident reports:', error);
+    throw error;
   }
-];
+  
+  return data || [];
+};
 
 export const IncidentReport = () => {
-  const [incidents, setIncidents] = useState<Incident[]>(SAMPLE_INCIDENTS);
   const [reportType, setReportType] = useState("");
   const [location, setLocation] = useState("");
   const [line, setLine] = useState("");
@@ -106,7 +67,10 @@ export const IncidentReport = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { 
     latitude, 
@@ -117,12 +81,59 @@ export const IncidentReport = () => {
     getCurrentLocation 
   } = useGeolocation();
 
+  // Get current user
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    };
+    getCurrentUser();
+  }, []);
+
+  // Fetch incident reports with React Query
+  const { data: incidents = [], isLoading, error } = useQuery({
+    queryKey: ['incident-reports'],
+    queryFn: fetchIncidentReports,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  // Set up real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('incident-reports-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'incident_reports'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['incident-reports'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   const handleGetCurrentLocation = () => {
     setUseCurrentLocation(true);
     getCurrentLocation();
   };
 
-  const handleSubmitReport = () => {
+  const handleSubmitReport = async () => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to submit an incident report.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!reportType || !location || !line || !description) {
       toast({
         title: "Missing Information",
@@ -132,33 +143,75 @@ export const IncidentReport = () => {
       return;
     }
 
-    const newIncident: Incident = {
-      id: Date.now().toString(),
-      type: reportType,
-      location,
-      description,
-      timestamp: new Date(),
-      line,
-      ...(imageUrl && { imageUrl }),
-      ...(latitude && longitude && { 
-        coordinates: { latitude, longitude } 
-      })
-    };
+    setIsSubmitting(true);
 
-    setIncidents(prev => [newIncident, ...prev]);
-    
-    // Reset form
-    setReportType("");
-    setLocation("");
-    setLine("");
-    setDescription("");
-    setImageUrl(null);
-    setUseCurrentLocation(false);
+    try {
+      // Handle image upload if there is one
+      let uploadedImageUrl = null;
+      if (imageUrl) {
+        // Convert blob URL to actual file
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        
+        const fileName = `incident-${Date.now()}.jpg`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('id-documents')
+          .upload(`incident-photos/${fileName}`, blob, {
+            contentType: 'image/jpeg',
+          });
 
-    toast({
-      title: "✅ Report Submitted Successfully!",
-      description: "Your incident report has been shared with other CHIGUARD users.",
-    });
+        if (uploadError) {
+          console.error('Image upload error:', uploadError);
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('id-documents')
+            .getPublicUrl(uploadData.path);
+          uploadedImageUrl = publicUrl;
+        }
+      }
+
+      // Insert incident report
+      const { error } = await supabase
+        .from('incident_reports')
+        .insert({
+          reporter_id: currentUser.id,
+          incident_type: reportType,
+          cta_line: line,
+          location_name: location,
+          description,
+          latitude: latitude || null,
+          longitude: longitude || null,
+          accuracy: accuracy || null,
+          image_url: uploadedImageUrl
+        });
+
+      if (error) throw error;
+
+      // Reset form
+      setReportType("");
+      setLocation("");
+      setLine("");
+      setDescription("");
+      setImageUrl(null);
+      setUseCurrentLocation(false);
+
+      toast({
+        title: "✅ Report Submitted Successfully!",
+        description: "Your incident report has been shared with other CHIGUARD users.",
+      });
+
+      // Refresh the data
+      queryClient.invalidateQueries({ queryKey: ['incident-reports'] });
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast({
+        title: "Failed to submit report",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleImageCapture = (capturedImageUrl: string) => {
@@ -180,6 +233,31 @@ export const IncidentReport = () => {
     const line = CTA_LINES.find(l => l.name === lineName);
     return line?.color || "bg-gray-500";
   };
+
+  const formatDateTime = (dateTime: string) => {
+    const date = new Date(dateTime);
+    return {
+      time: date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        hour12: true 
+      }),
+      date: date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    };
+  };
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-destructive">
+          Failed to load incident reports. Please try again later.
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -300,69 +378,89 @@ export const IncidentReport = () => {
 
           <Button 
             onClick={handleSubmitReport}
+            disabled={isSubmitting || !currentUser}
             className="w-full bg-chicago-blue hover:bg-chicago-dark-blue text-white"
           >
-            Submit Report
+            {isSubmitting 
+              ? "Submitting..." 
+              : !currentUser 
+                ? "Login to Submit Report" 
+                : "Submit Report"
+            }
           </Button>
         </CardContent>
       </Card>
 
-      {/* Recent Incidents - NOW WITH PREPOPULATED DATA! */}
+      {/* Recent Incidents */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold">Recent Incidents ({incidents.length})</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Recent Incidents ({incidents.length})</h3>
+          {isLoading && (
+            <div className="text-sm text-muted-foreground">Loading...</div>
+          )}
+        </div>
+        
         {incidents.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              No recent incidents reported. Stay safe!
+              {isLoading 
+                ? "Loading recent incidents..." 
+                : "No recent incidents reported. Stay safe!"
+              }
             </CardContent>
           </Card>
         ) : (
-          incidents.slice(0, 8).map(incident => (
-            <Card key={incident.id} className="animate-fade-in">
-              <CardContent className="py-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="font-semibold">{incident.type}</Badge>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <div className={`w-2 h-2 rounded-full ${getLineColor(incident.line)}`} />
-                        {incident.line}
+          incidents.slice(0, 8).map(incident => {
+            const { time, date } = formatDateTime(incident.created_at);
+            return (
+              <Card key={incident.id} className="animate-fade-in">
+                <CardContent className="py-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="font-semibold">
+                          {incident.incident_type}
+                        </Badge>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <div className={`w-2 h-2 rounded-full ${getLineColor(incident.cta_line)}`} />
+                          {incident.cta_line}
+                        </div>
                       </div>
+                      <div className="flex items-center gap-1 text-sm font-medium">
+                        <MapPin className="w-3 h-3" />
+                        {incident.location_name}
+                      </div>
+                      <p className="text-sm">{incident.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Reported by {incident.reporter_name}
+                      </p>
+                      
+                      {incident.image_url && (
+                        <div className="mt-2">
+                          <img 
+                            src={incident.image_url} 
+                            alt="Incident evidence" 
+                            className="w-20 h-20 object-cover rounded border"
+                          />
+                        </div>
+                      )}
+                      
+                      {incident.latitude && incident.longitude && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          📍 GPS: {incident.latitude}, {incident.longitude}
+                          {incident.accuracy && ` (±${Math.round(incident.accuracy)}m)`}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1 text-sm font-medium">
-                      <MapPin className="w-3 h-3" />
-                      {incident.location}
+                    <div className="text-right">
+                      <span className="text-xs text-muted-foreground">{time}</span>
+                      <div className="text-xs text-muted-foreground">{date}</div>
                     </div>
-                    <p className="text-sm">{incident.description}</p>
-                    
-                    {incident.imageUrl && (
-                      <div className="mt-2">
-                        <img 
-                          src={incident.imageUrl} 
-                          alt="Incident evidence" 
-                          className="w-20 h-20 object-cover rounded border"
-                        />
-                      </div>
-                    )}
-                    
-                    {incident.coordinates && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        📍 GPS: {incident.coordinates.latitude.toFixed(4)}, {incident.coordinates.longitude.toFixed(4)}
-                      </div>
-                    )}
                   </div>
-                  <div className="text-right">
-                    <span className="text-xs text-muted-foreground">
-                      {incident.timestamp.toLocaleTimeString()}
-                    </span>
-                    <div className="text-xs text-muted-foreground">
-                      {incident.timestamp.toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
 

@@ -119,6 +119,54 @@ export type Database = {
         }
         Relationships: []
       }
+      incident_reports: {
+        Row: {
+          accuracy: number | null
+          created_at: string
+          cta_line: string
+          description: string
+          id: string
+          image_url: string | null
+          incident_type: string
+          latitude: number | null
+          location_name: string
+          longitude: number | null
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string
+          cta_line: string
+          description: string
+          id?: string
+          image_url?: string | null
+          incident_type: string
+          latitude?: number | null
+          location_name: string
+          longitude?: number | null
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string
+          cta_line?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          incident_type?: string
+          latitude?: number | null
+          location_name?: string
+          longitude?: number | null
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -202,6 +250,25 @@ export type Database = {
       get_available_spots: {
         Args: { ride_id: string }
         Returns: number
+      }
+      get_incident_reports_with_reporter: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          reporter_id: string
+          incident_type: string
+          cta_line: string
+          location_name: string
+          description: string
+          latitude: number
+          longitude: number
+          accuracy: number
+          image_url: string
+          created_at: string
+          updated_at: string
+          status: string
+          reporter_name: string
+        }[]
       }
     }
     Enums: {
