@@ -248,7 +248,7 @@ export type Database = {
     }
     Functions: {
       get_available_spots: {
-        Args: { ride_id: string }
+        Args: { ride_id_param: string }
         Returns: number
       }
       get_incident_reports_with_reporter: {
