@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Camera, MapPinIcon, X } from "lucide-react";
+import { MapPin, Camera, MapPinIcon, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CameraCapture } from "@/components/CameraCapture";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -229,6 +229,41 @@ export const IncidentReport = () => {
     }
   };
 
+  const handleDeleteReport = async (reportId: string) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to delete your report.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('incident_reports')
+        .delete()
+        .eq('id', reportId)
+        .eq('reporter_id', currentUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Report deleted",
+        description: "Your incident report has been removed.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['incident-reports'] });
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      toast({
+        title: "Failed to delete report",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getLineColor = (lineName: string) => {
     const line = CTA_LINES.find(l => l.name === lineName);
     return line?.color || "bg-gray-500";
@@ -268,7 +303,7 @@ export const IncidentReport = () => {
           <div className="w-6 h-6 bg-chicago-blue rounded-full text-white flex items-center justify-center text-sm font-bold">📝</div>
           Report an Incident
         </CardTitle>
-        <p className="text-sm text-chicago-blue/80 mt-1">Help keep the community informed about safety concerns</p>
+        <p className="text-sm text-chicago-blue/80 mt-1">Help keep the community informed about safety concerns - all reports are anonymous</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Select value={reportType} onValueChange={setReportType}>
@@ -414,50 +449,62 @@ export const IncidentReport = () => {
             const { time, date } = formatDateTime(incident.created_at);
             return (
               <Card key={incident.id} className="animate-fade-in">
-                <CardContent className="py-4">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="font-semibold">
-                          {incident.incident_type}
-                        </Badge>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <div className={`w-2 h-2 rounded-full ${getLineColor(incident.cta_line)}`} />
-                          {incident.cta_line}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-sm font-medium">
-                        <MapPin className="w-3 h-3" />
-                        {incident.location_name}
-                      </div>
-                      <p className="text-sm">{incident.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Reported by {incident.reporter_name}
-                      </p>
-                      
-                      {incident.image_url && (
-                        <div className="mt-2">
-                          <img 
-                            src={incident.image_url} 
-                            alt="Incident evidence" 
-                            className="w-20 h-20 object-cover rounded border"
-                          />
-                        </div>
-                      )}
-                      
-                      {incident.latitude && incident.longitude && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          📍 GPS: {incident.latitude}, {incident.longitude}
-                          {incident.accuracy && ` (±${Math.round(incident.accuracy)}m)`}
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground">{time}</span>
-                      <div className="text-xs text-muted-foreground">{date}</div>
-                    </div>
-                  </div>
-                </CardContent>
+                 <CardContent className="py-4">
+                   <div className="flex items-start justify-between">
+                     <div className="space-y-2 flex-1">
+                       <div className="flex items-center gap-2">
+                         <Badge variant="secondary" className="font-semibold">
+                           {incident.incident_type}
+                         </Badge>
+                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                           <div className={`w-2 h-2 rounded-full ${getLineColor(incident.cta_line)}`} />
+                           {incident.cta_line}
+                         </div>
+                       </div>
+                       <div className="flex items-center gap-1 text-sm font-medium">
+                         <MapPin className="w-3 h-3" />
+                         {incident.location_name}
+                       </div>
+                       <p className="text-sm">{incident.description}</p>
+                       <p className="text-xs text-muted-foreground">
+                         Reported anonymously
+                       </p>
+                       
+                       {incident.image_url && (
+                         <div className="mt-2">
+                           <img 
+                             src={incident.image_url} 
+                             alt="Incident evidence" 
+                             className="w-20 h-20 object-cover rounded border"
+                           />
+                         </div>
+                       )}
+                       
+                       {incident.latitude && incident.longitude && (
+                         <div className="text-xs text-muted-foreground mt-1">
+                           📍 GPS: {incident.latitude}, {incident.longitude}
+                           {incident.accuracy && ` (±${Math.round(incident.accuracy)}m)`}
+                         </div>
+                       )}
+                     </div>
+                     <div className="flex flex-col items-end gap-1">
+                       <div className="text-right">
+                         <span className="text-xs text-muted-foreground">{time}</span>
+                         <div className="text-xs text-muted-foreground">{date}</div>
+                       </div>
+                       {currentUser && incident.reporter_id === currentUser.id && (
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           onClick={() => handleDeleteReport(incident.id)}
+                           className="text-destructive hover:text-destructive hover:bg-destructive/10 p-1 h-8 w-8"
+                         >
+                           <Trash2 className="w-3 h-3" />
+                         </Button>
+                       )}
+                     </div>
+                   </div>
+                 </CardContent>
               </Card>
             );
           })
