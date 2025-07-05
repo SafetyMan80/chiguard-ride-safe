@@ -11,10 +11,14 @@ interface EmergencyButtonProps {
 export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) => {
   const [isActive, setIsActive] = useState(false);
   const [countdown, setCountdown] = useState(30);
+  const [isHolding, setIsHolding] = useState(false);
+  const [holdProgress, setHoldProgress] = useState(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const voiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const holdProgressRef = useRef<NodeJS.Timeout | null>(null);
   const { isOnline, saveOfflineReport } = useOffline();
   const { toast } = useToast();
   
@@ -88,31 +92,52 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     // Initial tone
     createEmergencyTone();
 
-    // Voice announcement every 2 seconds for the full 30 seconds
+    // Voice announcement every 2 seconds - using male voice
     const announceMessage = () => {
-      console.log("📢 Playing URGENT voice announcement...");
-      const utterance = new SpeechSynthesisUtterance("Police are on their way");
-      utterance.rate = 0.8;
-      utterance.volume = 1.0;
-      utterance.pitch = 1.3;
+      console.log("📢 Playing URGENT male voice announcement...");
+      
+      // Cancel any existing speech first
+      speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance("Police are on their way. Police are on their way.");
+      
+      // Try to find a male voice
+      const voices = speechSynthesis.getVoices();
+      const maleVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('male') || 
+        voice.name.toLowerCase().includes('david') ||
+        voice.name.toLowerCase().includes('alex') ||
+        voice.name.toLowerCase().includes('daniel') ||
+        voice.name.toLowerCase().includes('fred') ||
+        voice.name.toLowerCase().includes('brian') ||
+        voice.name.toLowerCase().includes('mark')
+      ) || voices[0];
+      
+      if (maleVoice) {
+        utterance.voice = maleVoice;
+        console.log("🎤 Using male voice:", maleVoice.name);
+      }
+      
+      // Male voice settings
+      utterance.rate = 0.7;  // Slower for clarity
+      utterance.volume = 1.0; // Maximum volume
+      utterance.pitch = 0.8;  // Lower pitch for male voice
+      
+      // Ensure it plays
+      utterance.onstart = () => console.log("🔊 Voice started");
+      utterance.onend = () => console.log("✅ Voice ended");
+      utterance.onerror = (e) => console.error("❌ Voice error:", e);
+      
       speechSynthesis.speak(utterance);
     };
     
-    // Initial announcement
-    announceMessage();
-    
-    // Repeat announcement every 2 seconds for maximum urgency
-    voiceIntervalRef.current = setInterval(announceMessage, 2000);
-    
-    // Clear voice interval after 30 seconds
+    // Wait a moment for voices to load, then start announcements
     setTimeout(() => {
-      console.log("⏰ Stopping voice announcements after 30 seconds");
-      if (voiceIntervalRef.current) {
-        clearInterval(voiceIntervalRef.current);
-        voiceIntervalRef.current = null;
-      }
-      speechSynthesis.cancel();
-    }, 30000);
+      announceMessage();
+      
+      // Repeat announcement every 3 seconds (longer interval for full message)
+      voiceIntervalRef.current = setInterval(announceMessage, 3000);
+    }, 500);
   };
 
   const stopEmergencyAlert = () => {
@@ -140,24 +165,30 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     }, 100);
   };
 
-  const handleEmergencyClick = async () => {
-    console.log("🚨 Emergency button clicked, current state:", isActive);
+  const handleHoldStart = () => {
+    if (isActive) return; // If already active, don't start hold timer
     
-    if (isActive) {
-      // Stop emergency
-      setIsActive(false);
-      setCountdown(30);
-      stopEmergencyAlert();
-      console.log("✅ Emergency stopped by user");
-    } else {
-      // Start emergency
-      console.log("🆘 ACTIVATING EMERGENCY PROTOCOL...");
-      setIsActive(true);
+    console.log("🖱️ Emergency button hold started");
+    setIsHolding(true);
+    setHoldProgress(0);
+    
+    // Progress animation (20 updates over 2 seconds)
+    let progress = 0;
+    holdProgressRef.current = setInterval(() => {
+      progress += 5; // 5% every 100ms = 2 seconds total
+      setHoldProgress(progress);
+    }, 100);
+    
+    // Activation timer (2 seconds)
+    holdTimerRef.current = setTimeout(async () => {
+      console.log("🆘 2-second hold completed - ACTIVATING EMERGENCY!");
+      setIsHolding(false);
+      setHoldProgress(0);
       
-      // Get current location for emergency
+      // Activate emergency
+      setIsActive(true);
       getCurrentLocation();
       
-      // Save emergency data offline if needed
       const emergencyData = {
         timestamp: new Date().toISOString(),
         location: { latitude, longitude, accuracy },
@@ -192,13 +223,49 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
           console.log("⏰ Emergency timeout reached - auto-stopping");
         }
       }, 1000);
+    }, 2000);
+  };
+
+  const handleHoldEnd = () => {
+    console.log("🖱️ Emergency button hold ended");
+    
+    // Clear timers if holding was incomplete
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
     }
+    if (holdProgressRef.current) {
+      clearInterval(holdProgressRef.current);
+      holdProgressRef.current = null;
+    }
+    
+    setIsHolding(false);
+    setHoldProgress(0);
+  };
+
+  const handleEmergencyClick = () => {
+    if (isActive) {
+      // Stop emergency immediately on click when active
+      console.log("✅ Emergency stopped by user");
+      setIsActive(false);
+      setCountdown(30);
+      stopEmergencyAlert();
+    }
+    // For activation, we now use hold instead of click
   };
 
   useEffect(() => {
     return () => {
       stopEmergencyAlert();
       stopWatching();
+      
+      // Clean up hold timers
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+      }
+      if (holdProgressRef.current) {
+        clearInterval(holdProgressRef.current);
+      }
     };
   }, [stopWatching]);
 
@@ -224,13 +291,29 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         variant={isActive ? "destructive" : "emergency"}
         size="lg"
         onClick={handleEmergencyClick}
+        onMouseDown={isActive ? undefined : handleHoldStart}
+        onMouseUp={handleHoldEnd}
+        onMouseLeave={handleHoldEnd}
+        onTouchStart={isActive ? undefined : handleHoldStart}
+        onTouchEnd={handleHoldEnd}
         className={`
-          w-40 h-40 rounded-full text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20
+          w-40 h-40 rounded-full text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20 relative overflow-hidden
           ${isActive ? 'animate-pulse-emergency bg-red-600' : 'hover:scale-105 hover:shadow-[var(--shadow-floating)] bg-chicago-red'}
+          ${isHolding ? 'scale-95' : ''}
           transition-all duration-300 backdrop-blur-sm
         `}
       >
-        <div className="flex flex-col items-center">
+        {/* Hold progress indicator */}
+        {isHolding && (
+          <div 
+            className="absolute inset-0 bg-white/30 transition-all duration-100 ease-linear"
+            style={{
+              background: `conic-gradient(from 0deg, rgba(255,255,255,0.4) ${holdProgress * 3.6}deg, transparent ${holdProgress * 3.6}deg)`
+            }}
+          />
+        )}
+        
+        <div className="flex flex-col items-center relative z-10">
           <div className="w-12 h-12 mb-3 bg-white rounded-full flex items-center justify-center text-chicago-red font-bold text-2xl shadow-md">
             🚨
           </div>
@@ -238,6 +321,11 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
             <div className="text-center">
               <span className="text-lg font-bold text-white">{countdown}s</span>
               <div className="text-sm font-semibold text-white">ACTIVE</div>
+            </div>
+          ) : isHolding ? (
+            <div className="text-center">
+              <span className="text-sm font-bold text-white">HOLD</span>
+              <div className="text-xs font-semibold text-white">{Math.ceil((100 - holdProgress) / 50)}s</div>
             </div>
           ) : (
             <span className="text-xl font-bold tracking-wide text-white">SOS</span>
@@ -249,7 +337,9 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         <p>
           {isActive 
             ? "🚨 EMERGENCY ALERT ACTIVE! Tap again to cancel."
-            : "Tap to activate LOUD emergency alert and notify police."
+            : isHolding
+            ? "🔄 Keep holding for 2 seconds to activate emergency..."
+            : "Hold for 2 seconds to activate LOUD emergency alert with male voice."
           }
         </p>
         
