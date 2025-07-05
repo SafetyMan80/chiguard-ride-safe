@@ -293,17 +293,22 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="bg-gradient-to-b from-white to-chicago-accent border-b border-border/50 p-6 shadow-[var(--shadow-card)] safe-area-top">
-        <div className="flex items-center justify-center gap-1">
-          <Logo className="w-24 h-24 drop-shadow-md" />
-          <h1 className="text-5xl font-black text-chicago-gunmetal tracking-tight">
-            CHIGUARD
-          </h1>
-        </div>
-        <p className="text-center text-lg text-muted-foreground mt-2 font-sans font-medium">
-          Safety Driven...Community Powered
-        </p>
-        <div className="w-full h-1.5 bg-chicago-blue rounded-full mt-3"></div>
+      <header className="p-6 safe-area-top">
+        <Card className="bg-chicago-accent border-chicago-blue/20">
+          <CardHeader className="text-center pb-3">
+            <div className="flex items-center justify-center gap-1">
+              <Logo className="w-24 h-24 drop-shadow-md" />
+              <h1 className="text-5xl font-black text-chicago-gunmetal tracking-tight">
+                CHIGUARD
+              </h1>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-center text-lg text-muted-foreground font-sans font-medium">
+              Safety Driven...Community Powered
+            </p>
+          </CardContent>
+        </Card>
       </header>
 
       {/* Main Content */}
