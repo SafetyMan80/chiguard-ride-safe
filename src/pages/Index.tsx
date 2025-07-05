@@ -296,7 +296,7 @@ const Index = () => {
       <header className="p-6 safe-area-top">
         <Card className="bg-chicago-accent border-chicago-blue/20">
           <CardHeader className="text-center pb-3">
-            <div className="flex items-center justify-center gap-1">
+            <div className="flex items-center justify-center gap-0.5">
               <Logo className="w-24 h-24 drop-shadow-md" />
               <h1 className="text-5xl font-black text-chicago-gunmetal tracking-tight">
                 CHIGUARD
