@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
@@ -46,7 +47,9 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity }: Crea
     station_name: "",
     departure_time: "",
     max_spots: 4,
-    description: ""
+    description: "",
+    is_recurring: false,
+    recurrence_pattern: "weekly"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -69,17 +72,44 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity }: Crea
       // Convert departure time to ISO format
       const departureDateTime = new Date(formData.departure_time).toISOString();
 
+      const rideData: any = {
+        creator_id: user.id,
+        university_name: formData.university_name,
+        cta_line: formData.cta_line,
+        station_name: formData.station_name,
+        departure_time: departureDateTime,
+        max_spots: formData.max_spots,
+        description: formData.description,
+        is_recurring: formData.is_recurring,
+        recurrence_pattern: formData.is_recurring ? formData.recurrence_pattern : null
+      };
+
+      // Calculate next occurrence if recurring
+      if (formData.is_recurring) {
+        const departureDate = new Date(formData.departure_time);
+        let nextOccurrence: Date;
+        
+        switch (formData.recurrence_pattern) {
+          case 'daily':
+            nextOccurrence = new Date(departureDate.getTime() + 24 * 60 * 60 * 1000);
+            break;
+          case 'weekly':
+            nextOccurrence = new Date(departureDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'monthly':
+            nextOccurrence = new Date(departureDate);
+            nextOccurrence.setMonth(nextOccurrence.getMonth() + 1);
+            break;
+          default:
+            nextOccurrence = new Date(departureDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+        }
+        
+        rideData.next_occurrence = nextOccurrence.toISOString();
+      }
+
       const { error } = await supabase
         .from('group_rides')
-        .insert({
-          creator_id: user.id,
-          university_name: formData.university_name,
-          cta_line: formData.cta_line,
-          station_name: formData.station_name,
-          departure_time: departureDateTime,
-          max_spots: formData.max_spots,
-          description: formData.description
-        });
+        .insert(rideData);
 
       if (error) throw error;
 
@@ -210,6 +240,44 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity }: Crea
               placeholder="Add details about your ride..."
               rows={3}
             />
+          </div>
+
+          {/* Recurring Options */}
+          <div className="space-y-3 p-4 border border-border rounded-lg">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="recurring"
+                checked={formData.is_recurring}
+                onCheckedChange={(checked) => 
+                  setFormData(prev => ({ ...prev, is_recurring: !!checked }))
+                }
+              />
+              <Label htmlFor="recurring" className="text-sm font-medium">
+                Make this ride recurring
+              </Label>
+            </div>
+            
+            {formData.is_recurring && (
+              <div className="space-y-2">
+                <Label htmlFor="pattern">Recurrence Pattern</Label>
+                <Select 
+                  value={formData.recurrence_pattern} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, recurrence_pattern: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  A new ride will be automatically created for the next {formData.recurrence_pattern} occurrence.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3 pt-2">

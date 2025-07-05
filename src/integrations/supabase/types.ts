@@ -49,7 +49,10 @@ export type Database = {
           departure_time: string
           description: string | null
           id: string
+          is_recurring: boolean | null
           max_spots: number
+          next_occurrence: string | null
+          recurrence_pattern: string | null
           station_name: string
           status: string
           university_name: string
@@ -62,7 +65,10 @@ export type Database = {
           departure_time: string
           description?: string | null
           id?: string
+          is_recurring?: boolean | null
           max_spots?: number
+          next_occurrence?: string | null
+          recurrence_pattern?: string | null
           station_name: string
           status?: string
           university_name: string
@@ -75,7 +81,10 @@ export type Database = {
           departure_time?: string
           description?: string | null
           id?: string
+          is_recurring?: boolean | null
           max_spots?: number
+          next_occurrence?: string | null
+          recurrence_pattern?: string | null
           station_name?: string
           status?: string
           university_name?: string
@@ -247,6 +256,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_next_recurring_ride: {
+        Args: { ride_id_param: string }
+        Returns: string
+      }
       get_available_spots: {
         Args: { ride_id_param: string }
         Returns: number

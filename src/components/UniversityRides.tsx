@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, MapPin, Clock, UserCheck } from "lucide-react";
+import { Users, MapPin, Clock, UserCheck, Trash2, Repeat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateRideForm } from "./CreateRideForm";
@@ -23,6 +23,9 @@ interface GroupRide {
   member_count: number;
   is_member: boolean;
   creator_name: string;
+  is_recurring: boolean;
+  recurrence_pattern: string | null;
+  next_occurrence: string | null;
 }
 
 const CHICAGO_UNIVERSITIES = [
@@ -152,6 +155,95 @@ export const UniversityRides = () => {
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
+
+  const handleDeleteRide = async (rideId: string) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to delete your ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('group_rides')
+        .delete()
+        .eq('id', rideId)
+        .eq('creator_id', currentUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Ride deleted",
+        description: "Your group ride has been removed.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['group-rides'] });
+    } catch (error) {
+      console.error('Error deleting ride:', error);
+      toast({
+        title: "Failed to delete ride",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleToggleRecurring = async (rideId: string, currentRecurring: boolean) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to modify your ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const updateData: any = {
+        is_recurring: !currentRecurring,
+        updated_at: new Date().toISOString()
+      };
+
+      // If making recurring, set a default pattern
+      if (!currentRecurring) {
+        updateData.recurrence_pattern = 'weekly';
+        // Calculate next occurrence (same time next week)
+        const currentTime = new Date();
+        const nextWeek = new Date(currentTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+        updateData.next_occurrence = nextWeek.toISOString();
+      } else {
+        updateData.recurrence_pattern = null;
+        updateData.next_occurrence = null;
+      }
+
+      const { error } = await supabase
+        .from('group_rides')
+        .update(updateData)
+        .eq('id', rideId)
+        .eq('creator_id', currentUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: currentRecurring ? "Recurring disabled" : "Recurring enabled",
+        description: currentRecurring 
+          ? "This ride will no longer repeat." 
+          : "This ride will now repeat weekly.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['group-rides'] });
+    } catch (error) {
+      console.error('Error toggling recurring:', error);
+      toast({
+        title: "Failed to update ride",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleJoinRide = async (rideId: string) => {
     if (!currentUser) {
@@ -353,15 +445,21 @@ export const UniversityRides = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {ride.is_member && (
-                        <Badge variant="default" className="bg-green-600">
-                          <UserCheck className="w-3 h-3 mr-1" />
-                          Joined
-                        </Badge>
-                      )}
-                      <Badge variant={isFull ? "destructive" : "secondary"}>
-                        {availableSpots} {availableSpots === 1 ? 'spot' : 'spots'}
-                      </Badge>
+                     {ride.is_member && (
+                         <Badge variant="default" className="bg-green-600">
+                           <UserCheck className="w-3 h-3 mr-1" />
+                           Joined
+                         </Badge>
+                       )}
+                       {ride.is_recurring && (
+                         <Badge variant="outline" className="border-orange-500 text-orange-700">
+                           <Repeat className="w-3 h-3 mr-1" />
+                           Recurring
+                         </Badge>
+                       )}
+                       <Badge variant={isFull ? "destructive" : "secondary"}>
+                         {availableSpots} {availableSpots === 1 ? 'spot' : 'spots'}
+                       </Badge>
                     </div>
                   </div>
                   
@@ -382,26 +480,48 @@ export const UniversityRides = () => {
                     )}
                   </div>
                   
-                  {ride.description && (
-                    <p className="text-sm text-muted-foreground mb-3">{ride.description}</p>
-                  )}
-                  
-                  <Button 
-                    variant={ride.is_member ? "outline" : "chicago-outline"}
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => handleJoinRide(ride.id)}
-                    disabled={!currentUser || ride.is_member || isFull}
-                  >
-                    {!currentUser 
-                      ? "Login to Join" 
-                      : ride.is_member 
-                        ? "Already Joined" 
-                        : isFull 
-                          ? "Ride Full" 
-                          : "Join Group Ride"
-                    }
-                  </Button>
+                   {ride.description && (
+                     <p className="text-sm text-muted-foreground mb-3">{ride.description}</p>
+                   )}
+                   
+                   {/* Creator Controls */}
+                   {currentUser && ride.creator_id === currentUser.id ? (
+                     <div className="flex gap-2 mb-3">
+                       <Button 
+                         variant="outline"
+                         size="sm" 
+                         className="flex-1"
+                         onClick={() => handleToggleRecurring(ride.id, ride.is_recurring)}
+                       >
+                         <Repeat className="w-3 h-3 mr-1" />
+                         {ride.is_recurring ? "Stop Recurring" : "Make Recurring"}
+                       </Button>
+                       <Button 
+                         variant="destructive"
+                         size="sm" 
+                         onClick={() => handleDeleteRide(ride.id)}
+                       >
+                         <Trash2 className="w-3 h-3" />
+                       </Button>
+                     </div>
+                   ) : (
+                     <Button 
+                       variant={ride.is_member ? "outline" : "chicago-outline"}
+                       size="sm" 
+                       className="w-full mb-3"
+                       onClick={() => handleJoinRide(ride.id)}
+                       disabled={!currentUser || ride.is_member || isFull}
+                     >
+                       {!currentUser 
+                         ? "Login to Join" 
+                         : ride.is_member 
+                           ? "Already Joined" 
+                           : isFull 
+                             ? "Ride Full" 
+                             : "Join Group Ride"
+                       }
+                     </Button>
+                   )}
                 </CardContent>
               </Card>
             );
