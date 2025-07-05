@@ -115,14 +115,11 @@ export default {
 				},
 				'train-move': {
 					'0%': {
-						transform: 'translateX(-50%)',
-						opacity: '0.5'
-					},
-					'50%': {
-						opacity: '0.7'
+						transform: 'translateX(-100px)',
+						opacity: '0.3'
 					},
 					'100%': {
-						transform: 'translateX(0)',
+						transform: 'translateX(0px)',
 						opacity: '0.7'
 					}
 				}

@@ -11,11 +11,11 @@ export const LoadingScreen = () => {
         </h1>
       </div>
       
-      <div className="mb-4">
+      <div className="mb-4 overflow-hidden">
         <img 
           src={chicagoTrainGraphic}
           alt="Chicago L Train" 
-          className="w-full max-w-lg h-40 object-cover rounded-lg animate-train-move"
+          className="w-full max-w-lg h-40 object-cover rounded-lg animate-train-move will-change-transform"
         />
       </div>
       
