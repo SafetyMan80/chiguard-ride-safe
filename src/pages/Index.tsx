@@ -213,7 +213,7 @@ const Index = () => {
                 <img 
                   src={chicagoTrainGraphic}
                   alt="Chicago L Train" 
-                  className="w-full max-w-md h-32 object-cover rounded-lg opacity-70"
+                  className="w-full max-w-lg h-40 object-cover rounded-lg opacity-70"
                 />
               </div>
               
