@@ -116,9 +116,10 @@ const Index = () => {
     };
 
     try {
-      if (navigator.share) {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
+        // Fallback to clipboard
         await navigator.clipboard.writeText(url);
         toast({
           title: "Link copied!",
@@ -126,8 +127,21 @@ const Index = () => {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error sharing:', error);
+      console.log('Share error:', error);
+      // Fallback to clipboard if share fails
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied!",
+          description: "Share this link with other riders.",
+        });
+      } catch (clipboardError) {
+        console.log('Clipboard error:', clipboardError);
+        toast({
+          title: "Unable to share",
+          description: "Please copy the URL manually to share.",
+          variant: "destructive"
+        });
       }
     }
   };

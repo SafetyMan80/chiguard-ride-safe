@@ -47,14 +47,21 @@ export const useAddToHomeScreen = () => {
   }, []);
 
   const promptInstall = async () => {
+    console.log('Install button clicked, deferredPrompt:', !!deferredPrompt);
+    
     if (deferredPrompt) {
       // Native install prompt available
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
-        setIsInstallable(false);
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('Install prompt outcome:', outcome);
+        
+        if (outcome === 'accepted') {
+          setDeferredPrompt(null);
+          setIsInstallable(false);
+        }
+      } catch (error) {
+        console.error('Error with install prompt:', error);
       }
     } else {
       // Fallback: Show instructions for manual installation
@@ -63,9 +70,9 @@ export const useAddToHomeScreen = () => {
       
       let instructions = '';
       if (isIOS) {
-        instructions = 'To install this app on your iOS device, tap the Share button and then "Add to Home Screen".';
+        instructions = 'To install this app on your iOS device:\n\n1. Tap the Share button (⬆️) in Safari\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to confirm';
       } else if (isAndroid) {
-        instructions = 'To install this app, tap the menu (⋮) in your browser and select "Add to Home Screen" or "Install App".';
+        instructions = 'To install this app:\n\n1. Tap the menu (⋮) in your browser\n2. Select "Add to Home Screen" or "Install App"\n3. Tap "Add" or "Install" to confirm';
       } else {
         instructions = 'To install this app, look for an install button in your browser\'s address bar or menu.';
       }
