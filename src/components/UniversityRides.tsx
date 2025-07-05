@@ -179,7 +179,12 @@ export const UniversityRides = () => {
             variant: "destructive"
           });
         } else {
-          throw error;
+          console.error('Specific join error:', error);
+          toast({
+            title: "Failed to join ride",
+            description: error.message || "Please try again later.",
+            variant: "destructive"
+          });
         }
         return;
       }
