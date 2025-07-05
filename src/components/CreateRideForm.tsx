@@ -14,6 +14,7 @@ interface CreateRideFormProps {
   onRideCreated: () => void;
   onCancel: () => void;
   userUniversity?: string;
+  selectedUniversity?: string;
 }
 
 const CHICAGO_UNIVERSITIES = [
@@ -40,9 +41,9 @@ const CTA_LINES = [
   { name: "Yellow Line", color: "bg-yellow-600" }
 ];
 
-export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity }: CreateRideFormProps) => {
+export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, selectedUniversity }: CreateRideFormProps) => {
   const [formData, setFormData] = useState({
-    university_name: userUniversity || "",
+    university_name: selectedUniversity || userUniversity || "",
     cta_line: "",
     station_name: "",
     departure_time: "",

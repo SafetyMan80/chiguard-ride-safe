@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, MapPin, Clock, UserCheck, Trash2, Repeat } from "lucide-react";
+import { Users, MapPin, Clock, UserCheck, Trash2, Repeat, Shield, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateRideForm } from "./CreateRideForm";
+import { IDVerification } from "./IDVerification";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface GroupRide {
@@ -91,6 +92,8 @@ const fetchGroupRides = async (selectedUniversity: string, userId: string | null
 export const UniversityRides = () => {
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{type: 'join' | 'create', rideId?: string} | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const { toast } = useToast();
@@ -245,11 +248,97 @@ export const UniversityRides = () => {
     }
   };
 
-  const handleJoinRide = async (rideId: string) => {
+  const checkStudentVerification = async (university: string): Promise<boolean> => {
+    if (!currentUser) return false;
+    
+    try {
+      const { data: verification, error } = await supabase
+        .from('id_verifications')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('verification_status', 'verified')
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking verification:', error);
+        return false;
+      }
+
+      // Check if user has verified student ID 
+      // In a real implementation, you'd also verify the university matches
+      return !!verification;
+    } catch (error) {
+      console.error('Error checking student verification:', error);
+      return false;
+    }
+  };
+
+  const handleCreateRide = async () => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required", 
+        description: "Please log in to create a group ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // If a university is selected, check verification
+    if (selectedUniversity) {
+      const isVerified = await checkStudentVerification(selectedUniversity);
+      if (!isVerified) {
+        setPendingAction({ type: 'create' });
+        setShowVerification(true);
+        toast({
+          title: "Student verification required",
+          description: `Please upload your student ID for ${selectedUniversity} to create rides.`,
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    setShowCreateForm(true);
+  };
+
+  const handleVerificationComplete = () => {
+    setShowVerification(false);
+    
+    if (pendingAction?.type === 'create') {
+      setShowCreateForm(true);
+      toast({
+        title: "Verification complete!",
+        description: "You can now create university rides.",
+      });
+    } else if (pendingAction?.type === 'join' && pendingAction.rideId) {
+      // Find the ride to get its university
+      const ride = rides?.find(r => r.id === pendingAction.rideId);
+      if (ride) {
+        handleJoinRide(pendingAction.rideId, ride.university_name);
+      }
+    }
+    
+    setPendingAction(null);
+  };
+
+  const handleJoinRide = async (rideId: string, rideUniversity: string) => {
     if (!currentUser) {
       toast({
         title: "Authentication required",
         description: "Please log in to join a group ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if student verification is required and valid
+    const isVerified = await checkStudentVerification(rideUniversity);
+    if (!isVerified) {
+      setPendingAction({ type: 'join', rideId });
+      setShowVerification(true);
+      toast({
+        title: "Student verification required",
+        description: `Please upload your student ID for ${rideUniversity} to join this ride.`,
         variant: "destructive"
       });
       return;
@@ -352,6 +441,33 @@ export const UniversityRides = () => {
 
   return (
     <div className="space-y-6">
+      {showVerification && (
+        <Card className="border-yellow-500 bg-yellow-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-800">
+              <Shield className="w-5 h-5" />
+              Student ID Verification Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-yellow-700 mb-4">
+              To ensure safety and validity, you must verify your student status by uploading your student ID before creating or joining university rides.
+            </p>
+            <IDVerification onVerificationComplete={handleVerificationComplete} />
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowVerification(false);
+                setPendingAction(null);
+              }}
+              className="mt-4"
+            >
+              Cancel
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {showCreateForm && (
         <CreateRideForm
           onRideCreated={() => {
@@ -360,6 +476,7 @@ export const UniversityRides = () => {
           }}
           onCancel={() => setShowCreateForm(false)}
           userUniversity={userProfile?.university_name}
+          selectedUniversity={selectedUniversity}
         />
       )}
 
@@ -398,11 +515,15 @@ export const UniversityRides = () => {
           
           <Button 
             variant="chicago" 
+            size="lg"
+            onClick={handleCreateRide}
             className="w-full"
-            onClick={() => setShowCreateForm(true)}
-            disabled={!currentUser}
           >
-            {currentUser ? "Create Group Ride" : "Login to Create Ride"}
+            <Plus className="w-4 h-4 mr-2" />
+            Create New Ride
+            {selectedUniversity && (
+              <Shield className="w-4 h-4 ml-2 text-yellow-300" />
+            )}
           </Button>
         </CardContent>
       </Card>
@@ -509,7 +630,7 @@ export const UniversityRides = () => {
                        variant={ride.is_member ? "outline" : "chicago-outline"}
                        size="sm" 
                        className="w-full mb-3"
-                       onClick={() => handleJoinRide(ride.id)}
+                       onClick={() => handleJoinRide(ride.id, ride.university_name)}
                        disabled={!currentUser || ride.is_member || isFull}
                      >
                        {!currentUser 
