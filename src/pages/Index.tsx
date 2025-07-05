@@ -11,8 +11,10 @@ import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
 import { IDVerification } from "@/components/IDVerification";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { useToast } from "@/hooks/use-toast";
 import { useOffline } from "@/hooks/useOffline";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
@@ -32,6 +34,32 @@ const Index = () => {
   const navigate = useNavigate();
   const { isInstallable, promptInstall } = useAddToHomeScreen();
   const { isOnline, saveUserProfile, saveEmergencyContacts } = useOffline();
+
+  // Pull to refresh functionality
+  const handleRefresh = async () => {
+    // Clear service worker cache to force fresh content
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
+    }
+
+    // Reload the page to get fresh content
+    window.location.reload();
+  };
+
+  const {
+    containerRef,
+    isRefreshing,
+    pullDistance,
+    isPulling,
+    threshold
+  } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true
+  });
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -323,7 +351,17 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-background flex flex-col relative overflow-auto"
+    >
+      <PullToRefresh
+        isRefreshing={isRefreshing}
+        pullDistance={pullDistance}
+        isPulling={isPulling}
+        threshold={threshold}
+      />
+      
       {/* Header */}
       <header className="p-6 safe-area-top">
         <OfflineIndicator />
