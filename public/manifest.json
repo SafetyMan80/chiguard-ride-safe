@@ -1,25 +1,35 @@
 {
   "name": "CHIGUARD - Ride Safe",
   "short_name": "CHIGUARD",
-  "description": "Safety Driven...Community Powered - Chicago CTA Safety App",
-  "start_url": "/",
+  "description": "Safety Driven Community Powered",
+  "start_url": "/?utm_source=pwa",
   "display": "standalone",
   "background_color": "#1e40af",
   "theme_color": "#3B82F6",
   "orientation": "portrait",
   "scope": "/",
+  "categories": ["safety", "transportation", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "icons": [
     {
-      "src": "/lovable-uploads/a2eac1de-d4f2-41e7-8dc7-468b15f124e9.png",
+      "src": "/assets/chiguard-logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/a2eac1de-d4f2-41e7-8dc7-468b15f124e9.png",
-      "sizes": "512x512",
+      "src": "/assets/chiguard-logo.png",
+      "sizes": "512x512", 
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/chiguard-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
