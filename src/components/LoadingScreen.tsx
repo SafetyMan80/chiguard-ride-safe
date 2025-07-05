@@ -4,7 +4,7 @@ import chicagoTrainGraphic from "@/assets/chicago-l-train-ai.jpg";
 export const LoadingScreen = () => {
   return (
     <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 animate-fade-in">
-      <div className="flex items-center justify-center gap-2 mb-6 -ml-2">
+      <div className="flex items-center justify-center gap-2 mb-6 -ml-4">
         <Logo className="w-24 h-24 drop-shadow-md" />
         <h1 className="text-5xl font-black text-chicago-gunmetal tracking-tight">
           CHIGUARD
