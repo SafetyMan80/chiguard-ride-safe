@@ -163,15 +163,31 @@ export const UniversityRides = () => {
       return;
     }
 
+    console.log('Attempting to join ride:', {
+      rideId,
+      userId: currentUser.id,
+      userEmail: currentUser.email
+    });
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('group_ride_members')
         .insert({
           ride_id: rideId,
           user_id: currentUser.id
-        });
+        })
+        .select();
+
+      console.log('Join ride result:', { data, error });
 
       if (error) {
+        console.error('Join ride error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
         if (error.code === '23505') { // Unique constraint violation
           toast({
             title: "Already joined",
@@ -179,16 +195,16 @@ export const UniversityRides = () => {
             variant: "destructive"
           });
         } else {
-          console.error('Specific join error:', error);
           toast({
             title: "Failed to join ride",
-            description: error.message || "Please try again later.",
+            description: `${error.message} (Code: ${error.code})`,
             variant: "destructive"
           });
         }
         return;
       }
 
+      console.log('Successfully joined ride:', data);
       toast({
         title: "Joined group ride!",
         description: "You've successfully joined this group ride.",
@@ -197,10 +213,10 @@ export const UniversityRides = () => {
       // Refresh the data
       queryClient.invalidateQueries({ queryKey: ['group-rides'] });
     } catch (error) {
-      console.error('Error joining ride:', error);
+      console.error('Unexpected error joining ride:', error);
       toast({
         title: "Failed to join ride",
-        description: "Please try again later.",
+        description: "An unexpected error occurred. Please try again later.",
         variant: "destructive"
       });
     }
