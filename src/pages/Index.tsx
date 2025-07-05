@@ -13,10 +13,11 @@ import { IDVerification } from "@/components/IDVerification";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Share, QrCode } from "lucide-react";
+import { Share, QrCode, Smartphone } from "lucide-react";
 import QRCode from "qrcode";
 import type { User } from "@supabase/supabase-js";
 import chicagoTrainGraphic from "@/assets/chicago-l-train-ai.jpg";
+import { useAddToHomeScreen } from "@/hooks/useAddToHomeScreen";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -27,6 +28,7 @@ const Index = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isInstallable, promptInstall } = useAddToHomeScreen();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -243,14 +245,27 @@ const Index = () => {
                       </div>
                     )}
                     
-                    <Button 
-                      onClick={handleShare}
-                      variant="chicago"
-                      className="w-full"
-                    >
-                      <Share className="w-4 h-4 mr-2" />
-                      Share with Other Riders
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                      <Button 
+                        onClick={handleShare}
+                        variant="chicago"
+                        className="w-full"
+                      >
+                        <Share className="w-4 h-4 mr-2" />
+                        Share with Other Riders
+                      </Button>
+                      
+                      {isInstallable && (
+                        <Button 
+                          onClick={promptInstall}
+                          variant="chicago-outline"
+                          className="w-full"
+                        >
+                          <Smartphone className="w-4 h-4 mr-2" />
+                          Add to Home Screen
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
