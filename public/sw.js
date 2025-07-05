@@ -1,5 +1,5 @@
-const CACHE_NAME = 'chiguard-v1';
-const STATIC_CACHE = 'chiguard-static-v1';
+const CACHE_NAME = 'chiguard-v2';
+const STATIC_CACHE = 'chiguard-static-v2';
 
 // Core app shell files to cache
 const STATIC_FILES = [
@@ -13,62 +13,95 @@ const STATIC_FILES = [
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing new version');
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => cache.addAll(STATIC_FILES))
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('Service Worker: Installed, skipping waiting');
+        return self.skipWaiting();
+      })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and take control immediately
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activating new version');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== STATIC_CACHE && cacheName !== CACHE_NAME) {
+            console.log('Service Worker: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('Service Worker: Taking control of all clients');
+      return self.clients.claim();
+    })
   );
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - network first strategy for better updates
 self.addEventListener('fetch', (event) => {
-  // Handle navigation requests
+  // Handle navigation requests - always try network first
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
+        .then(response => {
+          // Cache the new version
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
         .catch(() => caches.match('/'))
     );
     return;
   }
 
-  // Handle other requests
+  // For API requests and dynamic content - network first
+  if (event.request.url.includes('/rest/v1/') || 
+      event.request.url.includes('/auth/v1/') ||
+      event.request.method !== 'GET') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => new Response('Offline', { status: 503 }))
+    );
+    return;
+  }
+
+  // For static assets - try network first, then cache
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request)
-          .then((fetchResponse) => {
-            // Cache successful responses
-            if (fetchResponse.status === 200) {
-              const responseClone = fetchResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseClone);
-              });
-            }
-            return fetchResponse;
+        // Cache successful responses
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
           });
+        }
+        return response;
       })
       .catch(() => {
-        // Return offline fallback for failed requests
-        if (event.request.destination === 'image') {
-          return caches.match('/lovable-uploads/a2eac1de-d4f2-41e7-8dc7-468b15f124e9.png');
-        }
-        return new Response('Offline', { status: 503 });
+        // Fallback to cache
+        return caches.match(event.request)
+          .then(response => {
+            if (response) {
+              return response;
+            }
+            // Return offline fallback for failed requests
+            if (event.request.destination === 'image') {
+              return caches.match('/lovable-uploads/a2eac1de-d4f2-41e7-8dc7-468b15f124e9.png');
+            }
+            return new Response('Offline', { status: 503 });
+          });
       })
   );
 });
