@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useOffline } from "@/hooks/useOffline";
+import { useToast } from "@/hooks/use-toast";
 
 interface EmergencyButtonProps {
   onEmergencyActivated: () => void;
@@ -13,6 +15,8 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const voiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { isOnline, saveOfflineReport } = useOffline();
+  const { toast } = useToast();
   
   const { 
     latitude, 
@@ -136,7 +140,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     }, 100);
   };
 
-  const handleEmergencyClick = () => {
+  const handleEmergencyClick = async () => {
     console.log("🚨 Emergency button clicked, current state:", isActive);
     
     if (isActive) {
@@ -152,6 +156,24 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       
       // Get current location for emergency
       getCurrentLocation();
+      
+      // Save emergency data offline if needed
+      const emergencyData = {
+        timestamp: new Date().toISOString(),
+        location: { latitude, longitude, accuracy },
+        type: 'emergency_alert'
+      };
+
+      if (!isOnline) {
+        const saved = await saveOfflineReport('emergency', emergencyData);
+        if (saved) {
+          toast({
+            title: "🚨 EMERGENCY SAVED OFFLINE!",
+            description: "Alert will be sent when connection returns",
+            variant: "destructive"
+          });
+        }
+      }
       
       onEmergencyActivated();
       playEmergencyAlert();
@@ -230,6 +252,12 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
             : "Tap to activate LOUD emergency alert and notify police."
           }
         </p>
+        
+        {!isOnline && (
+          <p className="text-yellow-600 font-medium">
+            📱 OFFLINE - Emergency will be sent when connection returns
+          </p>
+        )}
         
         {isActive && (
           <div className="space-y-3">

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Camera, MapPinIcon, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useOffline } from "@/hooks/useOffline";
 import { CameraCapture } from "@/components/CameraCapture";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,6 +71,7 @@ export const IncidentReport = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
+  const { isOnline, saveOfflineReport } = useOffline();
   const queryClient = useQueryClient();
   
   const { 
@@ -145,6 +147,48 @@ export const IncidentReport = () => {
 
     setIsSubmitting(true);
 
+    // Prepare report data
+    const reportData = {
+      reporter_id: currentUser.id,
+      incident_type: reportType,
+      cta_line: line,
+      location_name: location,
+      description,
+      latitude: latitude || null,
+      longitude: longitude || null,
+      accuracy: accuracy || null,
+      image_url: imageUrl,
+      timestamp: new Date().toISOString()
+    };
+
+    // Handle offline scenario
+    if (!isOnline) {
+      const saved = await saveOfflineReport('incident', reportData);
+      if (saved) {
+        // Reset form
+        setReportType("");
+        setLocation("");
+        setLine("");
+        setDescription("");
+        setImageUrl(null);
+        setUseCurrentLocation(false);
+
+        toast({
+          title: "📱 Report Saved Offline",
+          description: "Your report will be submitted when connection returns.",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Failed to save offline",
+          description: "Please try again when online.",
+          variant: "destructive"
+        });
+      }
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Handle image upload if there is one
       let uploadedImageUrl = null;
@@ -174,14 +218,7 @@ export const IncidentReport = () => {
       const { error } = await supabase
         .from('incident_reports')
         .insert({
-          reporter_id: currentUser.id,
-          incident_type: reportType,
-          cta_line: line,
-          location_name: location,
-          description,
-          latitude: latitude || null,
-          longitude: longitude || null,
-          accuracy: accuracy || null,
+          ...reportData,
           image_url: uploadedImageUrl
         });
 

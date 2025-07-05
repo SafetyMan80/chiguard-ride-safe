@@ -10,7 +10,9 @@ import { Settings } from "@/components/Settings";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
 import { IDVerification } from "@/components/IDVerification";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { useToast } from "@/hooks/use-toast";
+import { useOffline } from "@/hooks/useOffline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
@@ -29,6 +31,7 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isInstallable, promptInstall } = useAddToHomeScreen();
+  const { isOnline, saveUserProfile, saveEmergencyContacts } = useOffline();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -323,6 +326,7 @@ const Index = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="p-6 safe-area-top">
+        <OfflineIndicator />
         <Card className="bg-chicago-accent border-chicago-blue/20">
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-0.5">
