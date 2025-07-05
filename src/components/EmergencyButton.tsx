@@ -156,13 +156,6 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       onEmergencyActivated();
       playEmergencyAlert();
       
-      // Pre-dial 911
-      try {
-        window.open('tel:911', '_self');
-      } catch (error) {
-        console.log('Unable to pre-dial 911:', error);
-      }
-      
       // Start countdown
       let timeLeft = 30;
       countdownRef.current = setInterval(() => {
@@ -239,16 +232,27 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         </p>
         
         {isActive && (
-          <div className="text-xs">
-            {latitude && longitude ? (
-              <span className="text-green-600">
-                📍 Location tracked ({accuracy ? `±${Math.round(accuracy)}m` : 'GPS'})
-              </span>
-            ) : geoError ? (
-              <span className="text-destructive">⚠️ Location unavailable</span>
-            ) : (
-              <span className="text-chicago-blue">📍 Getting location...</span>
-            )}
+          <div className="space-y-3">
+            <Button 
+              onClick={() => window.open('tel:911', '_self')}
+              variant="destructive"
+              size="lg"
+              className="w-full font-bold text-lg animate-pulse-emergency"
+            >
+              📞 CALL 911 NOW
+            </Button>
+            
+            <div className="text-xs">
+              {latitude && longitude ? (
+                <span className="text-green-600">
+                  📍 Location tracked ({accuracy ? `±${Math.round(accuracy)}m` : 'GPS'})
+                </span>
+              ) : geoError ? (
+                <span className="text-destructive">⚠️ Location unavailable</span>
+              ) : (
+                <span className="text-chicago-blue">📍 Getting location...</span>
+              )}
+            </div>
           </div>
         )}
       </div>
