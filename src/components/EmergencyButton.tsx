@@ -84,7 +84,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const playEmergencyAlert = () => {
     console.log("🚨 STARTING EMERGENCY ALERT SYSTEM...");
     
-    // Play VERY loud alarm tone every 300ms for maximum urgency
+    // Play VERY loud alarm tone every 300ms for maximum urgency - continues until stopped
     intervalRef.current = setInterval(() => {
       createEmergencyTone();
     }, 300);
@@ -92,52 +92,80 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     // Initial tone
     createEmergencyTone();
 
-    // Voice announcement every 2 seconds - using male voice
-    const announceMessage = () => {
-      console.log("📢 Playing URGENT male voice announcement...");
-      
-      // Cancel any existing speech first
-      speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance("Police are on their way. Police are on their way.");
-      
-      // Try to find a male voice
+    // Load voices first, then start announcements
+    const loadVoicesAndStart = () => {
       const voices = speechSynthesis.getVoices();
-      const maleVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('male') || 
-        voice.name.toLowerCase().includes('david') ||
-        voice.name.toLowerCase().includes('alex') ||
-        voice.name.toLowerCase().includes('daniel') ||
-        voice.name.toLowerCase().includes('fred') ||
-        voice.name.toLowerCase().includes('brian') ||
-        voice.name.toLowerCase().includes('mark')
-      ) || voices[0];
+      console.log("🎙️ Available voices:", voices.length, voices.map(v => v.name));
       
-      if (maleVoice) {
-        utterance.voice = maleVoice;
-        console.log("🎤 Using male voice:", maleVoice.name);
+      if (voices.length === 0) {
+        console.log("⏳ No voices loaded yet, waiting...");
+        // Wait for voices to load
+        speechSynthesis.addEventListener('voiceschanged', loadVoicesAndStart, { once: true });
+        return;
       }
+
+      // Voice announcement function - using male voice
+      const announceMessage = () => {
+        console.log("📢 Playing URGENT male voice announcement...");
+        
+        // Cancel any existing speech first
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance("Police are on their way. Police are on their way.");
+        
+        // Try to find a male voice with better detection
+        const maleVoice = voices.find(voice => {
+          const name = voice.name.toLowerCase();
+          return name.includes('male') || 
+                 name.includes('david') ||
+                 name.includes('alex') ||
+                 name.includes('daniel') ||
+                 name.includes('fred') ||
+                 name.includes('brian') ||
+                 name.includes('mark') ||
+                 name.includes('tom') ||
+                 name.includes('john') ||
+                 name.includes('microsoft david') ||
+                 name.includes('google us-english') && !name.includes('female');
+        }) || voices[0]; // Fallback to first voice
+        
+        if (maleVoice) {
+          utterance.voice = maleVoice;
+          console.log("🎤 Using voice:", maleVoice.name, "| Lang:", maleVoice.lang);
+        } else {
+          console.log("⚠️ No male voice found, using default");
+        }
+        
+        // Voice settings for clarity and urgency
+        utterance.rate = 0.8;    // Clear speaking rate
+        utterance.volume = 1.0;  // Maximum volume
+        utterance.pitch = 0.7;   // Lower pitch for male sound
+        
+        // Debug callbacks
+        utterance.onstart = () => console.log("🔊 Voice announcement STARTED");
+        utterance.onend = () => console.log("✅ Voice announcement ENDED");
+        utterance.onerror = (e) => console.error("❌ Voice error:", e.error, e);
+        
+        try {
+          speechSynthesis.speak(utterance);
+          console.log("🚀 Speech synthesis command sent");
+        } catch (error) {
+          console.error("❌ Failed to speak:", error);
+        }
+      };
       
-      // Male voice settings
-      utterance.rate = 0.7;  // Slower for clarity
-      utterance.volume = 1.0; // Maximum volume
-      utterance.pitch = 0.8;  // Lower pitch for male voice
-      
-      // Ensure it plays
-      utterance.onstart = () => console.log("🔊 Voice started");
-      utterance.onend = () => console.log("✅ Voice ended");
-      utterance.onerror = (e) => console.error("❌ Voice error:", e);
-      
-      speechSynthesis.speak(utterance);
-    };
-    
-    // Wait a moment for voices to load, then start announcements
-    setTimeout(() => {
+      // Start immediately
       announceMessage();
       
-      // Repeat announcement every 3 seconds (longer interval for full message)
-      voiceIntervalRef.current = setInterval(announceMessage, 3000);
-    }, 500);
+      // Repeat announcement every 4 seconds (gives time for full message)
+      voiceIntervalRef.current = setInterval(() => {
+        console.log("🔄 Repeating voice announcement...");
+        announceMessage();
+      }, 4000);
+    };
+
+    // Start the voice loading process
+    loadVoicesAndStart();
   };
 
   const stopEmergencyAlert = () => {
@@ -146,22 +174,27 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
+      console.log("✅ Alarm tone interval cleared");
     }
     if (countdownRef.current) {
       clearInterval(countdownRef.current);
       countdownRef.current = null;
+      console.log("✅ Countdown interval cleared");
     }
     if (voiceIntervalRef.current) {
       clearInterval(voiceIntervalRef.current);
       voiceIntervalRef.current = null;
+      console.log("✅ Voice interval cleared");
     }
     
     // Cancel all speech synthesis
     speechSynthesis.cancel();
+    console.log("✅ Speech synthesis cancelled");
     
     // Also cancel any pending speech
     setTimeout(() => {
       speechSynthesis.cancel();
+      console.log("✅ Delayed speech synthesis cancelled");
     }, 100);
   };
 
