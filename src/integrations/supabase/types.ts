@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      group_ride_members: {
+        Row: {
+          id: string
+          joined_at: string
+          ride_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          ride_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          ride_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_ride_members_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "group_rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_rides: {
+        Row: {
+          created_at: string
+          creator_id: string
+          cta_line: string
+          departure_time: string
+          description: string | null
+          id: string
+          max_spots: number
+          station_name: string
+          status: string
+          university_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          cta_line: string
+          departure_time: string
+          description?: string | null
+          id?: string
+          max_spots?: number
+          station_name: string
+          status?: string
+          university_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          cta_line?: string
+          departure_time?: string
+          description?: string | null
+          id?: string
+          max_spots?: number
+          station_name?: string
+          status?: string
+          university_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       id_verifications: {
         Row: {
           created_at: string
@@ -125,7 +199,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_available_spots: {
+        Args: { ride_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
