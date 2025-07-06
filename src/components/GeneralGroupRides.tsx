@@ -47,23 +47,31 @@ export const GeneralGroupRides = () => {
   const fetchRides = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get all active rides
+      const { data: ridesData, error: ridesError } = await supabase
         .from('general_group_rides')
-        .select(`
-          *,
-          general_ride_members!inner(count)
-        `)
+        .select('*')
         .eq('status', 'active')
         .gte('departure_time', new Date().toISOString())
         .order('departure_time', { ascending: true });
 
-      if (error) throw error;
+      if (ridesError) throw ridesError;
 
-      // Transform data to include member count
-      const ridesWithCounts = data?.map(ride => ({
-        ...ride,
-        current_members: ride.general_ride_members?.[0]?.count || 0
-      })) || [];
+      // Then get member counts for each ride
+      const ridesWithCounts = await Promise.all(
+        (ridesData || []).map(async (ride) => {
+          const { count } = await supabase
+            .from('general_ride_members')
+            .select('*', { count: 'exact', head: true })
+            .eq('ride_id', ride.id)
+            .eq('status', 'joined');
+
+          return {
+            ...ride,
+            current_members: count || 0
+          };
+        })
+      );
 
       setRides(ridesWithCounts);
     } catch (error) {

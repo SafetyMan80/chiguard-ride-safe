@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      general_group_rides: {
+        Row: {
+          created_at: string
+          creator_id: string
+          departure_location: string
+          departure_time: string
+          description: string | null
+          destination_location: string
+          id: string
+          max_spots: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          departure_location: string
+          departure_time: string
+          description?: string | null
+          destination_location: string
+          id?: string
+          max_spots?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          departure_location?: string
+          departure_time?: string
+          description?: string | null
+          destination_location?: string
+          id?: string
+          max_spots?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      general_ride_members: {
+        Row: {
+          id: string
+          joined_at: string
+          ride_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          ride_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          ride_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "general_ride_members_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "general_group_rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_ride_members: {
         Row: {
           id: string
