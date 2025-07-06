@@ -271,7 +271,10 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   };
 
   const handleHoldStart = () => {
-    if (isActive || activatingRef.current) return; // Prevent multiple activations
+    if (isActive || activatingRef.current) {
+      console.log("🔒 Hold start prevented - already active/activating");
+      return; // Prevent multiple activations
+    }
     
     console.log("🖱️ Emergency button hold started");
     setIsHolding(true);
@@ -365,6 +368,8 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         } catch (error) {
           console.error("Emergency alert start error:", error);
         }
+        // Reset activating flag AFTER alerts start
+        activatingRef.current = false;
       }, 100);
       
       // Start countdown timer
@@ -378,27 +383,28 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
           console.log("⏰ Emergency timeout reached - auto-stopping");
           setIsActive(false);
           setCountdown(30);
+          activatingRef.current = false;
           stopEmergencyAlert();
         }
       }, 1000);
-      
-      activatingRef.current = false; // Reset activating flag
     }, 2000);
   };
 
   const handleHoldEnd = () => {
     // Don't clear if emergency is active or activating
-    if (isActive || activatingRef.current) {
-      console.log("🖱️ Emergency hold ended but emergency is active/activating - not clearing");
+    if (isActive) {
+      console.log("🖱️ Emergency hold ended but emergency is active - not clearing");
       return;
     }
     
+    // Allow clearing if we're still in activation phase (activatingRef could be true)
     console.log("🖱️ Emergency button hold ended - clearing timers");
     
     // Clear timers if holding was incomplete
     if (holdTimerRef.current) {
       clearTimeout(holdTimerRef.current);
       holdTimerRef.current = null;
+      activatingRef.current = false; // Reset if we cancelled the hold
     }
     if (holdProgressRef.current) {
       clearInterval(holdProgressRef.current);
@@ -410,11 +416,20 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   };
 
   const handleEmergencyClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    console.log("🖱️ Emergency button clicked - isActive:", isActive, "activatingRef:", activatingRef.current);
     
-    // Prevent click if we just completed a hold (within 1000ms)
-    if (holdCompletedRef.current && Date.now() - holdCompletedRef.current < 1000) {
+    if (isActive) {
+      // Stop emergency immediately on click when active
+      console.log("✅ Emergency stopped by user click");
+      setIsActive(false);
+      setCountdown(30);
+      activatingRef.current = false;
+      stopEmergencyAlert();
+      return;
+    }
+    
+    // Prevent click if we just completed a hold (within 500ms - reduced from 1000ms)
+    if (holdCompletedRef.current && Date.now() - holdCompletedRef.current < 500) {
       console.log("🔒 Click prevented - hold just completed");
       return;
     }
@@ -425,15 +440,8 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       return;
     }
     
-    if (isActive) {
-      // Stop emergency immediately on click when active
-      console.log("✅ Emergency stopped by user click");
-      setIsActive(false);
-      setCountdown(30);
-      activatingRef.current = false;
-      stopEmergencyAlert();
-    }
     // For activation, we now use hold instead of click
+    console.log("ℹ️ Click ignored - use hold to activate");
   };
 
   useEffect(() => {
@@ -478,38 +486,36 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         size="lg"
         onClick={handleEmergencyClick}
         onMouseDown={isActive ? undefined : (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleHoldStart();
+          if (!isActive) {
+            handleHoldStart();
+          }
         }}
         onMouseUp={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleHoldEnd();
+          if (!isActive) {
+            handleHoldEnd();
+          }
         }}
         onMouseLeave={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleHoldEnd();
+          if (!isActive) {
+            handleHoldEnd();
+          }
         }}
         onTouchStart={isActive ? undefined : (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleHoldStart();
+          if (!isActive) {
+            e.preventDefault(); // Prevent mouse events on touch devices
+            handleHoldStart();
+          }
         }}
         onTouchEnd={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleHoldEnd();
+          if (!isActive) {
+            e.preventDefault(); // Prevent mouse events on touch devices
+            handleHoldEnd();
+          }
         }}
         onTouchCancel={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleHoldEnd();
-        }}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
+          if (!isActive) {
+            handleHoldEnd();
+          }
         }}
         className={`
           w-40 h-40 rounded-full text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20 relative overflow-hidden
