@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Train, ArrowLeft } from "lucide-react";
 import { MTASchedule } from "./MTASchedule";
 import { CTASchedule } from "./CTASchedule";
+import { WMATASchedule } from "./WMATASchedule";
 
 interface City {
   id: string;
@@ -50,7 +51,7 @@ const CITIES_WITH_RAIL: City[] = [
     description: "Metrorail System - 6 color-coded lines",
     railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
     color: "bg-blue-800",
-    available: false
+    available: true
   },
   {
     id: "philadelphia",
@@ -115,6 +116,23 @@ export const MultiCitySchedule = () => {
           Back to City Selection
         </Button>
         <MTASchedule />
+      </div>
+    );
+  }
+
+  // If Washington DC is selected, show the WMATA schedule
+  if (selectedCity === "washington_dc") {
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          onClick={handleBackToSelection}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to City Selection
+        </Button>
+        <WMATASchedule />
       </div>
     );
   }
@@ -204,7 +222,7 @@ export const MultiCitySchedule = () => {
         <CardContent className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>🚊 Currently Available:</strong> Chicago CTA and New York City MTA with 
+              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, and Washington D.C. WMATA with 
               real-time schedules, station search, and system information.
             </p>
           </div>
@@ -212,7 +230,7 @@ export const MultiCitySchedule = () => {
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
               <strong>🚧 Coming Soon:</strong> Real-time integration for LA Metro, 
-              DC Metro, SEPTA, and MARTA with the same features.
+              SEPTA, and MARTA with the same features.
             </p>
           </div>
           
