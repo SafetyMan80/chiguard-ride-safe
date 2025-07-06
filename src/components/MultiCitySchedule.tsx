@@ -6,6 +6,7 @@ import { MTASchedule } from "./MTASchedule";
 import { CTASchedule } from "./CTASchedule";
 import { WMATASchedule } from "./WMATASchedule";
 import { RTDSchedule } from "./RTDSchedule";
+import { SEPTASchedule } from "./SEPTASchedule";
 
 interface City {
   id: string;
@@ -70,7 +71,7 @@ const CITIES_WITH_RAIL: City[] = [
     description: "Regional Rail and Subway System",
     railLines: ["Market-Frankford", "Broad Street", "Regional Rail"],
     color: "bg-purple-600",
-    available: false
+    available: true
   },
   {
     id: "atlanta",
@@ -164,6 +165,23 @@ export const MultiCitySchedule = () => {
     );
   }
 
+  // If Philadelphia is selected, show the SEPTA schedule
+  if (selectedCity === "philadelphia") {
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          onClick={handleBackToSelection}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to City Selection
+        </Button>
+        <SEPTASchedule />
+      </div>
+    );
+  }
+
   // Show city selection interface
   return (
     <div className="space-y-6">
@@ -249,15 +267,14 @@ export const MultiCitySchedule = () => {
         <CardContent className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, and Denver RTD with 
+              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, Denver RTD, and Philadelphia SEPTA with 
               real-time schedules, station search, and system information.
             </p>
           </div>
           
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
-              <strong>🚧 Coming Soon:</strong> Real-time integration for LA Metro, 
-              SEPTA, and MARTA with the same features.
+              <strong>🚧 Coming Soon:</strong> Real-time integration for LA Metro and MARTA with the same features.
             </p>
           </div>
           
