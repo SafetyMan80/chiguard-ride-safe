@@ -367,7 +367,7 @@ const Index = () => {
         <OfflineIndicator />
         <Card className="bg-chicago-accent border-chicago-blue/20">
           <CardHeader className="text-center pb-3">
-            <div className="flex items-center justify-center gap-0.5">
+            <div className="flex items-center justify-center gap-0">
               <Logo className="w-40 h-40 drop-shadow-md" />
               <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal tracking-tight">
                 RAILSAVIOR
