@@ -7,7 +7,7 @@ export const LoadingScreen = () => {
       <div className="flex items-center justify-center gap-2 mb-6 -ml-4">
         <Logo className="w-24 h-24 drop-shadow-md" />
         <h1 className="text-5xl font-black text-chicago-gunmetal tracking-tight">
-          CHIGUARD
+          RAIL SAVIOR
         </h1>
       </div>
       
