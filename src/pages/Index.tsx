@@ -13,6 +13,7 @@ import { ProfileSetup } from "@/components/ProfileSetup";
 import { IDVerification } from "@/components/IDVerification";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
 import { useOffline } from "@/hooks/useOffline";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -375,6 +376,10 @@ const Index = () => {
       {/* Header */}
       <header className="p-6 safe-area-top">
         <OfflineIndicator />
+        <div className="flex justify-between items-start mb-4">
+          <div></div>
+          <ThemeToggle />
+        </div>
         <Card className="bg-chicago-accent border-chicago-blue/20">
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-2">
@@ -400,7 +405,7 @@ const Index = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-[var(--shadow-floating)] safe-area-bottom">
+<nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-[var(--shadow-floating)] safe-area-bottom z-50">
         <div className="max-w-md mx-auto">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
