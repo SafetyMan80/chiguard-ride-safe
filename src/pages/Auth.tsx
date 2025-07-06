@@ -34,7 +34,7 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -42,19 +42,46 @@ const Auth = () => {
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          // Handle specific error cases
+          if (error.message.includes('Email address') && error.message.includes('invalid')) {
+            throw new Error('Please enter a valid email address');
+          }
+          if (error.message.includes('User already registered')) {
+            throw new Error('An account with this email already exists. Try signing in instead.');
+          }
+          throw error;
+        }
 
-        toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
-        });
+        // Check if user was created but needs confirmation
+        if (data.user && !data.session) {
+          toast({
+            title: "Account created!",
+            description: "Please check your email and click the confirmation link to complete registration.",
+          });
+        } else if (data.session) {
+          // User was created and signed in immediately (email confirmation disabled)
+          toast({
+            title: "Account created and signed in!",
+            description: "Welcome to RAILSAVIOR!",
+          });
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          // Handle specific sign-in errors
+          if (error.message.includes('Invalid login credentials')) {
+            throw new Error('Incorrect email or password. Please try again.');
+          }
+          if (error.message.includes('Email not confirmed')) {
+            throw new Error('Please check your email and click the confirmation link before signing in.');
+          }
+          throw error;
+        }
 
         toast({
           title: "Welcome back!",
@@ -62,9 +89,10 @@ const Auth = () => {
         });
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Authentication Error",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
