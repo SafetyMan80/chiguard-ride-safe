@@ -46,7 +46,7 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
               
               <p className="mt-3"><strong>Usage Information:</strong></p>
               <p>• App usage patterns and feature interactions</p>
-              <p>• CTA schedule queries and preferences</p>
+              <p>• Transit schedule queries and preferences</p>
               <p>• Incident reports and safety communications</p>
             </div>
           </section>
@@ -56,7 +56,7 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
             <div className="text-muted-foreground space-y-2">
               <p>• <strong>Safety Services:</strong> Provide emergency assistance and incident reporting</p>
               <p>• <strong>Identity Verification:</strong> Verify user identities to maintain community safety</p>
-              <p>• <strong>CTA Services:</strong> Deliver real-time transit information</p>
+              <p>• <strong>Transit Services:</strong> Deliver real-time transit information</p>
               <p>• <strong>University Features:</strong> Connect verified students for ride-sharing</p>
               <p>• <strong>Communication:</strong> Send safety alerts and service updates</p>
               <p>• <strong>Improvement:</strong> Analyze usage to improve our services</p>
