@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { sanitizeInput, rateLimiter, validateLocation } from "@/lib/security";
 
-interface IncidentReport {
+interface IncidentReportData {
   id: string;
   reporter_id: string;
   incident_type: string;
@@ -26,6 +26,18 @@ interface IncidentReport {
   longitude?: number;
   accuracy?: number;
   reporter_name: string;
+}
+
+interface City {
+  id: string;
+  name: string;
+  agency: string;
+  railLines: string[];
+  majorStations: string[];
+}
+
+interface IncidentReportProps {
+  selectedCity?: City;
 }
 
 const CTA_LINES = [
@@ -50,7 +62,7 @@ const INCIDENT_TYPES = [
   "Other"
 ];
 
-const fetchIncidentReports = async (): Promise<IncidentReport[]> => {
+const fetchIncidentReports = async (): Promise<IncidentReportData[]> => {
   const { data, error } = await supabase.rpc('get_incident_reports_with_reporter');
   
   if (error) {
@@ -61,9 +73,11 @@ const fetchIncidentReports = async (): Promise<IncidentReport[]> => {
   return data || [];
 };
 
-export const IncidentReport = () => {
+export const IncidentReport = ({ selectedCity }: IncidentReportProps) => {
   const [reportType, setReportType] = useState("");
+  const [selectedCityId, setSelectedCityId] = useState(selectedCity?.id || "");
   const [location, setLocation] = useState("");
+  const [customLocation, setCustomLocation] = useState("");
   const [line, setLine] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -74,6 +88,54 @@ export const IncidentReport = () => {
   const { toast } = useToast();
   const { isOnline, saveOfflineReport } = useOffline();
   const queryClient = useQueryClient();
+
+  // City data - this should match the MultiCityIncidentReport data
+  const CITIES_WITH_RAIL = [
+    {
+      id: "chicago",
+      name: "Chicago",
+      agency: "CTA (Chicago Transit Authority)",
+      railLines: ["Red Line", "Blue Line", "Brown Line", "Green Line", "Orange Line", "Pink Line", "Purple Line", "Yellow Line"],
+      majorStations: ["Union Station", "Millennium Station", "LaSalle Street Station", "Ogilvie Transportation Center", "Roosevelt", "Clark/Lake", "Jackson", "Monroe"]
+    },
+    {
+      id: "nyc",
+      name: "New York City", 
+      agency: "MTA (Metropolitan Transportation Authority)",
+      railLines: ["4", "5", "6", "7", "A", "B", "C", "D", "E", "F", "G", "J", "L", "M", "N", "Q", "R", "W", "Z"],
+      majorStations: ["Times Square-42nd St", "Grand Central-42nd St", "Union Square-14th St", "Penn Station-34th St", "Atlantic Terminal", "14th St-Union Sq", "42nd St-Port Authority"]
+    },
+    {
+      id: "los_angeles",
+      name: "Los Angeles",
+      agency: "LA Metro",
+      railLines: ["Red Line", "Purple Line", "Blue Line", "Green Line", "Gold Line", "Expo Line"],
+      majorStations: ["Union Station", "7th St/Metro Center", "Hollywood/Highland", "Westlake/MacArthur Park", "North Hollywood", "Long Beach"]
+    },
+    {
+      id: "washington_dc", 
+      name: "Washington D.C.",
+      agency: "WMATA (Washington Metropolitan Area Transit Authority)",
+      railLines: ["Red Line", "Blue Line", "Orange Line", "Silver Line", "Green Line", "Yellow Line"],
+      majorStations: ["Union Station", "Gallery Pl-Chinatown", "Metro Center", "L'Enfant Plaza", "Dupont Circle", "Rosslyn"]
+    },
+    {
+      id: "philadelphia",
+      name: "Philadelphia",
+      agency: "SEPTA (Southeastern Pennsylvania Transportation Authority)", 
+      railLines: ["Market-Frankford Line", "Broad Street Line", "Regional Rail"],
+      majorStations: ["30th Street Station", "Suburban Station", "Jefferson Station", "Temple University", "City Hall"]
+    },
+    {
+      id: "atlanta",
+      name: "Atlanta",
+      agency: "MARTA (Metropolitan Atlanta Rapid Transit Authority)",
+      railLines: ["Red Line", "Gold Line", "Blue Line", "Green Line"],
+      majorStations: ["Five Points", "Peachtree Center", "Airport", "Lindbergh Center", "North Springs"]
+    }
+  ];
+
+  const currentCity = CITIES_WITH_RAIL.find(city => city.id === selectedCityId) || selectedCity;
   
   const { 
     latitude, 
@@ -137,10 +199,29 @@ export const IncidentReport = () => {
       return;
     }
 
-    if (!reportType || !location || !line || !description) {
+    if (!reportType || (!selectedCity && !selectedCityId) || !location || !line || !description) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields to submit your report.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!currentCity) {
+      toast({
+        title: "City required",
+        description: "Please select a city to report the incident.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate custom location if "other" is selected
+    if (location === "other" && !customLocation.trim()) {
+      toast({
+        title: "Location required",
+        description: "Please specify the location when 'Other' is selected.",
         variant: "destructive"
       });
       return;
@@ -170,12 +251,15 @@ export const IncidentReport = () => {
 
     setIsSubmitting(true);
 
+    // Determine the final location name
+    const finalLocationName = location === "other" ? customLocation : location;
+
     // Prepare report data with sanitized inputs
     const reportData = {
       reporter_id: currentUser.id,
       incident_type: sanitizeInput(reportType),
       cta_line: sanitizeInput(line),
-      location_name: sanitizeInput(location),
+      location_name: sanitizeInput(finalLocationName),
       description: sanitizeInput(description),
       latitude: latitude || null,
       longitude: longitude || null,
@@ -189,6 +273,7 @@ export const IncidentReport = () => {
         // Reset form
         setReportType("");
         setLocation("");
+        setCustomLocation("");
         setLine("");
         setDescription("");
         setImageUrl(null);
@@ -273,6 +358,7 @@ export const IncidentReport = () => {
       // Reset form
       setReportType("");
       setLocation("");
+      setCustomLocation("");
       setLine("");
       setDescription("");
       setImageUrl(null);
@@ -347,9 +433,10 @@ export const IncidentReport = () => {
     }
   };
 
+  // Get line color dynamically based on city and line
   const getLineColor = (lineName: string) => {
-    const line = CTA_LINES.find(l => l.name === lineName);
-    return line?.color || "bg-gray-500";
+    // Use a more generic approach since we now support multiple cities
+    return "bg-primary";
   };
 
   const formatDateTime = (dateTime: string) => {
@@ -380,15 +467,16 @@ export const IncidentReport = () => {
   return (
     <div className="space-y-6">
       {/* Report Form */}
-      <Card className="border-chicago-blue/30 bg-gradient-to-br from-chicago-light-blue/5 to-white">
-        <CardHeader className="bg-gradient-to-r from-chicago-blue/10 to-chicago-light-blue/10 border-b border-chicago-blue/20">
-        <CardTitle className="flex items-center gap-2 text-chicago-dark-blue">
-          <div className="w-6 h-6 bg-chicago-blue rounded-full text-white flex items-center justify-center text-sm font-bold">📝</div>
+      <Card className="border-primary/30 bg-gradient-to-br from-primary-foreground/5 to-background">
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-primary-foreground/10 border-b border-primary/20">
+        <CardTitle className="flex items-center gap-2 text-primary">
+          <div className="w-6 h-6 bg-primary rounded-full text-primary-foreground flex items-center justify-center text-sm font-bold">📝</div>
           Report an Incident
         </CardTitle>
-        <p className="text-sm text-chicago-blue/80 mt-1">Help keep the community informed about safety concerns - all reports are anonymous</p>
+        <p className="text-sm text-muted-foreground mt-1">Help keep the community informed about safety concerns - all reports are anonymous</p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Incident Type */}
           <Select value={reportType} onValueChange={setReportType}>
             <SelectTrigger>
               <SelectValue placeholder="Select incident type" />
@@ -400,42 +488,80 @@ export const IncidentReport = () => {
             </SelectContent>
           </Select>
 
-          <Select value={line} onValueChange={setLine}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select CTA line" />
-            </SelectTrigger>
-            <SelectContent>
-              {CTA_LINES.map(ctaLine => (
-                <SelectItem key={ctaLine.name} value={ctaLine.name}>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${ctaLine.color}`} />
-                    {ctaLine.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* City Selection (if not pre-selected) */}
+          {!selectedCity && (
+            <Select value={selectedCityId} onValueChange={setSelectedCityId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select city" />
+              </SelectTrigger>
+              <SelectContent>
+                {CITIES_WITH_RAIL.map(city => (
+                  <SelectItem key={city.id} value={city.id}>
+                    <div className="flex items-center gap-2">
+                      {city.name} - {city.agency}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
+          {/* Rail Line Selection (dynamic based on selected city) */}
+          {currentCity && (
+            <Select value={line} onValueChange={setLine}>
+              <SelectTrigger>
+                <SelectValue placeholder={`Select ${currentCity.name} line`} />
+              </SelectTrigger>
+              <SelectContent>
+                {currentCity.railLines.map(railLine => (
+                  <SelectItem key={railLine} value={railLine}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-primary" />
+                      {railLine}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {/* Location Selection */}
           <div className="space-y-2">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Station or location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-chicago-blue"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleGetCurrentLocation}
-                disabled={geoLoading}
-                className="px-3"
-              >
-                <MapPinIcon className="w-4 h-4" />
-              </Button>
-            </div>
+            <Select value={location} onValueChange={setLocation}>
+              <SelectTrigger>
+                <SelectValue placeholder={currentCity ? `Select ${currentCity.name} station/location` : "Select station or location"} />
+              </SelectTrigger>
+              <SelectContent>
+                {currentCity?.majorStations.map(station => (
+                  <SelectItem key={station} value={station}>
+                    {station}
+                  </SelectItem>
+                ))}
+                <SelectItem value="other">Other location (specify below)</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            {location === "other" && (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter specific location"
+                  value={customLocation}
+                  onChange={(e) => setCustomLocation(e.target.value)}
+                  className="flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGetCurrentLocation}
+                  disabled={geoLoading}
+                  className="px-3"
+                >
+                  <MapPinIcon className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
             
             {useCurrentLocation && (
               <div className="text-xs text-muted-foreground">
@@ -497,7 +623,7 @@ export const IncidentReport = () => {
           <Button 
             onClick={handleSubmitReport}
             disabled={isSubmitting || !currentUser}
-            className="w-full bg-chicago-blue hover:bg-chicago-dark-blue text-white"
+            className="w-full"
           >
             {isSubmitting 
               ? "Submitting..." 

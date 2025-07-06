@@ -111,7 +111,7 @@ export const MultiCityIncidentReport = () => {
           </h3>
           <p className="text-sm text-muted-foreground">{city?.agency}</p>
         </div>
-        <IncidentReport />
+        <IncidentReport selectedCity={city} />
       </div>
     );
   }
