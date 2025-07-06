@@ -295,9 +295,8 @@ export const MultiCityGroupRides = () => {
 
   // If a university is selected, show the university rides component
   if (selectedUniversity) {
-    const university = CITIES_WITH_UNIVERSITIES
-      .flatMap(city => city.universities)
-      .find(uni => uni.id === selectedUniversity);
+    const currentCity = CITIES_WITH_UNIVERSITIES.find(city => city.id === selectedCity);
+    const university = currentCity?.universities.find(uni => uni.id === selectedUniversity);
     
     return (
       <div className="space-y-4">
@@ -307,7 +306,7 @@ export const MultiCityGroupRides = () => {
           className="flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to University Selection
+          Back to {currentCity?.name} Universities
         </Button>
         <div className="mb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -315,6 +314,9 @@ export const MultiCityGroupRides = () => {
             {university?.name} Group Rides
           </h3>
           <p className="text-sm text-muted-foreground">{university?.description}</p>
+          <p className="text-xs text-muted-foreground">
+            Transit: {currentCity?.agency} • Students: {university?.studentCount}
+          </p>
         </div>
         <UniversityRides />
       </div>
