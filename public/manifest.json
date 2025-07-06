@@ -5,7 +5,7 @@
   "start_url": "/?utm_source=pwa",
   "display": "standalone",
   "background_color": "#1e40af",
-  "theme_color": "#3B82F6",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
   "scope": "/",
   "categories": ["safety", "transportation", "utilities"],
