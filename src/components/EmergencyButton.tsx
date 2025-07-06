@@ -535,7 +535,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
           }
         }}
         className={`
-          w-40 h-40 rounded-full text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20 relative overflow-hidden
+          w-32 h-32 rounded-xl text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20 relative overflow-hidden
           ${isActive ? 'animate-pulse-emergency bg-red-600' : 'hover:scale-105 hover:shadow-[var(--shadow-floating)] bg-chicago-red'}
           ${isHolding ? 'scale-95' : ''}
           transition-all duration-300 backdrop-blur-sm
