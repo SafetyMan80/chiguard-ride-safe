@@ -214,6 +214,13 @@ export const WMATASchedule = () => {
             </div>
           )}
 
+          <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+            <p className="text-sm text-green-800">
+              <strong>🚇 Live Data:</strong> Real-time Washington D.C. Metro arrivals and system information. 
+              Connected to official WMATA API for up-to-date train schedules.
+            </p>
+          </div>
+
           {selectedStation && (
             <Button 
               onClick={fetchArrivals} 

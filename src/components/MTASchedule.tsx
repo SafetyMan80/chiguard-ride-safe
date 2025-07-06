@@ -76,9 +76,9 @@ export const MTASchedule = () => {
     } catch (error: any) {
       console.error('❌ Error fetching lines:', error);
       toast({
-        title: "MTA integration in development",
-        description: "Live NYC subway data is coming soon. Sample data shown for testing.",
-        variant: "default",
+        title: "Failed to load MTA lines",
+        description: "Could not load subway line information.",
+        variant: "destructive",
       });
       setLines([]);
     } finally {
@@ -165,7 +165,7 @@ export const MTASchedule = () => {
         
         if (data.notice) {
           toast({
-            title: "Development Notice",
+            title: "Live MTA Data",
             description: data.notice,
           });
         }
@@ -173,7 +173,7 @@ export const MTASchedule = () => {
         if (!data.data || data.data.length === 0) {
           toast({
             title: "No arrivals found",
-            description: "No upcoming arrivals for this station. This is sample data for development.",
+            description: "No upcoming arrivals for this station at this time.",
           });
         }
       } else {
@@ -185,7 +185,7 @@ export const MTASchedule = () => {
       
       toast({
         title: "MTA Schedule Error",
-        description: "NYC subway integration is in development. Sample data shown.",
+        description: "Unable to fetch live data at this time. Please try again.",
         variant: "destructive",
       });
       setArrivals([]);
@@ -208,10 +208,10 @@ export const MTASchedule = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>🚧 Development Status:</strong> NYC MTA integration is currently being developed. 
-              Sample data and basic functionality are shown for testing purposes.
+          <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+            <p className="text-sm text-green-800">
+              <strong>🚇 Live Data:</strong> Real-time NYC MTA subway arrivals and system information. 
+              Connected to official MTA GTFS-RT feeds for up-to-date train schedules.
             </p>
           </div>
         </CardContent>
@@ -285,7 +285,7 @@ export const MTASchedule = () => {
             NYC Subway Arrivals
           </CardTitle>
           <CardDescription>
-            Enter a station ID to see upcoming trains (Development Version)
+            Enter a station ID to see real-time upcoming trains
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
