@@ -42,9 +42,9 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
           <section>
             <h3 className="font-semibold mb-2">2. Service Description</h3>
             <p className="text-muted-foreground">
-              RAILSAVIOR is a safety application designed to help Chicago CTA riders stay safe through emergency features, 
-              incident reporting, and community support. The service includes real-time CTA schedule information, 
-              university ride-sharing, and emergency contact features.
+              RAILSAVIOR is a safety application designed to help rail commuters nationwide stay safe through emergency features, 
+              incident reporting, and community support. The service includes real-time transit schedule information, 
+              university ride-sharing, and emergency contact features across multiple metropolitan areas.
             </p>
           </section>
 
