@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Users, MapPin, Clock, Search, X } from "lucide-react";
+import { Plus, Users, MapPin, Clock, Search, X, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,6 +29,7 @@ export const GeneralGroupRides = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState("");
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -42,7 +43,13 @@ export const GeneralGroupRides = () => {
 
   useEffect(() => {
     fetchRides();
+    getCurrentUser();
   }, []);
+
+  const getCurrentUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setCurrentUser(user);
+  };
 
   const fetchRides = async () => {
     setLoading(true);
@@ -174,6 +181,42 @@ export const GeneralGroupRides = () => {
       toast({
         title: "Failed to join ride",
         description: "You may have already joined this ride.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteRide = async (rideId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to delete your ride.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('general_group_rides')
+        .delete()
+        .eq('id', rideId)
+        .eq('creator_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Ride deleted",
+        description: "Your group ride has been removed.",
+      });
+
+      fetchRides();
+    } catch (error) {
+      console.error('Error deleting ride:', error);
+      toast({
+        title: "Failed to delete ride",
+        description: "Please try again later.",
         variant: "destructive"
       });
     }
@@ -372,13 +415,24 @@ export const GeneralGroupRides = () => {
                   <div className="text-xs text-muted-foreground">
                     Posted {new Date(ride.created_at).toLocaleDateString()}
                   </div>
-                  <Button 
-                    onClick={() => joinRide(ride.id)}
-                    disabled={ride.current_members >= ride.max_spots}
-                    size="sm"
-                  >
-                    {ride.current_members >= ride.max_spots ? "Full" : "Join Ride"}
-                  </Button>
+                  {currentUser && ride.creator_id === currentUser.id ? (
+                    <Button 
+                      onClick={() => handleDeleteRide(ride.id)}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Delete
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => joinRide(ride.id)}
+                      disabled={ride.current_members >= ride.max_spots}
+                      size="sm"
+                    >
+                      {ride.current_members >= ride.max_spots ? "Full" : "Join Ride"}
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
