@@ -83,8 +83,8 @@ const CITIES_WITH_RAIL: City[] = [
     description: "Heavy Rail System - 4 colored lines",
     railLines: ["Red", "Gold", "Blue", "Green"],
     color: "bg-orange-600",
-    available: false,
-    majorStations: ["Five Points", "Peachtree Center", "Airport", "Lindbergh Center", "North Springs"]
+    available: true,
+    majorStations: ["Five Points", "Peachtree Center", "Airport", "Lindbergh Center", "North Springs", "Decatur", "King Memorial", "West End", "Buckhead", "Midtown"]
   }
 ];
 
@@ -231,13 +231,13 @@ export const MultiCityIncidentReport = () => {
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">
               <strong>🚨 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, 
-              Denver RTD, and Philadelphia SEPTA incident reporting with location tracking, photo upload, and real-time alerts.
+              Denver RTD, Philadelphia SEPTA, and Atlanta MARTA incident reporting with location tracking, photo upload, and real-time alerts.
             </p>
           </div>
           
           <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              <strong>🚧 Coming Soon:</strong> Safety reporting for LA Metro and MARTA 
+              <strong>🚧 Coming Soon:</strong> Safety reporting for LA Metro 
               with the same comprehensive features.
             </p>
           </div>
