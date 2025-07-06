@@ -68,6 +68,38 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         description: "Private Catholic research university",
         studentCount: "17,000+",
         nearbyStations: ["Loyola", "Granville", "Thorndale"]
+      },
+      {
+        id: "iit",
+        name: "Illinois Institute of Technology",
+        shortName: "IIT",
+        description: "Private technological research university",
+        studentCount: "8,000+",
+        nearbyStations: ["35th-Bronzeville-IIT", "Sox-35th", "Indiana"]
+      },
+      {
+        id: "roosevelt",
+        name: "Roosevelt University",
+        shortName: "Roosevelt",
+        description: "Private university in downtown Chicago",
+        studentCount: "4,000+",
+        nearbyStations: ["Harrison", "Jackson", "Monroe"]
+      },
+      {
+        id: "columbia",
+        name: "Columbia College Chicago",
+        shortName: "Columbia Chicago",
+        description: "Private arts and communications college",
+        studentCount: "7,000+",
+        nearbyStations: ["Harrison", "Jackson", "Roosevelt"]
+      },
+      {
+        id: "neiu",
+        name: "Northeastern Illinois University",
+        shortName: "NEIU",
+        description: "Public university serving diverse communities",
+        studentCount: "9,000+",
+        nearbyStations: ["Kimball", "Kedzie", "Albany Park"]
       }
     ]
   },
@@ -94,6 +126,38 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         nearbyStations: ["W 4th St-Washington Sq", "8th St-NYU", "Astor Pl"]
       },
       {
+        id: "cornell",
+        name: "Cornell University",
+        shortName: "Cornell",
+        description: "Private Ivy League research university",
+        studentCount: "25,000+",
+        nearbyStations: ["Roosevelt Island", "Lexington Av/59th St", "68th St-Hunter"]
+      },
+      {
+        id: "syracuse",
+        name: "Syracuse University",
+        shortName: "Syracuse",
+        description: "Private research university in Central NY",
+        studentCount: "22,000+",
+        nearbyStations: ["Penn Station", "Grand Central", "Port Authority"]
+      },
+      {
+        id: "stonybrook",
+        name: "Stony Brook University",
+        shortName: "Stony Brook",
+        description: "Public research university - SUNY",
+        studentCount: "26,000+",
+        nearbyStations: ["Jamaica", "Penn Station", "Ronkonkoma"]
+      },
+      {
+        id: "buffalo",
+        name: "University at Buffalo",
+        shortName: "UB",
+        description: "Public research university - SUNY",
+        studentCount: "32,000+",
+        nearbyStations: ["Buffalo Exchange St", "Buffalo Central Terminal"]
+      },
+      {
         id: "fordham",
         name: "Fordham University",
         shortName: "Fordham",
@@ -116,6 +180,30 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         description: "Private research university",
         studentCount: "10,000+",
         nearbyStations: ["14th St-Union Sq", "23rd St", "W 4th St"]
+      },
+      {
+        id: "pace",
+        name: "Pace University",
+        shortName: "Pace",
+        description: "Private university in Manhattan",
+        studentCount: "13,000+",
+        nearbyStations: ["Brooklyn Bridge-City Hall", "Fulton St", "Wall St"]
+      },
+      {
+        id: "stjohns",
+        name: "St. John's University",
+        shortName: "St. John's",
+        description: "Private Catholic research university",
+        studentCount: "21,000+",
+        nearbyStations: ["Jamaica Center", "Sutphin Blvd", "Union Turnpike"]
+      },
+      {
+        id: "pratt",
+        name: "Pratt Institute",
+        shortName: "Pratt",
+        description: "Private art and design university",
+        studentCount: "5,000+",
+        nearbyStations: ["Clinton-Washington Avs", "Lafayette Av", "Fulton St"]
       }
     ]
   },
@@ -156,6 +244,38 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         description: "Public university in the San Fernando Valley",
         studentCount: "38,000+",
         nearbyStations: ["Northridge", "Chatsworth", "Van Nuys"]
+      },
+      {
+        id: "csula",
+        name: "California State University, Los Angeles",
+        shortName: "Cal State LA",
+        description: "Public university serving diverse communities",
+        studentCount: "27,000+",
+        nearbyStations: ["Lincoln/Cypress", "Heritage Square", "Southwest Museum"]
+      },
+      {
+        id: "lmu",
+        name: "Loyola Marymount University",
+        shortName: "LMU",
+        description: "Private Catholic research university",
+        studentCount: "9,000+",
+        nearbyStations: ["Culver City", "Expo/Sepulveda", "Douglas/Rosecrans"]
+      },
+      {
+        id: "pepperdine",
+        name: "Pepperdine University",
+        shortName: "Pepperdine",
+        description: "Private Christian research university in Malibu",
+        studentCount: "8,000+",
+        nearbyStations: ["Santa Monica", "Venice", "Culver City"]
+      },
+      {
+        id: "occidental",
+        name: "Occidental College",
+        shortName: "Occidental",
+        description: "Private liberal arts college",
+        studentCount: "2,000+",
+        nearbyStations: ["Lincoln/Cypress", "Southwest Museum", "Highland Park"]
       }
     ]
   },
@@ -196,6 +316,30 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         description: "Private historically black research university",
         studentCount: "10,000+",
         nearbyStations: ["Shaw-Howard U", "U Street", "Georgia Ave-Petworth"]
+      },
+      {
+        id: "catholic",
+        name: "The Catholic University of America",
+        shortName: "Catholic U",
+        description: "Private Catholic research university",
+        studentCount: "6,000+",
+        nearbyStations: ["Brookland-CUA", "Rhode Island Ave", "Fort Totten"]
+      },
+      {
+        id: "gallaudet",
+        name: "Gallaudet University",
+        shortName: "Gallaudet",
+        description: "Private university for deaf and hard of hearing",
+        studentCount: "2,000+",
+        nearbyStations: ["Union Station", "NoMa-Gallaudet U", "New York Ave"]
+      },
+      {
+        id: "trinity",
+        name: "Trinity Washington University",
+        shortName: "Trinity",
+        description: "Private Catholic university",
+        studentCount: "2,500+",
+        nearbyStations: ["Brookland-CUA", "Catholic U", "Rhode Island Ave"]
       }
     ]
   },
@@ -236,6 +380,22 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         description: "Private Catholic research university",
         studentCount: "11,000+",
         nearbyStations: ["Villanova", "Radnor", "St. Davids"]
+      },
+      {
+        id: "jefferson",
+        name: "Thomas Jefferson University",
+        shortName: "Jefferson",
+        description: "Private health sciences university",
+        studentCount: "8,000+",
+        nearbyStations: ["Jefferson Station", "City Hall", "Walnut-Locust"]
+      },
+      {
+        id: "lasalle",
+        name: "La Salle University",
+        shortName: "La Salle",
+        description: "Private Catholic university",
+        studentCount: "5,000+",
+        nearbyStations: ["Olney Transportation Center", "Logan", "Wyoming"]
       }
     ]
   },
@@ -276,6 +436,30 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         description: "Private historically black liberal arts college",
         studentCount: "2,100+",
         nearbyStations: ["West End", "Ashby", "Vine City"]
+      },
+      {
+        id: "morehouse",
+        name: "Morehouse College",
+        shortName: "Morehouse",
+        description: "Private historically black liberal arts college",
+        studentCount: "2,200+",
+        nearbyStations: ["West End", "Ashby", "Vine City"]
+      },
+      {
+        id: "clark",
+        name: "Clark Atlanta University",
+        shortName: "Clark Atlanta",
+        description: "Private historically black research university",
+        studentCount: "4,000+",
+        nearbyStations: ["West End", "Ashby", "Vine City"]
+      },
+      {
+        id: "kennesaw",
+        name: "Kennesaw State University",
+        shortName: "Kennesaw State",
+        description: "Public research university",
+        studentCount: "41,000+",
+        nearbyStations: ["Arts Center", "Lindbergh Center", "Buckhead"]
       }
     ]
   }
