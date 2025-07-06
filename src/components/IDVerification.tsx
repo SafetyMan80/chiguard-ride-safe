@@ -4,16 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Camera, Upload, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Camera, Upload, CheckCircle, AlertCircle, ArrowLeft, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface IDVerificationProps {
   onVerificationComplete: () => void;
   onBack?: () => void;
+  requiredUniversity?: string; // If specified, only allow this university
 }
 
-export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificationProps) => {
+export const IDVerification = ({ onVerificationComplete, onBack, requiredUniversity }: IDVerificationProps) => {
   const [idType, setIdType] = useState("");
+  const [universityName, setUniversityName] = useState(requiredUniversity || "");
+  const [studentIdNumber, setStudentIdNumber] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -26,6 +30,51 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
     { value: "state_id", label: "State ID" },
     { value: "student_id", label: "Student ID" },
     { value: "passport", label: "Passport" },
+  ];
+
+  const universities = [
+    "Northwestern University",
+    "University of Chicago", 
+    "University of Illinois Chicago",
+    "DePaul University",
+    "Loyola University Chicago",
+    "Illinois Institute of Technology",
+    "Roosevelt University",
+    "Columbia College Chicago",
+    "Northeastern Illinois University",
+    // NY Universities
+    "Columbia University",
+    "New York University",
+    "Cornell University",
+    "Syracuse University",
+    "Stony Brook University",
+    "University at Buffalo",
+    "Fordham University",
+    "City University of New York",
+    "The New School",
+    "Pace University",
+    "St. John's University",
+    "Pratt Institute",
+    // Denver Universities
+    "University of Colorado Denver",
+    "University of Denver",
+    "Metropolitan State University of Denver",
+    "Regis University",
+    "Colorado State University Denver",
+    // Other major universities
+    "University of California, Los Angeles",
+    "University of Southern California",
+    "California Institute of Technology",
+    "George Washington University",
+    "Georgetown University",
+    "American University",
+    "Howard University",
+    "University of Pennsylvania",
+    "Temple University",
+    "Drexel University",
+    "Georgia Institute of Technology",
+    "Emory University",
+    "Georgia State University"
   ];
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +117,18 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
       return;
     }
 
+    // Additional validation for student IDs
+    if (idType === 'student_id') {
+      if (!universityName || !studentIdNumber) {
+        toast({
+          title: "Missing information",
+          description: "Please provide university name and student ID number for student ID verification",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setUploading(true);
 
     try {
@@ -89,22 +150,33 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
         .from('id-documents')
         .getPublicUrl(fileName);
 
-      // Save verification record
+      // Save verification record with enhanced data
+      const verificationData: any = {
+        user_id: user.id,
+        id_type: idType,
+        id_image_url: publicUrl,
+        verification_status: 'pending'
+      };
+
+      // Add university-specific fields for student IDs
+      if (idType === 'student_id') {
+        verificationData.university_name = universityName;
+        verificationData.student_id_number = studentIdNumber;
+        verificationData.verification_notes = `Student ID verification for ${universityName}`;
+      }
+
       const { error: dbError } = await supabase
         .from('id_verifications')
-        .insert({
-          user_id: user.id,
-          id_type: idType,
-          id_image_url: publicUrl,
-          verification_status: 'pending'
-        });
+        .insert(verificationData);
 
       if (dbError) throw dbError;
 
       setVerificationStatus('pending');
       toast({
         title: "ID uploaded successfully!",
-        description: "Your ID is being reviewed. You'll be notified once verified.",
+        description: idType === 'student_id' 
+          ? `Your ${universityName} student ID is being reviewed. You'll be notified once verified.`
+          : "Your ID is being reviewed. You'll be notified once verified.",
       });
 
       onVerificationComplete();
@@ -130,11 +202,19 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
           )}
           <div>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-chicago-blue" />
+              <Shield className="w-5 h-5 text-chicago-blue" />
               ID Verification
+              {requiredUniversity && (
+                <span className="text-sm font-normal text-muted-foreground">
+                  for {requiredUniversity}
+                </span>
+              )}
             </CardTitle>
             <CardDescription>
-              Upload a clear photo of your ID for verification. This helps ensure the safety of all RAILSAVIOR users.
+              {idType === 'student_id' || requiredUniversity
+                ? "Upload your student ID to verify your university enrollment and access student group rides."
+                : "Upload a clear photo of your ID for verification. This helps ensure the safety of all RAILSAVIOR users."
+              }
             </CardDescription>
           </div>
         </div>
@@ -155,6 +235,49 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
             </SelectContent>
           </Select>
         </div>
+
+        {/* Additional fields for student ID verification */}
+        {idType === 'student_id' && (
+          <>
+            <div className="space-y-2">
+              <Label>University *</Label>
+              <Select 
+                value={universityName} 
+                onValueChange={setUniversityName}
+                disabled={!!requiredUniversity}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your university" />
+                </SelectTrigger>
+                <SelectContent>
+                  {universities.map((uni) => (
+                    <SelectItem key={uni} value={uni}>
+                      {uni}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {requiredUniversity && (
+                <p className="text-xs text-muted-foreground">
+                  University is pre-selected for this verification.
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Student ID Number *</Label>
+              <Input
+                type="text"
+                placeholder="Enter your student ID number"
+                value={studentIdNumber}
+                onChange={(e) => setStudentIdNumber(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                This helps us verify your student status with your university.
+              </p>
+            </div>
+          </>
+        )}
 
         <div className="space-y-4">
           <Label>Upload ID Photo *</Label>
@@ -236,19 +359,28 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
         )}
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">Tips for a good ID photo:</h4>
+          <h4 className="font-medium text-blue-800 mb-2">
+            {idType === 'student_id' ? 'Tips for student ID verification:' : 'Tips for a good ID photo:'}
+          </h4>
           <ul className="text-sm text-blue-600 space-y-1">
             <li>• Ensure all text is clearly readable</li>
             <li>• Take the photo in good lighting</li>
             <li>• Avoid glare or shadows</li>
             <li>• Include the entire ID in the frame</li>
             <li>• Make sure the photo is not blurry</li>
+            {idType === 'student_id' && (
+              <>
+                <li>• Ensure university name is visible</li>
+                <li>• Student ID number should be legible</li>
+                <li>• Include current semester/year if shown</li>
+              </>
+            )}
           </ul>
         </div>
 
         <Button
           onClick={uploadIDDocument}
-          disabled={uploading || !selectedFile || !idType}
+          disabled={uploading || !selectedFile || !idType || (idType === 'student_id' && (!universityName || !studentIdNumber))}
           className="w-full"
           variant="chicago"
         >

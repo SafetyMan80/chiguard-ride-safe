@@ -168,35 +168,50 @@ export type Database = {
       }
       id_verifications: {
         Row: {
+          admin_verified_by: string | null
           created_at: string
           id: string
           id_image_url: string | null
           id_type: string
           rejection_reason: string | null
+          student_id_number: string | null
+          university_name: string | null
           updated_at: string
           user_id: string
+          verification_notes: string | null
+          verification_score: number | null
           verification_status: string | null
           verified_at: string | null
         }
         Insert: {
+          admin_verified_by?: string | null
           created_at?: string
           id?: string
           id_image_url?: string | null
           id_type: string
           rejection_reason?: string | null
+          student_id_number?: string | null
+          university_name?: string | null
           updated_at?: string
           user_id: string
+          verification_notes?: string | null
+          verification_score?: number | null
           verification_status?: string | null
           verified_at?: string | null
         }
         Update: {
+          admin_verified_by?: string | null
           created_at?: string
           id?: string
           id_image_url?: string | null
           id_type?: string
           rejection_reason?: string | null
+          student_id_number?: string | null
+          university_name?: string | null
           updated_at?: string
           user_id?: string
+          verification_notes?: string | null
+          verification_score?: number | null
           verification_status?: string | null
           verified_at?: string | null
         }
@@ -354,6 +369,44 @@ export type Database = {
           state?: string
         }
         Relationships: []
+      }
+      university_verification_logs: {
+        Row: {
+          action: string
+          admin_user_id: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          reason: string | null
+          verification_id: string
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          verification_id: string
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "university_verification_logs_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "id_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

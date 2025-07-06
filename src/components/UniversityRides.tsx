@@ -463,7 +463,10 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
             <p className="text-yellow-700 mb-4">
               To ensure safety and validity, you must verify your student status by uploading your student ID before creating university rides.
             </p>
-            <IDVerification onVerificationComplete={handleVerificationComplete} />
+            <IDVerification 
+              onVerificationComplete={handleVerificationComplete} 
+              requiredUniversity={selectedUniversity}
+            />
             <Button 
               variant="outline" 
               onClick={() => {
