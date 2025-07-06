@@ -196,11 +196,11 @@ export const Settings = ({ user }: SettingsProps) => {
         <CardContent className="space-y-3">
           <div className="text-sm space-y-2">
             <p><span className="font-medium">Established:</span> 2025</p>
-            <p><span className="font-medium">Mission:</span> Community-powered safety for Chicago commuters</p>
-            <p><span className="font-medium">Coverage:</span> All CTA routes and stops across Chicago</p>
-            <p><span className="font-medium">Disclaimer:</span> Not affiliated with the Chicago Transit Authority (CTA)</p>
+            <p><span className="font-medium">Mission:</span> Community-powered safety for rail commuters across major US cities</p>
+            <p><span className="font-medium">Coverage:</span> All major US cities with rail service</p>
+            <p><span className="font-medium">Disclaimer:</span> Not affiliated with LA Metro, MTA (New York), WMATA (Washington D.C.), SEPTA (Philadelphia), MARTA (Atlanta), CTA (Chicago), or any other transit authority</p>
             <p className="text-muted-foreground italic pt-2">
-              RAIL SAVIOR is an independent safety platform built by and for the Chicago community to enhance transit safety through real-time incident reporting and group ride coordination.
+              RAIL SAVIOR is an independent safety platform built by and for transit communities nationwide to enhance rail safety through real-time incident reporting and group ride coordination.
             </p>
           </div>
         </CardContent>
@@ -256,7 +256,7 @@ export const Settings = ({ user }: SettingsProps) => {
       <Card>
         <CardContent className="py-4 text-center text-sm text-muted-foreground">
           <p>RAIL SAVIOR v1.0</p>
-          <p>Keeping Chicago CTA riders safe together</p>
+          <p>Keeping rail commuters safe nationwide</p>
         </CardContent>
       </Card>
     </div>
