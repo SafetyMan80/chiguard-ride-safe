@@ -3,12 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, MapPin, Clock, UserCheck, Trash2, Repeat, Shield, Plus } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Users, MapPin, Clock, UserCheck, Trash2, Repeat, Shield, Plus, Phone, MessageSquare, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateRideForm } from "./CreateRideForm";
 import { IDVerification } from "./IDVerification";
+import { GroupRideMessenger } from "./GroupRideMessenger";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCampusSecurity } from "@/data/campusSecurity";
 
 interface GroupRide {
   id: string;
@@ -94,6 +97,8 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  const [showMessenger, setShowMessenger] = useState(false);
+  const [selectedRideForMessaging, setSelectedRideForMessaging] = useState<GroupRide | null>(null);
   const [pendingAction, setPendingAction] = useState<{type: 'join' | 'create', rideId?: string} | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -550,6 +555,62 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
           )}
         </div>
         
+        {/* Campus Security Information */}
+        {selectedUniversity && (
+          <Card className="border-blue-200 bg-blue-50/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-blue-800 text-base">
+                <Phone className="w-4 h-4" />
+                Campus Security - {selectedUniversity}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const security = getCampusSecurity(selectedUniversity);
+                if (security) {
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-blue-700 mb-1">Emergency</p>
+                        <a 
+                          href={`tel:${security.emergency}`}
+                          className="text-lg font-bold text-blue-800 hover:underline"
+                        >
+                          {security.emergency}
+                        </a>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-blue-700 mb-1">Security</p>
+                        <a 
+                          href={`tel:${security.security}`}
+                          className="text-lg font-bold text-blue-800 hover:underline"
+                        >
+                          {security.security}
+                        </a>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-blue-700 mb-1">Escort Service</p>
+                        <a 
+                          href={`tel:${security.escort}`}
+                          className="text-lg font-bold text-blue-800 hover:underline"
+                        >
+                          {security.escort}
+                        </a>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <p className="text-sm text-blue-700">
+                      Contact your campus security for emergency assistance.
+                    </p>
+                  );
+                }
+              })()}
+            </CardContent>
+          </Card>
+        )}
+        
         {rides.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
@@ -618,6 +679,21 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
                    {ride.description && (
                      <p className="text-sm text-muted-foreground mb-3">{ride.description}</p>
                    )}
+                   {/* Member Controls - Show messaging if user is part of ride */}
+                   {(currentUser && (ride.is_member || ride.creator_id === currentUser.id)) && (
+                     <Button 
+                       variant="outline"
+                       size="sm" 
+                       className="w-full mb-2"
+                       onClick={() => {
+                         setSelectedRideForMessaging(ride);
+                         setShowMessenger(true);
+                       }}
+                     >
+                       <MessageSquare className="w-3 h-3 mr-1" />
+                       Group Chat
+                     </Button>
+                   )}
                    
                    {/* Creator Controls */}
                    {currentUser && ride.creator_id === currentUser.id ? (
@@ -657,12 +733,24 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
                        }
                      </Button>
                    )}
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
-      </div>
-    </div>
+                 </CardContent>
+               </Card>
+             );
+           })
+         )}
+       </div>
+       
+       {/* Messaging Modal */}
+       {showMessenger && selectedRideForMessaging && (
+         <GroupRideMessenger
+           rideId={selectedRideForMessaging.id}
+           rideTitle={`${selectedRideForMessaging.cta_line} - ${selectedRideForMessaging.station_name}`}
+           onClose={() => {
+             setShowMessenger(false);
+             setSelectedRideForMessaging(null);
+           }}
+         />
+       )}
+     </div>
   );
 };

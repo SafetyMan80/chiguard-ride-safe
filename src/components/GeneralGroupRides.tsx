@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Users, MapPin, Clock, Search, X, Trash2 } from "lucide-react";
+import { Plus, Users, MapPin, Clock, Search, X, Trash2, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { GroupRideMessenger } from "./GroupRideMessenger";
 
 interface GeneralRide {
   id: string;
@@ -22,6 +23,7 @@ interface GeneralRide {
   current_members: number;
   created_at: string;
   status: string;
+  is_member?: boolean;
 }
 
 export const GeneralGroupRides = () => {
@@ -30,6 +32,8 @@ export const GeneralGroupRides = () => {
   const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState("");
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showMessenger, setShowMessenger] = useState(false);
+  const [selectedRideForMessaging, setSelectedRideForMessaging] = useState<GeneralRide | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -64,7 +68,7 @@ export const GeneralGroupRides = () => {
 
       if (ridesError) throw ridesError;
 
-      // Then get member counts for each ride
+      // Then get member counts and check membership for each ride
       const ridesWithCounts = await Promise.all(
         (ridesData || []).map(async (ride) => {
           const { count } = await supabase
@@ -73,9 +77,24 @@ export const GeneralGroupRides = () => {
             .eq('ride_id', ride.id)
             .eq('status', 'joined');
 
+          // Check if current user is a member
+          let is_member = false;
+          if (currentUser) {
+            const { data: memberData } = await supabase
+              .from('general_ride_members')
+              .select('id')
+              .eq('ride_id', ride.id)
+              .eq('user_id', currentUser.id)
+              .eq('status', 'joined')
+              .maybeSingle();
+            
+            is_member = !!memberData;
+          }
+
           return {
             ...ride,
-            current_members: count || 0
+            current_members: count || 0,
+            is_member
           };
         })
       );
@@ -411,6 +430,23 @@ export const GeneralGroupRides = () => {
                 {ride.description && (
                   <p className="text-sm text-muted-foreground mb-4">{ride.description}</p>
                 )}
+                
+                {/* Member Controls - Show messaging if user is part of ride */}
+                {(currentUser && (ride.is_member || ride.creator_id === currentUser.id)) && (
+                  <Button 
+                    variant="outline"
+                    size="sm" 
+                    className="w-full mb-3"
+                    onClick={() => {
+                      setSelectedRideForMessaging(ride);
+                      setShowMessenger(true);
+                    }}
+                  >
+                    <MessageSquare className="w-3 h-3 mr-1" />
+                    Group Chat
+                  </Button>
+                )}
+                
                 <div className="flex justify-between items-center">
                   <div className="text-xs text-muted-foreground">
                     Posted {new Date(ride.created_at).toLocaleDateString()}
@@ -427,10 +463,15 @@ export const GeneralGroupRides = () => {
                   ) : (
                     <Button 
                       onClick={() => joinRide(ride.id)}
-                      disabled={ride.current_members >= ride.max_spots}
+                      disabled={ride.current_members >= ride.max_spots || ride.is_member}
                       size="sm"
                     >
-                      {ride.current_members >= ride.max_spots ? "Full" : "Join Ride"}
+                      {ride.is_member 
+                        ? "Already Joined" 
+                        : ride.current_members >= ride.max_spots 
+                          ? "Full" 
+                          : "Join Ride"
+                      }
                     </Button>
                   )}
                 </div>
@@ -439,6 +480,18 @@ export const GeneralGroupRides = () => {
           ))
         )}
       </div>
+      
+      {/* Messaging Modal */}
+      {showMessenger && selectedRideForMessaging && (
+        <GroupRideMessenger
+          rideId={selectedRideForMessaging.id}
+          rideTitle={selectedRideForMessaging.title}
+          onClose={() => {
+            setShowMessenger(false);
+            setSelectedRideForMessaging(null);
+          }}
+        />
+      )}
     </div>
   );
 };
