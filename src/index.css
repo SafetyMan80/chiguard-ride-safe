@@ -42,6 +42,10 @@ All colors MUST be HSL.
     --chicago-accent: 213 20% 95%;
     --chicago-gold: 45 85% 65%;
     --chicago-gold-dark: 38 70% 45%;
+    --chicago-yellow: 45 93% 68%;
+    --chicago-green: 142 69% 45%;
+    --chicago-orange: 24 95% 53%;
+    --chicago-grey: 220 9% 46%;
     
     /* Premium gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--chicago-blue)), hsl(var(--chicago-navy)));
@@ -114,6 +118,10 @@ All colors MUST be HSL.
     --chicago-dark-blue: 203 65% 45%;
     --chicago-gold: 45 75% 55%;
     --chicago-gold-dark: 38 60% 35%;
+    --chicago-yellow: 45 83% 58%;
+    --chicago-green: 142 59% 35%;
+    --chicago-orange: 24 85% 43%;
+    --chicago-grey: 220 9% 56%;
   }
 }
 

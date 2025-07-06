@@ -35,6 +35,10 @@ export default {
 				'chicago-gunmetal': 'hsl(var(--chicago-gunmetal))',
 				'chicago-gold': 'hsl(var(--chicago-gold))',
 				'chicago-gold-dark': 'hsl(var(--chicago-gold-dark))',
+				'chicago-yellow': 'hsl(var(--chicago-yellow))',
+				'chicago-green': 'hsl(var(--chicago-green))',
+				'chicago-orange': 'hsl(var(--chicago-orange))',
+				'chicago-grey': 'hsl(var(--chicago-grey))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'

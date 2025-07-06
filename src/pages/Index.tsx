@@ -191,28 +191,28 @@ const Index = () => {
       title: "INCIDENTS",
       icon: "📝",
       description: "Report Issues",
-      color: "bg-slate-600 text-white",
+      color: "bg-chicago-yellow text-black",
     },
     {
       id: "groups",
       title: "UNIVERSITY",
       icon: "🎓",
       description: "Student Rides",
-      color: "bg-chicago-blue/80 text-white",
+      color: "bg-chicago-orange text-white",
     },
     {
       id: "general",
       title: "GENERAL",
       icon: "👥",
       description: "Public Rides",
-      color: "bg-slate-600 text-white",
+      color: "bg-chicago-green text-white",
     },
     {
       id: "schedule",
       title: "SCHEDULE",
       icon: "🚇",
       description: "Rail Times",
-      color: "bg-chicago-dark-blue text-white",
+      color: "bg-chicago-grey text-white",
     },
   ];
 
