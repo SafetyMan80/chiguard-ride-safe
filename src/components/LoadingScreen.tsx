@@ -6,9 +6,8 @@ export const LoadingScreen = () => {
       <div className="flex items-center justify-center gap-1 mb-8">
         <Logo className="w-32 h-32 drop-shadow-md" />
         <h1 
-          className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-foreground tracking-tight animate-zoom-in-text" 
+          className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight animate-zoom-in-text" 
           style={{
-            textShadow: '0 0 2px hsl(var(--chicago-gold)), 0 0 4px hsl(var(--chicago-gold)), 0 0 6px hsl(var(--chicago-gold))',
             perspective: '1000px',
             transformStyle: 'preserve-3d'
           }}

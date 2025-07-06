@@ -374,9 +374,7 @@ const Index = () => {
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-2">
               <Logo className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md" />
-              <h1 className="text-2xl md:text-3xl font-urbanist font-black text-chicago-gunmetal dark:text-foreground tracking-tight" style={{
-                textShadow: '0 0 1px hsl(var(--chicago-gold)), 0 0 2px hsl(var(--chicago-gold)), 0 0 3px hsl(var(--chicago-gold))'
-              }}>
+              <h1 className="text-2xl md:text-3xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight">
                 RAILSAVIOR
               </h1>
             </div>
