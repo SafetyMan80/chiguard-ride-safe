@@ -192,40 +192,46 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
                   setFormData(prev => ({ ...prev, student_status: checked as boolean }))
                 }
               />
-              <Label htmlFor="student_status">I am a student</Label>
+              <Label htmlFor="student_status">I am a student (optional - can be verified later)</Label>
             </div>
 
             {formData.student_status && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="university">University *</Label>
-                  <Select
-                    value={formData.university_name}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, university_name: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your university" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {universities.map((university) => (
-                        <SelectItem key={university.id} value={university.name}>
-                          {university.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="university">University</Label>
+                    <Select
+                      value={formData.university_name}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, university_name: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your university" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {universities.map((university) => (
+                          <SelectItem key={university.id} value={university.name}>
+                            {university.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="student_id">Student ID Number *</Label>
-                  <Input
-                    id="student_id"
-                    value={formData.student_id_number}
-                    onChange={(e) => setFormData(prev => ({ ...prev, student_id_number: e.target.value }))}
-                    required={formData.student_status}
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="student_id">Student ID Number</Label>
+                    <Input
+                      id="student_id"
+                      value={formData.student_id_number}
+                      onChange={(e) => setFormData(prev => ({ ...prev, student_id_number: e.target.value }))}
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-700">
+                    <strong>Note:</strong> ID verification will be required later when creating university group rides to ensure student safety.
+                  </p>
+                </div>
+              </>
             )}
           </div>
 
