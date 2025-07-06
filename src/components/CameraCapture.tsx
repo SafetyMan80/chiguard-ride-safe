@@ -148,7 +148,7 @@ export const CameraCapture = ({
                   </p>
                   <ul className="space-y-1 text-muted-foreground">
                     <li>• You are solely responsible for compliance with all applicable laws</li>
-                    <li>• CHIGUARD and its creators are held harmless from any legal consequences</li>
+                    <li>• RAIL SAVIOR and its creators are held harmless from any legal consequences</li>
                     <li>• You will not use photos for harassment, stalking, or illegal purposes</li>
                     <li>• Images may be shared with law enforcement if required by law</li>
                   </ul>

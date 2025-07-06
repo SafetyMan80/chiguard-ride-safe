@@ -110,7 +110,7 @@ export const Settings = ({ user }: SettingsProps) => {
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                Allow CHIGUARD to access your location for incident reporting and emergency services
+                Allow RAIL SAVIOR to access your location for incident reporting and emergency services
               </p>
             </div>
             <Switch
@@ -190,7 +190,7 @@ export const Settings = ({ user }: SettingsProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-5 h-5 bg-chicago-blue rounded text-white flex items-center justify-center text-xs font-bold">ℹ</div>
-            About CHIGUARD
+            About RAIL SAVIOR
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -200,7 +200,7 @@ export const Settings = ({ user }: SettingsProps) => {
             <p><span className="font-medium">Coverage:</span> All CTA routes and stops across Chicago</p>
             <p><span className="font-medium">Disclaimer:</span> Not affiliated with the Chicago Transit Authority (CTA)</p>
             <p className="text-muted-foreground italic pt-2">
-              CHIGUARD is an independent safety platform built by and for the Chicago community to enhance transit safety through real-time incident reporting and group ride coordination.
+              RAIL SAVIOR is an independent safety platform built by and for the Chicago community to enhance transit safety through real-time incident reporting and group ride coordination.
             </p>
           </div>
         </CardContent>
@@ -255,7 +255,7 @@ export const Settings = ({ user }: SettingsProps) => {
       {/* App Information */}
       <Card>
         <CardContent className="py-4 text-center text-sm text-muted-foreground">
-          <p>CHIGUARD v1.0</p>
+          <p>RAIL SAVIOR v1.0</p>
           <p>Keeping Chicago CTA riders safe together</p>
         </CardContent>
       </Card>

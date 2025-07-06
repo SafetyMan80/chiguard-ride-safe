@@ -163,7 +163,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
           <div>
             <CardTitle>Complete Your Profile</CardTitle>
             <CardDescription>
-              Please provide your information to continue with ChiGuard
+              Please provide your information to continue with Rail Savior
             </CardDescription>
           </div>
         </div>
