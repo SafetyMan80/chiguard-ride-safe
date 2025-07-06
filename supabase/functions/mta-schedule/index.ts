@@ -58,12 +58,24 @@ serve(async (req) => {
 
     if (stationId) {
       // Get arrivals for a specific station
-      // MTA uses GTFS-RT feeds - this is a simplified implementation
-      const mtaUrl = `https://api.mta.info/mta-gtfs-rt`;
+// MTA GTFS-RT feed endpoints by line group
+      const MTA_FEEDS = {
+        'ace': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace',
+        'bdfm': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm', 
+        'g': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-g',
+        'jz': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz',
+        'nqrw': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw',
+        'l': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l',
+        'main': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs',
+        'si': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si'
+      };
+
+      // Determine which feed to use based on station/line
+      const feedUrl = MTA_FEEDS.main; // Default to main feed for now
       
-      console.log(`Fetching MTA data from: ${mtaUrl}`);
+      console.log(`Fetching MTA data from: ${feedUrl}`);
       
-      // For now, return mock data since MTA API requires more complex GTFS-RT parsing
+      // TODO: Parse GTFS-RT protobuf data - requires MTA API key
       responseData = {
         type: 'arrivals',
         data: [
