@@ -19,6 +19,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const voiceIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
   const holdProgressRef = useRef<NodeJS.Timeout | null>(null);
+  const holdCompletedRef = useRef<number | null>(null);
   const { isOnline, saveOfflineReport } = useOffline();
   const { toast } = useToast();
   
@@ -271,6 +272,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     // Activation timer (2 seconds)
     holdTimerRef.current = setTimeout(async () => {
       console.log("🆘 2-second hold completed - ACTIVATING EMERGENCY!");
+      holdCompletedRef.current = Date.now(); // Track when hold completed
       setIsHolding(false);
       setHoldProgress(0);
       
@@ -335,6 +337,9 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   };
 
   const handleHoldEnd = () => {
+    // Don't log or clear if emergency just activated
+    if (isActive) return;
+    
     console.log("🖱️ Emergency button hold ended");
     
     // Clear timers if holding was incomplete
@@ -351,7 +356,13 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     setHoldProgress(0);
   };
 
-  const handleEmergencyClick = () => {
+  const handleEmergencyClick = (e: React.MouseEvent) => {
+    // Prevent click if we just completed a hold (within 500ms)
+    if (Date.now() - (holdCompletedRef.current || 0) < 500) {
+      e.preventDefault();
+      return;
+    }
+    
     if (isActive) {
       // Stop emergency immediately on click when active
       console.log("✅ Emergency stopped by user");
