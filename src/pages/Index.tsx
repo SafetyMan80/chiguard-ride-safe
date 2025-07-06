@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { IncidentReport } from "@/components/IncidentReport";
 import { UniversityRides } from "@/components/UniversityRides";
-import { CTASchedule } from "@/components/CTASchedule";
+import { MultiCitySchedule } from "@/components/MultiCitySchedule";
 import { Settings } from "@/components/Settings";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
@@ -141,8 +141,8 @@ const Index = () => {
   const handleShare = async () => {
     const url = window.location.href;
     const shareData = {
-      title: 'RAILSAVIOR - Safety App for Chicago Riders',
-      text: 'Join me on RAILSAVIOR for safer transit in Chicago!',
+      title: 'RAILSAVIOR - Safety App for Rail Commuters',
+      text: 'Join me on RAILSAVIOR for safer transit across major US cities!',
       url: url
     };
 
@@ -203,7 +203,7 @@ const Index = () => {
       id: "schedule",
       title: "SCHEDULE",
       icon: "🚇",
-      description: "CTA Times",
+      description: "Rail Times",
       color: "bg-chicago-dark-blue text-white",
     },
   ];
@@ -227,7 +227,7 @@ const Index = () => {
       case "groups":
         return <UniversityRides />;
       case "schedule":
-        return <CTASchedule />;
+        return <MultiCitySchedule />;
       case "settings":
         return <Settings user={user} />;
       case "home":
