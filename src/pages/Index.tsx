@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { EmergencyButton } from "@/components/EmergencyButton";
-import { IncidentReport } from "@/components/IncidentReport";
-import { UniversityRides } from "@/components/UniversityRides";
 import { MultiCitySchedule } from "@/components/MultiCitySchedule";
+import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
+import { MultiCityGroupRides } from "@/components/MultiCityGroupRides";
 import { Settings } from "@/components/Settings";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
@@ -218,14 +218,14 @@ const Index = () => {
             </div>
             <div className="border-t pt-6">
               <h2 className="text-xl font-semibold mb-4">Quick Report</h2>
-              <IncidentReport />
+              <MultiCityIncidentReport />
             </div>
           </div>
         );
       case "incidents":
-        return <IncidentReport />;
+        return <MultiCityIncidentReport />;
       case "groups":
-        return <UniversityRides />;
+        return <MultiCityGroupRides />;
       case "schedule":
         return <MultiCitySchedule />;
       case "settings":
