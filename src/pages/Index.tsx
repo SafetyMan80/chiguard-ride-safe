@@ -376,11 +376,10 @@ const Index = () => {
       {/* Header */}
       <header className="p-6 safe-area-top">
         <OfflineIndicator />
-        <div className="flex justify-between items-start mb-4">
-          <div></div>
+        <div className="flex justify-end items-center mb-4">
           <ThemeToggle />
         </div>
-        <Card className="bg-chicago-accent border-chicago-blue/20">
+        <Card className="bg-chicago-accent dark:bg-card border-chicago-blue/20">
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-2">
               <Logo className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md" />
@@ -400,13 +399,13 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 pb-24 max-w-md mx-auto w-full">
+      <main className="flex-1 p-6 pb-32 max-w-md mx-auto w-full">
         {renderActiveTab()}
       </main>
 
       {/* Bottom Navigation */}
-<nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-[var(--shadow-floating)] safe-area-bottom z-50">
-        <div className="max-w-md mx-auto">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
+        <div className="max-w-md mx-auto safe-area-bottom">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
       </nav>
