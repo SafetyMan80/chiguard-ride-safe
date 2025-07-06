@@ -120,14 +120,20 @@ export default {
 						transform: 'translateY(0)'
 					}
 				},
-				'train-move': {
+				'train-city': {
 					'0%': {
-						transform: 'translateX(-100px)',
-						opacity: '0.3'
+						transform: 'translateX(-250px)'
 					},
 					'100%': {
-						transform: 'translateX(0px)',
-						opacity: '0.7'
+						transform: 'translateX(800px)'
+					}
+				},
+				'float-logo': {
+					'0%, 100%': {
+						transform: 'translateX(-50%) translateY(0px)'
+					},
+					'50%': {
+						transform: 'translateX(-50%) translateY(-10px)'
 					}
 				}
 			},
@@ -136,7 +142,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-emergency': 'pulse-emergency 1s ease-in-out infinite',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'train-move': 'train-move 2s ease-out'
+				'train-city': 'train-city 8s linear infinite',
+				'float-logo': 'float-logo 3s ease-in-out infinite'
 			}
 		}
 	},

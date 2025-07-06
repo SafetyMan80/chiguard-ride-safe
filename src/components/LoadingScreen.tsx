@@ -1,5 +1,5 @@
 import { Logo } from "@/components/Logo";
-import chicagoTrainGraphic from "@/assets/chicago-l-train-ai.jpg";
+import { AnimatedTrainCity } from "@/components/AnimatedTrainCity";
 
 export const LoadingScreen = () => {
   return (
@@ -13,12 +13,8 @@ export const LoadingScreen = () => {
         </h1>
       </div>
       
-      <div className="mb-4 overflow-hidden">
-        <img 
-          src={chicagoTrainGraphic}
-          alt="Chicago L Train" 
-          className="w-full max-w-lg h-40 object-cover rounded-lg animate-train-move will-change-transform"
-        />
+      <div className="mb-4 overflow-hidden w-full max-w-2xl">
+        <AnimatedTrainCity interactive={true} />
       </div>
       
       <p className="text-center text-lg text-muted-foreground font-sans font-medium">

@@ -14,6 +14,7 @@ import { IDVerification } from "@/components/IDVerification";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AnimatedTrainCity } from "@/components/AnimatedTrainCity";
 import { useToast } from "@/hooks/use-toast";
 import { useOffline } from "@/hooks/useOffline";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -22,7 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
 import QRCode from "qrcode";
 import type { User } from "@supabase/supabase-js";
-import chicagoTrainGraphic from "@/assets/chicago-l-train-ai.jpg";
 import { useAddToHomeScreen } from "@/hooks/useAddToHomeScreen";
 
 const Index = () => {
@@ -268,11 +268,7 @@ const Index = () => {
               </div>
               
               <div className="mt-8 flex justify-center">
-                <img 
-                  src={chicagoTrainGraphic}
-                  alt="Chicago L Train" 
-                  className="w-full max-w-lg h-40 object-cover rounded-lg opacity-70"
-                />
+                <AnimatedTrainCity />
               </div>
               
               {/* Share Section */}
