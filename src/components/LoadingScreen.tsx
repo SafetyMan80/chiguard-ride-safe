@@ -6,10 +6,7 @@ export const LoadingScreen = () => {
       <div className="flex items-center justify-center gap-4 mb-8 animate-scale-in transform-gpu">
         <Logo className="w-32 h-32 drop-shadow-md transform-gpu" />
         <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight flex items-center transform-gpu will-change-transform">
-          <span className="text-7xl text-chicago-gunmetal dark:text-white font-urbanist">R</span>
-          <span>AIL</span>
-          <span className="text-7xl text-chicago-gunmetal dark:text-white font-urbanist">S</span>
-          <span>AVIOR</span>
+          RAILSAVIOR
         </h1>
       </div>
       
