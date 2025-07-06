@@ -43,6 +43,19 @@ const TRANSIT_LINES_BY_CITY: { [key: string]: Array<{ name: string; color: strin
     { name: "Purple Line", color: "bg-purple-600" },
     { name: "Yellow Line", color: "bg-yellow-600" }
   ],
+  denver: [
+    { name: "A Line", color: "bg-green-600" },
+    { name: "B Line", color: "bg-blue-600" },
+    { name: "C Line", color: "bg-orange-600" },
+    { name: "D Line", color: "bg-yellow-600" },
+    { name: "E Line", color: "bg-purple-600" },
+    { name: "F Line", color: "bg-red-600" },
+    { name: "G Line", color: "bg-teal-600" },
+    { name: "H Line", color: "bg-pink-600" },
+    { name: "N Line", color: "bg-cyan-600" },
+    { name: "R Line", color: "bg-indigo-600" },
+    { name: "W Line", color: "bg-amber-600" }
+  ],
   nyc: [
     { name: "4 Train", color: "bg-green-600" },
     { name: "5 Train", color: "bg-green-600" },

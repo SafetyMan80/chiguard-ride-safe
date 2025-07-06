@@ -5,6 +5,7 @@ import { MapPin, Train, ArrowLeft } from "lucide-react";
 import { MTASchedule } from "./MTASchedule";
 import { CTASchedule } from "./CTASchedule";
 import { WMATASchedule } from "./WMATASchedule";
+import { RTDSchedule } from "./RTDSchedule";
 
 interface City {
   id: string;
@@ -36,13 +37,13 @@ const CITIES_WITH_RAIL: City[] = [
     available: true
   },
   {
-    id: "los_angeles",
-    name: "Los Angeles",
-    agency: "LA Metro",
-    description: "Metro Rail System - Light rail and subway lines",
-    railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
-    color: "bg-red-600",
-    available: false
+    id: "denver",
+    name: "Denver",
+    agency: "RTD (Regional Transportation District)",
+    description: "Light Rail & Commuter Rail - Multiple lettered lines",
+    railLines: ["A Line", "B Line", "C Line", "D Line", "E Line", "F Line", "G Line", "H Line", "N Line", "R Line", "W Line"],
+    color: "bg-green-700",
+    available: true
   },
   {
     id: "washington_dc",
@@ -52,6 +53,15 @@ const CITIES_WITH_RAIL: City[] = [
     railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
     color: "bg-blue-800",
     available: true
+  },
+  {
+    id: "los_angeles",
+    name: "Los Angeles",
+    agency: "LA Metro",
+    description: "Metro Rail System - Light rail and subway lines",
+    railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
+    color: "bg-red-600",
+    available: false
   },
   {
     id: "philadelphia",
@@ -116,6 +126,23 @@ export const MultiCitySchedule = () => {
           Back to City Selection
         </Button>
         <MTASchedule />
+      </div>
+    );
+  }
+
+  // If Denver is selected, show the RTD schedule
+  if (selectedCity === "denver") {
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          onClick={handleBackToSelection}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to City Selection
+        </Button>
+        <RTDSchedule />
       </div>
     );
   }
@@ -222,7 +249,7 @@ export const MultiCitySchedule = () => {
         <CardContent className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, and Washington D.C. WMATA with 
+              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, and Denver RTD with 
               real-time schedules, station search, and system information.
             </p>
           </div>
