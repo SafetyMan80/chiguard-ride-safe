@@ -138,15 +138,15 @@ export default {
 				},
 				'zoom-in-text': {
 					'0%': {
-						transform: 'scale(0.8) translateZ(-100px)',
-						opacity: '0.7'
+						transform: 'scale(0.7) translateX(0)',
+						opacity: '0'
 					},
 					'50%': {
-						transform: 'scale(0.9) translateZ(-50px)',
-						opacity: '0.85'
+						transform: 'scale(0.85) translateX(0)',
+						opacity: '0.7'
 					},
 					'100%': {
-						transform: 'scale(1) translateZ(0px)',
+						transform: 'scale(1) translateX(0)',
 						opacity: '1'
 					}
 				}
@@ -158,7 +158,7 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'train-city': 'train-city 8s linear infinite',
 				'float-logo': 'float-logo 3s ease-in-out infinite',
-				'zoom-in-text': 'zoom-in-text 2s ease-out forwards'
+				'zoom-in-text': 'zoom-in-text 3s ease-out forwards'
 			}
 		}
 	},

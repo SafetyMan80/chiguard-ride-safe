@@ -3,14 +3,10 @@ import { Logo } from "@/components/Logo";
 export const LoadingScreen = () => {
   return (
     <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-50 animate-fade-in">
-      <div className="flex items-center justify-center gap-1 mb-8">
+      <div className="flex items-center justify-center gap-4 mb-8">
         <Logo className="w-32 h-32 drop-shadow-md" />
         <h1 
           className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight animate-zoom-in-text" 
-          style={{
-            perspective: '1000px',
-            transformStyle: 'preserve-3d'
-          }}
         >
           RAILSAVIOR
         </h1>
