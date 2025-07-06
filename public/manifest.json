@@ -4,7 +4,7 @@
   "description": "Safety Driven Community Powered",
   "start_url": "/?utm_source=pwa",
   "display": "standalone",
-  "background_color": "#1e40af",
+  "background_color": "#000000",
   "theme_color": "#ffffff",
   "orientation": "portrait",
   "scope": "/",
@@ -14,20 +14,20 @@
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "icons": [
     {
-      "src": "/lovable-uploads/6c0796a3-af47-4ef0-83d4-4dd8baa99664.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/6c0796a3-af47-4ef0-83d4-4dd8baa99664.png",
+      "src": "/icon-512.png",
       "sizes": "512x512", 
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/6c0796a3-af47-4ef0-83d4-4dd8baa99664.png",
-      "sizes": "192x192",
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
