@@ -104,12 +104,12 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
-        <div className="text-center">
-          <Logo className="w-16 h-16 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent">
+        <div className="text-center flex flex-col items-center">
+          <Logo className="w-16 h-16 mb-6" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent text-center">
             RAILSAVIOR
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-muted-foreground mt-2 text-center">
             Safety Driven...Community Powered
           </p>
         </div>
