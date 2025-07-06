@@ -29,18 +29,19 @@ interface GroupRide {
   next_occurrence: string | null;
 }
 
-const CHICAGO_UNIVERSITIES = [
-  "University of Chicago",
-  "Northwestern University", 
-  "DePaul University",
-  "Loyola University Chicago",
-  "Illinois Institute of Technology",
-  "University of Illinois Chicago",
-  "Chicago State University",
-  "Northeastern Illinois University",
-  "Columbia College Chicago",
-  "Roosevelt University"
-];
+interface UniversityRidesProps {
+  cityData?: {
+    id: string;
+    name: string;
+    agency: string;
+    universities: Array<{
+      id: string;
+      name: string;
+      shortName: string;
+    }>;
+  };
+  selectedUniversityId?: string;
+}
 
 const fetchGroupRides = async (selectedUniversity: string, userId: string | null): Promise<GroupRide[]> => {
   let query = supabase
@@ -89,7 +90,7 @@ const fetchGroupRides = async (selectedUniversity: string, userId: string | null
   });
 };
 
-export const UniversityRides = () => {
+export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRidesProps) => {
   const [selectedUniversity, setSelectedUniversity] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
@@ -98,6 +99,8 @@ export const UniversityRides = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const universities = cityData?.universities || [];
 
   // Get current user and profile
   useEffect(() => {
@@ -489,15 +492,15 @@ export const UniversityRides = () => {
             </Button>
             
             <div className="grid grid-cols-1 gap-2">
-              {CHICAGO_UNIVERSITIES.slice(0, 6).map(uni => (
+              {universities.slice(0, 6).map(uni => (
                 <Button
-                  key={uni}
-                  variant={selectedUniversity === uni ? "chicago" : "chicago-outline"}
+                  key={uni.id}
+                  variant={selectedUniversity === uni.name ? "chicago" : "chicago-outline"}
                   size="default"
-                  onClick={() => setSelectedUniversity(uni)}
+                  onClick={() => setSelectedUniversity(uni.name)}
                   className="h-12 text-sm font-medium text-left justify-start px-4"
                 >
-                  {uni}
+                  {uni.name}
                 </Button>
               ))}
             </div>

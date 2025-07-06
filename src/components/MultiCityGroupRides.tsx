@@ -318,7 +318,10 @@ export const MultiCityGroupRides = () => {
             Transit: {currentCity?.agency} • Students: {university?.studentCount}
           </p>
         </div>
-        <UniversityRides />
+        <UniversityRides 
+          cityData={currentCity}
+          selectedUniversityId={selectedUniversity}
+        />
       </div>
     );
   }
