@@ -27,8 +27,9 @@ serve(async (req) => {
     }
     
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
-    console.log('CTA_API_KEY exists:', !!CTA_API_KEY);
-    console.log('CTA_API_KEY length:', CTA_API_KEY?.length || 0);
+    console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
+    console.log('🔑 CTA_API_KEY length:', CTA_API_KEY?.length || 0);
+    console.log('📥 Request params:', { stopId, routeId, method: req.method });
     
     if (!CTA_API_KEY) {
       throw new Error('CTA API key not configured in Supabase secrets');
@@ -56,11 +57,11 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error(`CTA API HTTP Error: ${response.status} ${response.statusText}`);
       console.error(`Response body: ${errorText}`);
-      throw new Error(`CTA API request failed: ${response.status} ${response.statusText}`);
+      throw new Error(`CTA API request failed: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const responseText = await response.text();
-    console.log(`CTA API Response (first 200 chars): ${responseText.substring(0, 200)}`);
+    console.log(`CTA API Response (first 500 chars): ${responseText.substring(0, 500)}...`);
     
     let data;
     try {

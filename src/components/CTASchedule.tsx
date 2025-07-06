@@ -41,25 +41,26 @@ interface Station {
   stopId?: string;
 }
 
-// 🚊 COMPREHENSIVE CTA STATIONS LIST
+// 🚊 COMPREHENSIVE CTA STATIONS LIST - Updated with correct Stop IDs
 const POPULAR_STATIONS: Station[] = [
-  { name: "Union Station", lines: ["Blue"], stopId: "30161" },
-  { name: "O'Hare Airport", lines: ["Blue"], stopId: "40890" },
-  { name: "Midway Airport", lines: ["Orange"], stopId: "40350" },
-  { name: "95th/Dan Ryan", lines: ["Red"], stopId: "30089" },
-  { name: "Howard", lines: ["Red", "Purple", "Yellow"], stopId: "30173" },
+  { name: "Union Station", lines: ["Blue"], stopId: "30212" }, // Actually Jackson Blue Line
+  { name: "O'Hare Airport", lines: ["Blue"], stopId: "30171" }, // O'Hare Terminal
+  { name: "Midway Airport", lines: ["Orange"], stopId: "30063" }, // Midway Terminal  
+  { name: "95th/Dan Ryan", lines: ["Red"], stopId: "30089" }, // 95th Terminal
+  { name: "Howard", lines: ["Red", "Purple", "Yellow"], stopId: "30173" }, // Howard Terminal
   { name: "Clark/Lake", lines: ["Blue", "Brown", "Green", "Orange", "Pink", "Purple"], stopId: "30131" },
-  { name: "Chicago/State", lines: ["Red"], stopId: "30013" },
+  { name: "Chicago/State", lines: ["Red"], stopId: "30013" }, // State/Lake Red Line
   { name: "Roosevelt", lines: ["Red", "Orange", "Green"], stopId: "30001" },
   { name: "Fullerton", lines: ["Red", "Brown", "Purple"], stopId: "30057" },
-  { name: "Belmont", lines: ["Red", "Brown", "Purple"], stopId: "30057" },
+  { name: "Belmont", lines: ["Red", "Brown", "Purple"], stopId: "30254" }, // Belmont Red Line
   { name: "Addison", lines: ["Red"], stopId: "30278" },
-  { name: "Wilson", lines: ["Red", "Purple"], stopId: "30212" },
-  { name: "Garfield", lines: ["Red"], stopId: "30067" },
-  { name: "35th/Bronzeville", lines: ["Green"], stopId: "30120" },
-  { name: "Pulaski", lines: ["Blue"], stopId: "30161" },
-  { name: "Western", lines: ["Blue", "Brown"], stopId: "30161" },
-  { name: "Logan Square", lines: ["Blue"], stopId: "30161" }
+  { name: "Wilson", lines: ["Red", "Purple"], stopId: "30256" }, // Wilson Red Line
+  { name: "Jackson", lines: ["Blue", "Red"], stopId: "30212" }, // Jackson Blue Line
+  { name: "LaSalle/Van Buren", lines: ["Blue", "Orange", "Brown", "Purple", "Pink"], stopId: "30031" },
+  { name: "Western", lines: ["Blue", "Brown"], stopId: "30220" }, // Western Blue Line
+  { name: "Logan Square", lines: ["Blue"], stopId: "30077" },
+  { name: "Merchandise Mart", lines: ["Brown", "Purple"], stopId: "30768" },
+  { name: "North/Clybourn", lines: ["Red"], stopId: "30017" }
 ];
 
 export const CTASchedule = () => {
@@ -71,6 +72,7 @@ export const CTASchedule = () => {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showMap, setShowMap] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -224,10 +226,16 @@ export const CTASchedule = () => {
       }
     } catch (error: any) {
       console.error('❌ Error fetching arrivals:', error);
+      console.error('❌ Full error details:', JSON.stringify(error, null, 2));
+      
+      // Show more detailed error info for debugging
+      const errorMessage = error?.message || error?.details?.message || 'Unknown error';
+      const errorCode = error?.code || error?.details?.code || 'NO_CODE';
+      
       toast({
-        title: "Real-time CTA schedule not guaranteed",
-        description: "Live arrival times may be temporarily unavailable. Please check the CTA app for updates.",
-        variant: "default",
+        title: `CTA Schedule Error (${errorCode})`,
+        description: `${errorMessage}. Stop ID: ${selectedStopId}`,
+        variant: "destructive",
       });
       setArrivals([]);
     } finally {
@@ -453,6 +461,68 @@ export const CTASchedule = () => {
             </div>
           )}
         </CardContent>
+      </Card>
+
+      {/* 🐛 DEBUG SECTION */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Train className="w-5 h-5" />
+              Debug & Test CTA API
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDebugMode(!debugMode)}
+            >
+              {debugMode ? 'Hide Debug' : 'Show Debug'}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        {debugMode && (
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                variant="outline"
+                onClick={() => fetchArrivalsForStopId("30013")}
+                disabled={loading}
+              >
+                🧪 Test Chicago/State (30013)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => fetchArrivalsForStopId("30089")}
+                disabled={loading}
+              >
+                🧪 Test 95th/Dan Ryan (30089)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => fetchArrivalsForStopId("30171")}
+                disabled={loading}
+              >
+                🧪 Test O'Hare (30171)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={fetchRoutes}
+                disabled={routesLoading}
+              >
+                🧪 Test Routes API
+              </Button>
+            </div>
+            
+            <div className="bg-muted p-4 rounded-lg text-sm">
+              <p className="font-semibold mb-2">Debug Info:</p>
+              <p>• Routes loaded: {routes.length}</p>
+              <p>• Arrivals found: {arrivals.length}</p>
+              <p>• Current Stop ID: {stopId || 'None'}</p>
+              <p>• Last Updated: {lastUpdated || 'Never'}</p>
+              <p>• Loading: {loading ? 'Yes' : 'No'}</p>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* 📍 HOW TO FIND STOP IDS */}
