@@ -135,6 +135,20 @@ export default {
 					'50%': {
 						transform: 'translateX(-50%) translateY(-10px)'
 					}
+				},
+				'zoom-in-text': {
+					'0%': {
+						transform: 'scale(0.8) translateZ(-100px)',
+						opacity: '0.7'
+					},
+					'50%': {
+						transform: 'scale(0.9) translateZ(-50px)',
+						opacity: '0.85'
+					},
+					'100%': {
+						transform: 'scale(1) translateZ(0px)',
+						opacity: '1'
+					}
 				}
 			},
 			animation: {
@@ -143,7 +157,8 @@ export default {
 				'pulse-emergency': 'pulse-emergency 1s ease-in-out infinite',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'train-city': 'train-city 8s linear infinite',
-				'float-logo': 'float-logo 3s ease-in-out infinite'
+				'float-logo': 'float-logo 3s ease-in-out infinite',
+				'zoom-in-text': 'zoom-in-text 2s ease-out forwards'
 			}
 		}
 	},
