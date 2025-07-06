@@ -12,9 +12,27 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url)
-    const line = url.searchParams.get('line')
-    const station = url.searchParams.get('station')
+    let line, station;
+    
+    // Handle both URL parameters and body parameters
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      line = url.searchParams.get('line');
+      station = url.searchParams.get('station');
+    } else if (req.method === 'POST') {
+      const body = await req.json();
+      line = body.line;
+      station = body.station;
+    }
+    
+    // Try to get parameters from request body if available
+    try {
+      const requestBody = await req.clone().json();
+      if (requestBody.line) line = requestBody.line;
+      if (requestBody.station) station = requestBody.station;
+    } catch {
+      // Ignore if no body or invalid JSON
+    }
     
     // Get MARTA API key from Supabase secrets
     const martaApiKey = Deno.env.get('MARTA_API_KEY')

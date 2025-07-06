@@ -112,15 +112,13 @@ export const MARTASchedule = () => {
 
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (selectedLine !== "all") params.append('line', selectedLine);
-      if (selectedStation !== "all") params.append('station', selectedStation);
-
+      const requestBody: any = {};
+      if (selectedLine !== "all") requestBody.line = selectedLine;
+      if (selectedStation !== "all") requestBody.station = selectedStation;
+      
       const { data, error } = await supabase.functions.invoke('marta-schedule', {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
 
       if (error) throw error;
