@@ -470,6 +470,7 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
           onCancel={() => setShowCreateForm(false)}
           userUniversity={userProfile?.university_name}
           selectedUniversity={selectedUniversity}
+          cityData={cityData}
         />
       )}
 

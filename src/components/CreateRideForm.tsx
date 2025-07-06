@@ -15,36 +15,94 @@ interface CreateRideFormProps {
   onCancel: () => void;
   userUniversity?: string;
   selectedUniversity?: string;
+  cityData?: {
+    id: string;
+    name: string;
+    agency: string;
+    universities: Array<{
+      id: string;
+      name: string;
+      shortName: string;
+    }>;
+  };
+  transitLines?: Array<{
+    name: string;
+    color: string;
+  }>;
 }
 
-const CHICAGO_UNIVERSITIES = [
-  "University of Chicago",
-  "Northwestern University", 
-  "DePaul University",
-  "Loyola University Chicago",
-  "Illinois Institute of Technology",
-  "University of Illinois Chicago",
-  "Chicago State University",
-  "Northeastern Illinois University",
-  "Columbia College Chicago",
-  "Roosevelt University"
-];
+// Default transit lines for cities
+const TRANSIT_LINES_BY_CITY: { [key: string]: Array<{ name: string; color: string }> } = {
+  chicago: [
+    { name: "Red Line", color: "bg-red-600" },
+    { name: "Blue Line", color: "bg-blue-600" },
+    { name: "Brown Line", color: "bg-amber-600" },
+    { name: "Green Line", color: "bg-green-600" },
+    { name: "Orange Line", color: "bg-orange-600" },
+    { name: "Pink Line", color: "bg-pink-600" },
+    { name: "Purple Line", color: "bg-purple-600" },
+    { name: "Yellow Line", color: "bg-yellow-600" }
+  ],
+  nyc: [
+    { name: "4 Train", color: "bg-green-600" },
+    { name: "5 Train", color: "bg-green-600" },
+    { name: "6 Train", color: "bg-green-600" },
+    { name: "7 Train", color: "bg-purple-600" },
+    { name: "A Train", color: "bg-blue-600" },
+    { name: "B Train", color: "bg-orange-600" },
+    { name: "C Train", color: "bg-blue-600" },
+    { name: "D Train", color: "bg-orange-600" },
+    { name: "E Train", color: "bg-blue-600" },
+    { name: "F Train", color: "bg-orange-600" },
+    { name: "G Train", color: "bg-green-600" },
+    { name: "J Train", color: "bg-amber-600" },
+    { name: "L Train", color: "bg-gray-600" },
+    { name: "M Train", color: "bg-orange-600" },
+    { name: "N Train", color: "bg-yellow-600" },
+    { name: "Q Train", color: "bg-yellow-600" },
+    { name: "R Train", color: "bg-yellow-600" },
+    { name: "W Train", color: "bg-yellow-600" }
+  ],
+  washington_dc: [
+    { name: "Red Line", color: "bg-red-600" },
+    { name: "Blue Line", color: "bg-blue-600" },
+    { name: "Orange Line", color: "bg-orange-600" },
+    { name: "Silver Line", color: "bg-gray-400" },
+    { name: "Green Line", color: "bg-green-600" },
+    { name: "Yellow Line", color: "bg-yellow-600" }
+  ],
+  los_angeles: [
+    { name: "Red Line", color: "bg-red-600" },
+    { name: "Purple Line", color: "bg-purple-600" },
+    { name: "Blue Line", color: "bg-blue-600" },
+    { name: "Green Line", color: "bg-green-600" },
+    { name: "Gold Line", color: "bg-yellow-600" },
+    { name: "Expo Line", color: "bg-cyan-600" }
+  ],
+  philadelphia: [
+    { name: "Market-Frankford Line", color: "bg-blue-600" },
+    { name: "Broad Street Line", color: "bg-orange-600" },
+    { name: "Regional Rail", color: "bg-purple-600" }
+  ],
+  atlanta: [
+    { name: "Red Line", color: "bg-red-600" },
+    { name: "Gold Line", color: "bg-yellow-600" },
+    { name: "Blue Line", color: "bg-blue-600" },
+    { name: "Green Line", color: "bg-green-600" }
+  ]
+};
 
-const CTA_LINES = [
-  { name: "Red Line", color: "bg-red-600" },
-  { name: "Blue Line", color: "bg-blue-600" },
-  { name: "Brown Line", color: "bg-amber-600" },
-  { name: "Green Line", color: "bg-green-600" },
-  { name: "Orange Line", color: "bg-orange-600" },
-  { name: "Pink Line", color: "bg-pink-600" },
-  { name: "Purple Line", color: "bg-purple-600" },
-  { name: "Yellow Line", color: "bg-yellow-600" }
-];
-
-export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, selectedUniversity }: CreateRideFormProps) => {
+export const CreateRideForm = ({ 
+  onRideCreated, 
+  onCancel, 
+  userUniversity, 
+  selectedUniversity, 
+  cityData,
+  transitLines 
+}: CreateRideFormProps) => {
   const [formData, setFormData] = useState({
     university_name: selectedUniversity || userUniversity || "",
-    cta_line: "",
+    transit_line: "",
     station_name: "",
     departure_time: "",
     max_spots: 4,
@@ -54,6 +112,11 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, select
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Get universities and transit lines for the current city
+  const universities = cityData?.universities || [];
+  const availableTransitLines = transitLines || TRANSIT_LINES_BY_CITY[cityData?.id || 'chicago'] || [];
+  const agencyName = cityData?.agency || 'Transit';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +139,7 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, select
       const rideData: any = {
         creator_id: user.id,
         university_name: formData.university_name,
-        cta_line: formData.cta_line,
+        cta_line: formData.transit_line, // Still use cta_line field name for database compatibility
         station_name: formData.station_name,
         departure_time: departureDateTime,
         max_spots: formData.max_spots,
@@ -154,12 +217,12 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, select
               onValueChange={(value) => setFormData(prev => ({ ...prev, university_name: value }))}
               required
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-background">
                 <SelectValue placeholder="Select your university" />
               </SelectTrigger>
-              <SelectContent>
-                {CHICAGO_UNIVERSITIES.map(uni => (
-                  <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+              <SelectContent className="bg-background border z-50">
+                {universities.map(uni => (
+                  <SelectItem key={uni.id} value={uni.name}>{uni.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -167,17 +230,17 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, select
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cta_line">CTA Line</Label>
+              <Label htmlFor="transit_line">{agencyName} Line</Label>
               <Select 
-                value={formData.cta_line} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, cta_line: value }))}
+                value={formData.transit_line} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, transit_line: value }))}
                 required
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select line" />
                 </SelectTrigger>
-                <SelectContent>
-                  {CTA_LINES.map(line => (
+                <SelectContent className="bg-background border z-50">
+                  {availableTransitLines.map(line => (
                     <SelectItem key={line.name} value={line.name}>
                       <div className="flex items-center gap-2">
                         <div className={`w-3 h-3 rounded-full ${line.color}`} />
@@ -220,10 +283,10 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, select
                 value={formData.max_spots.toString()} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, max_spots: parseInt(value) }))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border z-50">
                   {[2, 3, 4, 5, 6].map(num => (
                     <SelectItem key={num} value={num.toString()}>{num} spots</SelectItem>
                   ))}
@@ -265,10 +328,10 @@ export const CreateRideForm = ({ onRideCreated, onCancel, userUniversity, select
                   value={formData.recurrence_pattern} 
                   onValueChange={(value) => setFormData(prev => ({ ...prev, recurrence_pattern: value }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background border z-50">
                     <SelectItem value="daily">Daily</SelectItem>
                     <SelectItem value="weekly">Weekly</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
