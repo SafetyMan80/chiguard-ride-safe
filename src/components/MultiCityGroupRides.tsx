@@ -462,6 +462,54 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         nearbyStations: ["Arts Center", "Lindbergh Center", "Buckhead"]
       }
     ]
+  },
+  {
+    id: "denver",
+    name: "Denver",
+    agency: "RTD",
+    color: "bg-green-600",
+    universities: [
+      {
+        id: "ucd",
+        name: "University of Colorado Denver",
+        shortName: "UC Denver",
+        description: "Public research university",
+        studentCount: "23,000+",
+        nearbyStations: ["Union Station", "Pepsi Center/Elitch Gardens", "Sports Authority Field"]
+      },
+      {
+        id: "du",
+        name: "University of Denver",
+        shortName: "DU",
+        description: "Private research university",
+        studentCount: "12,000+",
+        nearbyStations: ["University of Denver", "Evans", "Englewood"]
+      },
+      {
+        id: "msu",
+        name: "Metropolitan State University of Denver",
+        shortName: "MSU Denver",
+        description: "Public university",
+        studentCount: "18,000+",
+        nearbyStations: ["Auraria West", "Union Station", "Pepsi Center/Elitch Gardens"]
+      },
+      {
+        id: "regis",
+        name: "Regis University",
+        shortName: "Regis",
+        description: "Private Catholic university",
+        studentCount: "4,000+",
+        nearbyStations: ["Federal Center", "Sheridan", "Knox"]
+      },
+      {
+        id: "csu_denver",
+        name: "Colorado State University Denver",
+        shortName: "CSU Denver",
+        description: "Public university",
+        studentCount: "2,500+",
+        nearbyStations: ["Union Station", "Pepsi Center/Elitch Gardens", "Sports Authority Field"]
+      }
+    ]
   }
 ];
 

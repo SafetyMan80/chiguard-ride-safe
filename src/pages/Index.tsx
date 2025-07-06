@@ -6,6 +6,7 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 import { MultiCitySchedule } from "@/components/MultiCitySchedule";
 import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { MultiCityGroupRides } from "@/components/MultiCityGroupRides";
+import { GeneralGroupRides } from "@/components/GeneralGroupRides";
 import { Settings } from "@/components/Settings";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
@@ -194,10 +195,17 @@ const Index = () => {
     },
     {
       id: "groups",
-      title: "GROUPRIDE",
-      icon: "👥",
-      description: "Join Rides",
+      title: "UNIVERSITY",
+      icon: "🎓",
+      description: "Student Rides",
       color: "bg-chicago-blue/80 text-white",
+    },
+    {
+      id: "general",
+      title: "GENERAL",
+      icon: "👥",
+      description: "Public Rides",
+      color: "bg-slate-600 text-white",
     },
     {
       id: "schedule",
@@ -226,6 +234,8 @@ const Index = () => {
         return <MultiCityIncidentReport />;
       case "groups":
         return <MultiCityGroupRides />;
+      case "general":
+        return <GeneralGroupRides />;
       case "schedule":
         return <MultiCitySchedule />;
       case "settings":
