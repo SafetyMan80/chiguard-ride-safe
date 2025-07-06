@@ -11,6 +11,7 @@ import { CameraCapture } from "@/components/CameraCapture";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { sanitizeInput, rateLimiter, validateLocation } from "@/lib/security";
 
 interface IncidentReport {
   id: string;
@@ -145,15 +146,37 @@ export const IncidentReport = () => {
       return;
     }
 
+    // Rate limiting check
+    const rateLimitKey = `incident_report_${currentUser.id}`;
+    if (!rateLimiter.canProceed(rateLimitKey, 3, 300000)) { // 3 reports per 5 minutes
+      const remainingTime = Math.ceil(rateLimiter.getRemainingTime(rateLimitKey) / 60000);
+      toast({
+        title: "Rate limit exceeded",
+        description: `Please wait ${remainingTime} minutes before submitting another report.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate location if provided
+    if (!validateLocation(latitude || undefined, longitude || undefined)) {
+      toast({
+        title: "Invalid location",
+        description: "The location coordinates appear to be invalid.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Prepare report data
+    // Prepare report data with sanitized inputs
     const reportData = {
       reporter_id: currentUser.id,
-      incident_type: reportType,
-      cta_line: line,
-      location_name: location,
-      description,
+      incident_type: sanitizeInput(reportType),
+      cta_line: sanitizeInput(line),
+      location_name: sanitizeInput(location),
+      description: sanitizeInput(description),
       latitude: latitude || null,
       longitude: longitude || null,
       accuracy: accuracy || null,
