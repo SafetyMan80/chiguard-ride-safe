@@ -12,6 +12,7 @@ import { PrivacyPolicy } from "./PrivacyPolicy";
 import { SafetyGuidelines } from "./SafetyGuidelines";
 import { ProfileSetup } from "./ProfileSetup";
 import { IDVerification } from "./IDVerification";
+import { SecurityAudit } from "./SecurityAudit";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -20,7 +21,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'verification'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'verification' | 'security'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -82,6 +83,10 @@ export const Settings = ({ user }: SettingsProps) => {
 
   if (activeView === 'verification') {
     return <IDVerification onVerificationComplete={() => setActiveView('settings')} onBack={() => setActiveView('settings')} />;
+  }
+
+  if (activeView === 'security') {
+    return <SecurityAudit />;
   }
 
   return (
@@ -228,6 +233,13 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={() => setActiveView('verification')}
           >
             ID Verification Status
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('security')}
+          >
+            🔒 Security Audit (Admin)
           </Button>
           <Button 
             variant="outline" 

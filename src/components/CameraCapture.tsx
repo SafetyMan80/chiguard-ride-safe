@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Camera, X, Check, Image, AlertTriangle } from 'lucide-react';
 import { useCamera } from '@/hooks/useCamera';
+import { validateFileUpload } from '@/lib/security';
 
 interface CameraCaptureProps {
   isOpen: boolean;
@@ -59,11 +60,26 @@ export const CameraCapture = ({
   };
 
   const handleSelectFromGallery = async () => {
-    const imageUrl = await selectFromGallery();
-    if (imageUrl) {
-      setCapturedImage(imageUrl);
-      stopCamera();
-    }
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/jpeg,image/jpg,image/png,image/webp';
+    fileInput.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // Validate file before processing
+        const validation = validateFileUpload(file);
+        if (!validation.valid) {
+          alert(`File validation failed: ${validation.error}`);
+          return;
+        }
+        
+        // Create secure blob URL
+        const imageUrl = URL.createObjectURL(file);
+        setCapturedImage(imageUrl);
+        stopCamera();
+      }
+    };
+    fileInput.click();
   };
 
   const handleConfirm = () => {

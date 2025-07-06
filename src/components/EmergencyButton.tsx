@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useOffline } from "@/hooks/useOffline";
 import { useToast } from "@/hooks/use-toast";
+import { rateLimiter } from "@/lib/security";
 
 interface EmergencyButtonProps {
   onEmergencyActivated: () => void;
@@ -328,6 +329,22 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       }
       
       // Activate emergency (do this BEFORE starting alerts)
+      
+      // Rate limiting check for emergency activation
+      const rateLimitKey = `emergency_activation_${Date.now().toString().slice(0, -6)}`; // Per minute
+      if (!rateLimiter.canProceed(rateLimitKey, 3, 60000)) { // Max 3 emergency activations per minute
+        const remainingTime = Math.ceil(rateLimiter.getRemainingTime(rateLimitKey) / 1000);
+        toast({
+          title: "Rate limit exceeded",
+          description: `Please wait ${remainingTime} seconds before activating emergency again.`,
+          variant: "destructive"
+        });
+        setIsHolding(false);
+        setHoldProgress(0);
+        activatingRef.current = false;
+        return;
+      }
+
       setIsActive(true);
       getCurrentLocation();
       

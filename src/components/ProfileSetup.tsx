@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { sanitizeInput, validateLocation } from "@/lib/security";
 
 interface University {
   id: string;
@@ -90,10 +91,41 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // Validate required fields
+      if (!formData.full_name.trim() || !formData.phone_number.trim() || 
+          !formData.date_of_birth || !formData.address.trim()) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      // Validate phone number format (basic validation)
+      const phoneRegex = /^\+?[\d\s\-\(\)\.]{10,}$/;
+      if (!phoneRegex.test(formData.phone_number)) {
+        throw new Error("Please enter a valid phone number");
+      }
+
+      // Validate date of birth (must be at least 13 years old)
+      const dob = new Date(formData.date_of_birth);
+      const minAge = new Date();
+      minAge.setFullYear(minAge.getFullYear() - 13);
+      if (dob > minAge) {
+        throw new Error("You must be at least 13 years old to use this service");
+      }
+
+      // Sanitize all text inputs
+      const sanitizedData = {
+        full_name: sanitizeInput(formData.full_name),
+        phone_number: sanitizeInput(formData.phone_number),
+        date_of_birth: formData.date_of_birth,
+        address: sanitizeInput(formData.address),
+        student_status: formData.student_status,
+        university_name: formData.student_status ? sanitizeInput(formData.university_name) : null,
+        student_id_number: formData.student_status ? sanitizeInput(formData.student_id_number) : null,
+      };
+
       const profileData = {
         user_id: user.id,
         email: user.email,
-        ...formData,
+        ...sanitizedData,
       };
 
       const { error } = await supabase
