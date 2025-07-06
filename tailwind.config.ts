@@ -20,6 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'playfair': ['Playfair Display', 'serif'],
+				'rye': ['Rye', 'serif', 'cursive'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

@@ -369,7 +369,7 @@ const Index = () => {
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-0.5">
               <Logo className="w-24 h-24 drop-shadow-md" />
-              <h1 className="text-5xl font-black text-chicago-gunmetal tracking-tight">
+              <h1 className="text-5xl font-rye text-chicago-gunmetal tracking-tight">
                 RAIL SAVIOR
               </h1>
             </div>
