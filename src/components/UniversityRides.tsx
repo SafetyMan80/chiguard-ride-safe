@@ -260,6 +260,7 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
         .select('*')
         .eq('user_id', currentUser.id)
         .eq('verification_status', 'verified')
+        .eq('id_type', 'student_id')
         .maybeSingle();
 
       if (error) {
@@ -267,9 +268,15 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
         return false;
       }
 
-      // Check if user has verified student ID 
-      // In a real implementation, you'd also verify the university matches
-      return !!verification;
+      if (!verification) return false;
+
+      // Additional check: ensure the user's profile university matches the requested university
+      if (userProfile?.university_name && userProfile.university_name !== university) {
+        console.warn('University mismatch: profile university does not match requested university');
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error('Error checking student verification:', error);
       return false;
@@ -334,8 +341,18 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
       return;
     }
 
-    // Allow users to join university rides without verification
-    // Only creators need verification for student group rides
+    // Check student verification for university rides
+    const isVerified = await checkStudentVerification(rideUniversity);
+    if (!isVerified) {
+      setPendingAction({ type: 'join', rideId });
+      setShowVerification(true);
+      toast({
+        title: "Student verification required",
+        description: `Please upload your student ID for ${rideUniversity} to join university rides.`,
+        variant: "destructive"
+      });
+      return;
+    }
 
     console.log('Attempting to join ride:', {
       rideId,
