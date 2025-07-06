@@ -112,57 +112,7 @@ export const CTASchedule = () => {
   };
 
   const fetchArrivals = async () => {
-    if (!stopId.trim()) {
-      toast({
-        title: "Stop ID Required",
-        description: "Please enter a valid CTA stop ID",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      console.log('🚊 Fetching arrivals for stop:', stopId.trim());
-      
-      const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        body: { stopId: stopId.trim() }
-      });
-      
-      console.log('📊 CTA arrivals response:', { data, error });
-      
-      if (error) {
-        console.error('❌ Supabase function error:', error);
-        throw error;
-      }
-      
-      if (data && data.type === 'arrivals') {
-        console.log('✅ Setting arrivals:', data.data);
-        setArrivals(data.data || []);
-        setLastUpdated(data.timestamp);
-        
-        if (!data.data || data.data.length === 0) {
-          toast({
-            title: "No arrivals found",
-            description: "No upcoming arrivals for this stop. Please verify the stop ID.",
-          });
-        }
-      } else {
-        console.warn('⚠️ Unexpected arrivals data format:', data);
-        setArrivals([]);
-      }
-    } catch (error: any) {
-      console.error('❌ Error fetching arrivals:', error);
-      // Show user-friendly message 
-      toast({
-        title: "Real-time CTA schedule not guaranteed",
-        description: "Live arrival times may be temporarily unavailable. Please check the CTA app for updates.",
-        variant: "default",
-      });
-      setArrivals([]);
-    } finally {
-      setLoading(false);
-    }
+    await fetchArrivalsForStopId(stopId);
   };
 
   const formatArrivalTime = (arrivalTime: string) => {
@@ -217,11 +167,70 @@ export const CTASchedule = () => {
         title: `Selected: ${station.name}`,
         description: `Lines: ${station.lines.join(', ')} | Stop ID: ${station.stopId}`,
       });
+      
+      // Automatically fetch arrivals when station is selected
+      setTimeout(() => {
+        fetchArrivalsForStopId(station.stopId!);
+      }, 100);
     } else {
       toast({
         title: `${station.name} Station`,
         description: `Lines: ${station.lines.join(', ')} | Stop ID not available`,
+        variant: "destructive"
       });
+    }
+  };
+
+  const fetchArrivalsForStopId = async (selectedStopId: string) => {
+    if (!selectedStopId.trim()) {
+      toast({
+        title: "Stop ID Required",
+        description: "Please enter a valid CTA stop ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log('🚊 Fetching arrivals for stop:', selectedStopId.trim());
+      
+      const { data, error } = await supabase.functions.invoke('cta-schedule', {
+        body: { stopId: selectedStopId.trim() }
+      });
+      
+      console.log('📊 CTA arrivals response:', { data, error });
+      
+      if (error) {
+        console.error('❌ Supabase function error:', error);
+        throw error;
+      }
+      
+      if (data && data.type === 'arrivals') {
+        console.log('✅ Setting arrivals:', data.data);
+        setArrivals(data.data || []);
+        setLastUpdated(data.timestamp);
+        
+        if (!data.data || data.data.length === 0) {
+          toast({
+            title: "No arrivals found",
+            description: "No upcoming arrivals for this stop. Please verify the stop ID.",
+          });
+        }
+      } else {
+        console.warn('⚠️ Unexpected arrivals data format:', data);
+        setArrivals([]);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching arrivals:', error);
+      toast({
+        title: "Real-time CTA schedule not guaranteed",
+        description: "Live arrival times may be temporarily unavailable. Please check the CTA app for updates.",
+        variant: "default",
+      });
+      setArrivals([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -258,15 +267,16 @@ export const CTASchedule = () => {
 
           {showMap && (
             <div className="space-y-4">
-              <div className="border rounded-lg overflow-hidden bg-gray-100 p-4">
-                <div className="text-center text-gray-600">
-                  📍 Interactive CTA System Map
-                  <br />
-                  <small>Click stations below to find stop IDs</small>
-                </div>
+              <div className="border rounded-lg overflow-hidden bg-white">
+                <img 
+                  src="/src/assets/cta-system-map-readable.jpg" 
+                  alt="CTA System Map" 
+                  className="w-full h-auto max-w-4xl mx-auto"
+                  style={{ maxHeight: '600px', objectFit: 'contain' }}
+                />
               </div>
               <p className="text-xs text-muted-foreground text-center">
-                Tap stations below to find stop IDs and line information
+                CTA Rail System Map - Use station search below to find stop IDs and get real-time arrivals
               </p>
             </div>
           )}
@@ -285,6 +295,13 @@ export const CTASchedule = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Station search now works independently */}
+          <div className="bg-chicago-blue/10 p-3 rounded-lg">
+            <p className="text-sm text-chicago-blue">
+              💡 <strong>Tip:</strong> Click any station below to automatically get real-time arrivals!
+            </p>
+          </div>
+          
           <div className="flex gap-2">
             <Input
               placeholder="Search stations or lines..."
