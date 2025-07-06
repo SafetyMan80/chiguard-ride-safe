@@ -112,6 +112,8 @@ All colors MUST be HSL.
     --chicago-red: 0 70% 45%;
     --chicago-light-blue: 203 50% 85%;
     --chicago-dark-blue: 203 65% 45%;
+    --chicago-gold: 45 75% 55%;
+    --chicago-gold-dark: 38 60% 35%;
   }
 }
 

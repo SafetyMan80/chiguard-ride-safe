@@ -379,7 +379,9 @@ const Index = () => {
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-2">
               <Logo className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md" />
-              <h1 className="text-2xl md:text-3xl font-urbanist font-black tracking-tight bg-gradient-to-r from-chicago-gold to-chicago-gold-dark bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-3xl font-urbanist font-black text-chicago-gunmetal dark:text-foreground tracking-tight" style={{
+                textShadow: '0 0 1px hsl(var(--chicago-gold)), 0 0 2px hsl(var(--chicago-gold)), 0 0 3px hsl(var(--chicago-gold))'
+              }}>
                 RAILSAVIOR
               </h1>
             </div>
@@ -398,7 +400,7 @@ const Index = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border/50 shadow-[var(--shadow-floating)] safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border/50 shadow-[var(--shadow-floating)] safe-area-bottom">
         <div className="max-w-md mx-auto">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>

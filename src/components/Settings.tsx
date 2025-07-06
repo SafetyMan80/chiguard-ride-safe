@@ -13,6 +13,7 @@ import { SafetyGuidelines } from "./SafetyGuidelines";
 import { ProfileSetup } from "./ProfileSetup";
 import { IDVerification } from "./IDVerification";
 import { SecurityAudit } from "./SecurityAudit";
+import { ThemeToggle } from "./ThemeToggle";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -145,6 +146,17 @@ export const Settings = ({ user }: SettingsProps) => {
               checked={emergencyContactsEnabled}
               onCheckedChange={setEmergencyContactsEnabled}
             />
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="font-medium">App Theme</span>
+              <p className="text-sm text-muted-foreground">
+                Switch between light and dark mode
+              </p>
+            </div>
+            <ThemeToggle />
           </div>
         </CardContent>
       </Card>

@@ -20,7 +20,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         emergency: "bg-chicago-red text-white hover:bg-chicago-red/90 shadow-[var(--shadow-emergency)] font-semibold",
         chicago: "bg-chicago-blue text-white hover:bg-chicago-dark-blue shadow-[var(--shadow-soft)]",
-        "chicago-outline": "border-2 border-chicago-blue text-chicago-blue bg-white hover:bg-chicago-light-blue/20",
+        "chicago-outline": "border-2 border-chicago-blue text-chicago-blue bg-background hover:bg-chicago-light-blue/20 dark:hover:bg-chicago-blue/10",
       },
       size: {
         default: "h-10 px-4 py-2",

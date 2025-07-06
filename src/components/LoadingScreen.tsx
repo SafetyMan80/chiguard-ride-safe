@@ -3,10 +3,12 @@ import chicagoTrainGraphic from "@/assets/chicago-l-train-ai.jpg";
 
 export const LoadingScreen = () => {
   return (
-    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 animate-fade-in">
+    <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-50 animate-fade-in">
       <div className="flex items-center justify-center gap-2 mb-6 -ml-4">
         <Logo className="w-32 h-32 drop-shadow-md" />
-        <h1 className="text-5xl font-urbanist font-black tracking-tight bg-gradient-to-r from-chicago-gold to-chicago-gold-dark bg-clip-text text-transparent">
+        <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-foreground tracking-tight" style={{
+          textShadow: '0 0 2px hsl(var(--chicago-gold)), 0 0 4px hsl(var(--chicago-gold)), 0 0 6px hsl(var(--chicago-gold))'
+        }}>
           RAILSAVIOR
         </h1>
       </div>
