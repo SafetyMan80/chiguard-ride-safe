@@ -573,13 +573,34 @@ export const MultiCityGroupRides = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={selectedCity} onValueChange={setSelectedCity} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-              {CITIES_WITH_UNIVERSITIES.map((city) => (
-                <TabsTrigger key={city.id} value={city.id}>
-                  {city.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            {/* City Selection Grid */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium mb-4 text-center">Select Your City</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {CITIES_WITH_UNIVERSITIES.map((city) => (
+                  <button
+                    key={city.id}
+                    onClick={() => setSelectedCity(city.id)}
+                    className={`
+                      p-4 rounded-lg border-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-md
+                      ${selectedCity === city.id 
+                        ? 'border-primary bg-primary/5 shadow-md' 
+                        : 'border-border hover:border-primary/30'
+                      }
+                    `}
+                  >
+                    <div className="text-center space-y-2">
+                      <div className={`w-3 h-3 rounded-full mx-auto ${city.color}`} />
+                      <div className="font-medium text-sm">{city.name}</div>
+                      <div className="text-xs text-muted-foreground">{city.agency}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {city.universities.length} Universities
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
             
             {CITIES_WITH_UNIVERSITIES.map((city) => (
               <TabsContent key={city.id} value={city.id} className="space-y-4">
