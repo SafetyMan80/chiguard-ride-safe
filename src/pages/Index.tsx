@@ -14,7 +14,7 @@ import { IDVerification } from "@/components/IDVerification";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { AnimatedTrainCity } from "@/components/AnimatedTrainCity";
+import { RealisticTrain3D } from "@/components/RealisticTrain3D";
 import { useToast } from "@/hooks/use-toast";
 import { useOffline } from "@/hooks/useOffline";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -268,7 +268,7 @@ const Index = () => {
               </div>
               
               <div className="mt-8 flex justify-center">
-                <AnimatedTrainCity />
+                <RealisticTrain3D />
               </div>
               
               {/* Share Section */}

@@ -1,5 +1,5 @@
 import { Logo } from "@/components/Logo";
-import { AnimatedTrainCity } from "@/components/AnimatedTrainCity";
+import { RealisticTrain3D } from "@/components/RealisticTrain3D";
 
 export const LoadingScreen = () => {
   return (
@@ -14,7 +14,7 @@ export const LoadingScreen = () => {
       </div>
       
       <div className="mb-4 overflow-hidden w-full max-w-2xl">
-        <AnimatedTrainCity interactive={true} />
+        <RealisticTrain3D interactive={true} />
       </div>
       
       <p className="text-center text-lg text-muted-foreground font-sans font-medium">
