@@ -184,35 +184,35 @@ const Index = () => {
       title: "SOS",
       icon: "🚨",
       description: "Emergency Alert",
-      color: "bg-chicago-red text-white",
+      color: "bg-chicago-red text-white border-chicago-red/20",
     },
     {
       id: "incidents",
       title: "INCIDENTS",
       icon: "📝",
       description: "Report Issues",
-      color: "bg-chicago-yellow text-black",
+      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
     },
     {
       id: "groups",
       title: "UNIVERSITY",
       icon: "🎓",
       description: "Student Rides",
-      color: "bg-chicago-orange text-white",
+      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
     },
     {
       id: "general",
       title: "GENERAL",
       icon: "👥",
       description: "Public Rides",
-      color: "bg-chicago-green text-white",
+      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
     },
     {
       id: "schedule",
       title: "SCHEDULE",
       icon: "🚇",
       description: "Rail Times",
-      color: "bg-chicago-grey text-white",
+      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
     },
   ];
 
@@ -254,7 +254,7 @@ const Index = () => {
                       ${item.color} p-6 rounded-xl shadow-[var(--shadow-card)] 
                       hover:scale-105 hover:shadow-[var(--shadow-floating)] 
                       transition-all duration-300 flex flex-col items-center space-y-3
-                      border border-white/20
+                      border
                     `}
                   >
                     <div className="text-3xl">{item.icon}</div>
