@@ -57,7 +57,7 @@ const Index = () => {
     threshold
   } = usePullToRefresh({
     onRefresh: handleRefresh,
-    threshold: 80,
+    threshold: 120, // Increased from 80 to 120 for less sensitivity
     enabled: true
   });
 

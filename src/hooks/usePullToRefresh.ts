@@ -40,9 +40,10 @@ export const usePullToRefresh = ({
       currentY.current = e.touches[0].clientY;
       const deltaY = currentY.current - startY.current;
 
-      if (deltaY > 0) {
+      // Make pull-to-refresh less sensitive by requiring more pull distance
+      if (deltaY > 20) { // Require at least 20px before starting
         e.preventDefault();
-        const distance = Math.min(deltaY * 0.5, threshold * 1.5);
+        const distance = Math.min(deltaY * 0.3, threshold * 1.2); // Reduced sensitivity from 0.5 to 0.3
         setPullDistance(distance);
         setIsPulling(true);
       }

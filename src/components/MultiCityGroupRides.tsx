@@ -542,53 +542,55 @@ export const MultiCityGroupRides = () => {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {city.universities.map((university) => (
-                    <Card
-                      key={university.id}
-                      className="cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/20"
-                      onClick={() => handleUniversitySelect(university.id)}
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <University className="w-6 h-6 text-primary" />
-                            <div>
-                              <h3 className="font-bold text-lg">{university.shortName}</h3>
-                              <p className="text-sm text-muted-foreground">{university.name}</p>
-                            </div>
-                          </div>
-                          <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
-                            {university.studentCount}
-                          </div>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {university.description}
-                        </p>
-                        
-                        <div className="space-y-2">
-                          <p className="text-xs font-medium text-muted-foreground">Nearby Stations:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {university.nearbyStations.slice(0, 3).map((station, index) => (
-                              <span
-                                key={index}
-                                className="bg-muted px-2 py-1 rounded text-xs font-medium"
-                              >
-                                {station}
-                              </span>
-                            ))}
-                            {university.nearbyStations.length > 3 && (
-                              <span className="text-xs text-muted-foreground px-2 py-1">
-                                +{university.nearbyStations.length - 3} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                 <div className="max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                   <div className="grid grid-cols-1 gap-6 py-2">
+                     {city.universities.map((university) => (
+                       <Card
+                         key={university.id}
+                         className="cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md border-2 border-transparent hover:border-primary/20 mx-2"
+                         onClick={() => handleUniversitySelect(university.id)}
+                       >
+                         <CardContent className="p-4">
+                           <div className="flex items-start justify-between mb-3">
+                             <div className="flex items-center gap-2">
+                               <University className="w-5 h-5 text-primary flex-shrink-0" />
+                               <div className="min-w-0">
+                                 <h3 className="font-bold text-base leading-tight">{university.shortName}</h3>
+                                 <p className="text-xs text-muted-foreground truncate">{university.name}</p>
+                               </div>
+                             </div>
+                             <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium whitespace-nowrap ml-2">
+                               {university.studentCount}
+                             </div>
+                           </div>
+                           
+                           <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                             {university.description}
+                           </p>
+                           
+                           <div className="space-y-2">
+                             <p className="text-xs font-medium text-muted-foreground">Nearby Stations:</p>
+                             <div className="flex flex-wrap gap-1">
+                               {university.nearbyStations.slice(0, 2).map((station, index) => (
+                                 <span
+                                   key={index}
+                                   className="bg-muted px-2 py-1 rounded text-xs font-medium"
+                                 >
+                                   {station}
+                                 </span>
+                               ))}
+                               {university.nearbyStations.length > 2 && (
+                                 <span className="text-xs text-muted-foreground px-2 py-1">
+                                   +{university.nearbyStations.length - 2} more
+                                 </span>
+                               )}
+                             </div>
+                           </div>
+                         </CardContent>
+                       </Card>
+                     ))}
+                   </div>
+                 </div>
               </TabsContent>
             ))}
           </Tabs>
