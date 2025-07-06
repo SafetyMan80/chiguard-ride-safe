@@ -21,7 +21,7 @@ interface IncidentReportData {
   location_name: string;
   description: string;
   created_at: string;
-  cta_line: string;
+  transit_line: string;
   image_url?: string;
   latitude?: number;
   longitude?: number;
@@ -259,7 +259,7 @@ export const IncidentReport = ({ selectedCity }: IncidentReportProps) => {
     const reportData = {
       reporter_id: currentUser.id,
       incident_type: sanitizeInput(reportType),
-      cta_line: sanitizeInput(line),
+      transit_line: sanitizeInput(line),
       location_name: sanitizeInput(finalLocationName),
       description: sanitizeInput(description),
       latitude: latitude || null,

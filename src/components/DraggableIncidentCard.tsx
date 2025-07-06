@@ -12,7 +12,7 @@ interface IncidentReportData {
   location_name: string;
   description: string;
   created_at: string;
-  cta_line: string;
+  transit_line: string;
   image_url?: string;
   latitude?: number;
   longitude?: number;
@@ -129,8 +129,8 @@ export const DraggableIncidentCard = ({
                   {incident.incident_type}
                 </Badge>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <div className={`w-2 h-2 rounded-full ${getLineColor(incident.cta_line)}`} />
-                  {incident.cta_line}
+                  <div className={`w-2 h-2 rounded-full ${getLineColor(incident.transit_line)}`} />
+                  {incident.transit_line}
                 </div>
               </div>
               <div className="flex items-center gap-1 text-sm font-medium">

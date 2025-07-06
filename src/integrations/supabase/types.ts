@@ -221,7 +221,6 @@ export type Database = {
         Row: {
           accuracy: number | null
           created_at: string
-          cta_line: string
           description: string
           id: string
           image_url: string | null
@@ -231,12 +230,12 @@ export type Database = {
           longitude: number | null
           reporter_id: string
           status: string
+          transit_line: string
           updated_at: string
         }
         Insert: {
           accuracy?: number | null
           created_at?: string
-          cta_line: string
           description: string
           id?: string
           image_url?: string | null
@@ -246,12 +245,12 @@ export type Database = {
           longitude?: number | null
           reporter_id: string
           status?: string
+          transit_line: string
           updated_at?: string
         }
         Update: {
           accuracy?: number | null
           created_at?: string
-          cta_line?: string
           description?: string
           id?: string
           image_url?: string | null
@@ -261,6 +260,7 @@ export type Database = {
           longitude?: number | null
           reporter_id?: string
           status?: string
+          transit_line?: string
           updated_at?: string
         }
         Relationships: []
@@ -451,7 +451,7 @@ export type Database = {
           id: string
           reporter_id: string
           incident_type: string
-          cta_line: string
+          transit_line: string
           location_name: string
           description: string
           latitude: number
