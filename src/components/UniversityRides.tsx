@@ -331,18 +331,8 @@ export const UniversityRides = () => {
       return;
     }
 
-    // Check if student verification is required and valid
-    const isVerified = await checkStudentVerification(rideUniversity);
-    if (!isVerified) {
-      setPendingAction({ type: 'join', rideId });
-      setShowVerification(true);
-      toast({
-        title: "Student verification required",
-        description: `Please upload your student ID for ${rideUniversity} to join this ride.`,
-        variant: "destructive"
-      });
-      return;
-    }
+    // Allow users to join university rides without verification
+    // Only creators need verification for student group rides
 
     console.log('Attempting to join ride:', {
       rideId,
@@ -451,7 +441,7 @@ export const UniversityRides = () => {
           </CardHeader>
           <CardContent>
             <p className="text-yellow-700 mb-4">
-              To ensure safety and validity, you must verify your student status by uploading your student ID before creating or joining university rides.
+              To ensure safety and validity, you must verify your student status by uploading your student ID before creating university rides.
             </p>
             <IDVerification onVerificationComplete={handleVerificationComplete} />
             <Button 
