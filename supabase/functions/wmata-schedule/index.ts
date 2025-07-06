@@ -82,19 +82,15 @@ serve(async (req) => {
 
     console.log(`Action: ${action}, Station: ${stationCode}`);
 
-    const wmataHeaders = {
-      'api_key': wmataApiKey,
-      'Content-Type': 'application/json'
-    };
-
     switch (action) {
       case 'lines': {
         console.log('Fetching WMATA lines...');
-        const response = await fetch('https://api.wmata.com/Rail.svc/json/jLines', {
-          headers: wmataHeaders
-        });
+        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jLines?api_key=${wmataApiKey}`);
         
         if (!response.ok) {
+          console.error(`WMATA Lines API error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
           throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
         }
         
@@ -121,11 +117,12 @@ serve(async (req) => {
 
       case 'stations': {
         console.log('Fetching WMATA stations...');
-        const response = await fetch('https://api.wmata.com/Rail.svc/json/jStations', {
-          headers: wmataHeaders
-        });
+        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStations?api_key=${wmataApiKey}`);
         
         if (!response.ok) {
+          console.error(`WMATA Stations API error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
           throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
         }
         
@@ -163,11 +160,12 @@ serve(async (req) => {
         }
 
         console.log(`Fetching station info for: ${stationCode}`);
-        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationInfo?StationCode=${stationCode}`, {
-          headers: wmataHeaders
-        });
+        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationInfo?StationCode=${stationCode}&api_key=${wmataApiKey}`);
         
         if (!response.ok) {
+          console.error(`WMATA Station Info API error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
           throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
         }
         
@@ -194,11 +192,12 @@ serve(async (req) => {
         }
 
         console.log(`Fetching arrivals for station: ${stationCode}`);
-        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${stationCode}`, {
-          headers: wmataHeaders
-        });
+        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${stationCode}&api_key=${wmataApiKey}`);
         
         if (!response.ok) {
+          console.error(`WMATA Station Times API error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
           throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
         }
         
