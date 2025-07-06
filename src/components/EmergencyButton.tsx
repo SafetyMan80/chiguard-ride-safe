@@ -20,6 +20,8 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
   const holdProgressRef = useRef<NodeJS.Timeout | null>(null);
   const holdCompletedRef = useRef<number | null>(null);
+  const activatingRef = useRef<boolean>(false);
+  const cleanupRef = useRef<boolean>(false);
   const { isOnline, saveOfflineReport } = useOffline();
   const { toast } = useToast();
   
@@ -226,8 +228,12 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   };
 
   const stopEmergencyAlert = () => {
+    if (cleanupRef.current) return; // Prevent multiple cleanup calls
+    cleanupRef.current = true;
+    
     console.log("🛑 STOPPING EMERGENCY ALERT");
     
+    // Clear audio intervals
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -245,18 +251,27 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     }
     
     // Cancel all speech synthesis
-    speechSynthesis.cancel();
-    console.log("✅ Speech synthesis cancelled");
-    
-    // Also cancel any pending speech
-    setTimeout(() => {
+    try {
       speechSynthesis.cancel();
-      console.log("✅ Delayed speech synthesis cancelled");
-    }, 100);
+      console.log("✅ Speech synthesis cancelled");
+    } catch (error) {
+      console.log("⚠️ Speech synthesis cancel error:", error);
+    }
+    
+    // Also cancel any pending speech with delay
+    setTimeout(() => {
+      try {
+        speechSynthesis.cancel();
+        console.log("✅ Delayed speech synthesis cancelled");
+      } catch (error) {
+        console.log("⚠️ Delayed speech synthesis error:", error);
+      }
+      cleanupRef.current = false; // Reset cleanup flag
+    }, 200);
   };
 
   const handleHoldStart = () => {
-    if (isActive) return; // If already active, don't start hold timer
+    if (isActive || activatingRef.current) return; // Prevent multiple activations
     
     console.log("🖱️ Emergency button hold started");
     setIsHolding(true);
@@ -271,55 +286,88 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     
     // Activation timer (2 seconds)
     holdTimerRef.current = setTimeout(async () => {
+      activatingRef.current = true; // Mark as activating
       console.log("🆘 2-second hold completed - ACTIVATING EMERGENCY!");
       holdCompletedRef.current = Date.now(); // Track when hold completed
+      
+      // Clear progress interval immediately
+      if (holdProgressRef.current) {
+        clearInterval(holdProgressRef.current);
+        holdProgressRef.current = null;
+      }
+      
       setIsHolding(false);
       setHoldProgress(0);
       
       // User interaction happened - enable audio contexts
       try {
-        // Enable Web Audio API
+        // Enable Web Audio API with better error handling
         if (!audioContextRef.current) {
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           if (AudioContext) {
             audioContextRef.current = new AudioContext();
-            await audioContextRef.current.resume();
+            if (audioContextRef.current.state === 'suspended') {
+              await audioContextRef.current.resume();
+            }
             console.log("✅ Audio context initialized with user interaction");
           }
+        } else if (audioContextRef.current.state === 'suspended') {
+          await audioContextRef.current.resume();
+          console.log("✅ Audio context resumed");
         }
         
-        // Prepare speech synthesis
+        // Prepare speech synthesis with delay
         speechSynthesis.getVoices();
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for voices to load
         console.log("✅ Speech synthesis prepared");
       } catch (error) {
         console.error("⚠️ Audio initialization error:", error);
       }
       
-      // Activate emergency
+      // Activate emergency (do this BEFORE starting alerts)
       setIsActive(true);
       getCurrentLocation();
       
+      // Prepare emergency data
       const emergencyData = {
         timestamp: new Date().toISOString(),
         location: { latitude, longitude, accuracy },
         type: 'emergency_alert'
       };
 
+      // Handle offline saving
       if (!isOnline) {
-        const saved = await saveOfflineReport('emergency', emergencyData);
-        if (saved) {
-          toast({
-            title: "🚨 EMERGENCY SAVED OFFLINE!",
-            description: "Alert will be sent when connection returns",
-            variant: "destructive"
-          });
+        try {
+          const saved = await saveOfflineReport('emergency', emergencyData);
+          if (saved) {
+            toast({
+              title: "🚨 EMERGENCY SAVED OFFLINE!",
+              description: "Alert will be sent when connection returns",
+              variant: "destructive"
+            });
+          }
+        } catch (error) {
+          console.error("Offline save error:", error);
         }
       }
       
-      onEmergencyActivated();
-      await playEmergencyAlert();
+      // Notify parent component
+      try {
+        onEmergencyActivated();
+      } catch (error) {
+        console.error("Emergency activation callback error:", error);
+      }
       
-      // Start countdown
+      // Start emergency alerts with delay to ensure state is set
+      setTimeout(async () => {
+        try {
+          await playEmergencyAlert();
+        } catch (error) {
+          console.error("Emergency alert start error:", error);
+        }
+      }, 100);
+      
+      // Start countdown timer
       let timeLeft = 30;
       countdownRef.current = setInterval(() => {
         timeLeft -= 1;
@@ -327,20 +375,25 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         console.log("⏱️ Emergency countdown:", timeLeft, "seconds remaining");
         
         if (timeLeft <= 0) {
+          console.log("⏰ Emergency timeout reached - auto-stopping");
           setIsActive(false);
           setCountdown(30);
           stopEmergencyAlert();
-          console.log("⏰ Emergency timeout reached - auto-stopping");
         }
       }, 1000);
+      
+      activatingRef.current = false; // Reset activating flag
     }, 2000);
   };
 
   const handleHoldEnd = () => {
-    // Don't log or clear if emergency just activated
-    if (isActive) return;
+    // Don't clear if emergency is active or activating
+    if (isActive || activatingRef.current) {
+      console.log("🖱️ Emergency hold ended but emergency is active/activating - not clearing");
+      return;
+    }
     
-    console.log("🖱️ Emergency button hold ended");
+    console.log("🖱️ Emergency button hold ended - clearing timers");
     
     // Clear timers if holding was incomplete
     if (holdTimerRef.current) {
@@ -357,17 +410,27 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   };
 
   const handleEmergencyClick = (e: React.MouseEvent) => {
-    // Prevent click if we just completed a hold (within 500ms)
-    if (Date.now() - (holdCompletedRef.current || 0) < 500) {
-      e.preventDefault();
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent click if we just completed a hold (within 1000ms)
+    if (holdCompletedRef.current && Date.now() - holdCompletedRef.current < 1000) {
+      console.log("🔒 Click prevented - hold just completed");
+      return;
+    }
+    
+    // Prevent click during activation
+    if (activatingRef.current) {
+      console.log("🔒 Click prevented - emergency activating");
       return;
     }
     
     if (isActive) {
       // Stop emergency immediately on click when active
-      console.log("✅ Emergency stopped by user");
+      console.log("✅ Emergency stopped by user click");
       setIsActive(false);
       setCountdown(30);
+      activatingRef.current = false;
       stopEmergencyAlert();
     }
     // For activation, we now use hold instead of click
@@ -375,15 +438,19 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
 
   useEffect(() => {
     return () => {
+      console.log("🧹 Emergency button cleanup");
+      activatingRef.current = false;
       stopEmergencyAlert();
       stopWatching();
       
-      // Clean up hold timers
+      // Clean up all timers
       if (holdTimerRef.current) {
         clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = null;
       }
       if (holdProgressRef.current) {
         clearInterval(holdProgressRef.current);
+        holdProgressRef.current = null;
       }
     };
   }, [stopWatching]);
@@ -410,11 +477,40 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         variant={isActive ? "destructive" : "emergency"}
         size="lg"
         onClick={handleEmergencyClick}
-        onMouseDown={isActive ? undefined : handleHoldStart}
-        onMouseUp={handleHoldEnd}
-        onMouseLeave={handleHoldEnd}
-        onTouchStart={isActive ? undefined : handleHoldStart}
-        onTouchEnd={handleHoldEnd}
+        onMouseDown={isActive ? undefined : (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleHoldStart();
+        }}
+        onMouseUp={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleHoldEnd();
+        }}
+        onMouseLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleHoldEnd();
+        }}
+        onTouchStart={isActive ? undefined : (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleHoldStart();
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleHoldEnd();
+        }}
+        onTouchCancel={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleHoldEnd();
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
         className={`
           w-40 h-40 rounded-full text-xl font-bold shadow-[var(--shadow-emergency)] border-4 border-white/20 relative overflow-hidden
           ${isActive ? 'animate-pulse-emergency bg-red-600' : 'hover:scale-105 hover:shadow-[var(--shadow-floating)] bg-chicago-red'}
