@@ -117,7 +117,7 @@ export const MARTASchedule = () => {
       if (selectedStation !== "all") requestBody.station = selectedStation;
       
       const { data, error } = await supabase.functions.invoke('marta-schedule', {
-        method: 'GET',
+        method: 'POST',
         body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
 
@@ -136,9 +136,20 @@ export const MARTASchedule = () => {
       }
     } catch (error) {
       console.error('Error fetching MARTA arrivals:', error);
+      
+      const errorMessage = error.message || 'Unknown error';
+      let userMessage = "Failed to fetch MARTA schedule. Please try again.";
+      
+      // Check if it's a MARTA API server error
+      if (errorMessage.includes('502') || errorMessage.includes('gateway')) {
+        userMessage = "MARTA's servers are currently experiencing issues. Please try again later.";
+      } else if (errorMessage.includes('MARTA API key')) {
+        userMessage = "MARTA service is not properly configured.";
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to fetch MARTA schedule. Please try again.",
+        title: "MARTA Schedule Unavailable",
+        description: userMessage,
         variant: "destructive"
       });
     } finally {
