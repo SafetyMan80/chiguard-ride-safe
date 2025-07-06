@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Train, RefreshCw, ExternalLink, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ctaSystemMap from "@/assets/cta-system-map-readable.jpg";
 
 interface CTAArrival {
   staId: string;
@@ -269,7 +270,7 @@ export const CTASchedule = () => {
             <div className="space-y-4">
               <div className="border rounded-lg overflow-hidden bg-white">
                 <img 
-                  src="/src/assets/cta-system-map-readable.jpg" 
+                  src={ctaSystemMap} 
                   alt="CTA System Map" 
                   className="w-full h-auto max-w-4xl mx-auto"
                   style={{ maxHeight: '600px', objectFit: 'contain' }}
