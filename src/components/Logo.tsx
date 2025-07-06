@@ -1,8 +1,6 @@
-import railSaviorLogo from "@/assets/rail-savior-logo.png";
-
 export const Logo = ({ className = "w-8 h-8" }: { className?: string }) => (
   <img
-    src={railSaviorLogo}
+    src="/lovable-uploads/a8d9c10c-29fa-435d-b865-ef18708dd913.png"
     alt="Rail Savior Shield Logo"
     className={`${className} object-contain drop-shadow-lg`}
   />
