@@ -280,7 +280,7 @@ export const IncidentReport = () => {
 
       toast({
         title: "✅ Report Submitted Successfully!",
-        description: "Your incident report has been shared with other RAIL SAVIOR users.",
+        description: "Your incident report has been shared with other RAILSAVIOR users.",
       });
 
       // Refresh the data

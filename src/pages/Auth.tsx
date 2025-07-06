@@ -79,7 +79,7 @@ const Auth = () => {
         <div className="text-center">
           <Logo className="w-16 h-16 mx-auto mb-4" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent">
-            RAIL SAVIOR
+            RAILSAVIOR
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
             Safety Driven...Community Powered
@@ -92,7 +92,7 @@ const Auth = () => {
             <CardTitle>{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
             <CardDescription>
               {isSignUp 
-                ? "Create your account to get started with Rail Savior" 
+                ? "Create your account to get started with RAILSAVIOR" 
                 : "Sign in to your account to continue"
               }
             </CardDescription>

@@ -123,7 +123,7 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
           <section>
             <h3 className="font-semibold mb-2">8. Children's Privacy</h3>
             <p className="text-muted-foreground">
-              RAIL SAVIOR is not intended for children under 13. We do not knowingly collect personal information 
+              RAILSAVIOR is not intended for children under 13. We do not knowingly collect personal information 
               from children under 13. If we become aware of such collection, we will delete the information immediately.
             </p>
           </section>

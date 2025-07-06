@@ -134,7 +134,7 @@ export const IDVerification = ({ onVerificationComplete, onBack }: IDVerificatio
               ID Verification
             </CardTitle>
             <CardDescription>
-              Upload a clear photo of your ID for verification. This helps ensure the safety of all Rail Savior users.
+              Upload a clear photo of your ID for verification. This helps ensure the safety of all RAILSAVIOR users.
             </CardDescription>
           </div>
         </div>

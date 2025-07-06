@@ -34,7 +34,7 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
           <section>
             <h3 className="font-semibold mb-2">1. Acceptance of Terms</h3>
             <p className="text-muted-foreground">
-              By accessing and using RAIL SAVIOR, you accept and agree to be bound by the terms and provision of this agreement.
+              By accessing and using RAILSAVIOR, you accept and agree to be bound by the terms and provision of this agreement.
               If you do not agree to abide by the above, please do not use this service.
             </p>
           </section>
@@ -42,7 +42,7 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
           <section>
             <h3 className="font-semibold mb-2">2. Service Description</h3>
             <p className="text-muted-foreground">
-              RAIL SAVIOR is a safety application designed to help Chicago CTA riders stay safe through emergency features, 
+              RAILSAVIOR is a safety application designed to help Chicago CTA riders stay safe through emergency features, 
               incident reporting, and community support. The service includes real-time CTA schedule information, 
               university ride-sharing, and emergency contact features.
             </p>
@@ -62,8 +62,8 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
           <section>
             <h3 className="font-semibold mb-2">4. Emergency Services</h3>
             <p className="text-muted-foreground">
-              RAIL SAVIOR's emergency features are supplementary to, not a replacement for, official emergency services.
-              In case of immediate danger, always call 911 first. RAIL SAVIOR cannot guarantee response times or 
+              RAILSAVIOR's emergency features are supplementary to, not a replacement for, official emergency services.
+              In case of immediate danger, always call 911 first. RAILSAVIOR cannot guarantee response times or
               availability of emergency features.
             </p>
           </section>
@@ -72,7 +72,7 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
             <h3 className="font-semibold mb-2">5. Privacy and Data</h3>
             <p className="text-muted-foreground">
               Your privacy is important to us. Please review our Privacy Policy to understand how we collect, 
-              use, and protect your information. By using RAIL SAVIOR, you consent to our data practices as 
+              use, and protect your information. By using RAILSAVIOR, you consent to our data practices as 
               described in our Privacy Policy.
             </p>
           </section>
@@ -80,7 +80,7 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
           <section>
             <h3 className="font-semibold mb-2">6. Limitation of Liability</h3>
             <p className="text-muted-foreground">
-              RAIL SAVIOR is provided "as is" without warranties of any kind. We are not liable for any damages 
+              RAILSAVIOR is provided "as is" without warranties of any kind. We are not liable for any damages 
               arising from the use or inability to use the service, including but not limited to direct, 
               indirect, incidental, or consequential damages.
             </p>
@@ -89,7 +89,7 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
           <section>
             <h3 className="font-semibold mb-2">7. Prohibited Uses</h3>
             <div className="text-muted-foreground space-y-2">
-              <p>You may not use RAIL SAVIOR to:</p>
+              <p>You may not use RAILSAVIOR to:</p>
               <p>• Submit false emergency reports or incident reports</p>
               <p>• Harass, threaten, or harm other users</p>
               <p>• Violate any local, state, or federal laws</p>
@@ -111,7 +111,7 @@ export const TermsOfService = ({ onBack }: TermsOfServiceProps) => {
             <h3 className="font-semibold mb-2">9. Changes to Terms</h3>
             <p className="text-muted-foreground">
               We reserve the right to modify these terms at any time. Users will be notified of significant 
-              changes through the application. Continued use of RAIL SAVIOR after changes constitutes acceptance 
+              changes through the application. Continued use of RAILSAVIOR after changes constitutes acceptance 
               of the new terms.
             </p>
           </section>

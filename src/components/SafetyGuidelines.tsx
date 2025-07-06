@@ -34,7 +34,7 @@ export const SafetyGuidelines = ({ onBack }: SafetyGuidelinesProps) => {
             <h3 className="font-semibold mb-2 text-chicago-red">🚨 Emergency Situations</h3>
             <div className="text-muted-foreground space-y-2">
               <p>• <strong>Call 911 first</strong> for immediate life-threatening emergencies</p>
-              <p>• Use RAIL SAVIOR's SOS button to alert nearby riders and get community support</p>
+              <p>• Use RAILSAVIOR's SOS button to alert nearby riders and get community support</p>
               <p>• Stay calm and move to a well-lit, populated area if possible</p>
               <p>• Keep your phone charged and accessible at all times</p>
             </div>
@@ -55,14 +55,14 @@ export const SafetyGuidelines = ({ onBack }: SafetyGuidelinesProps) => {
             <h3 className="font-semibold mb-2">👥 Community Support</h3>
             <div className="text-muted-foreground space-y-2">
               <p>• Look out for fellow riders and offer help when safe to do so</p>
-              <p>• Report incidents accurately through RAIL SAVIOR to help others stay informed</p>
+              <p>• Report incidents accurately through RAILSAVIOR to help others stay informed</p>
               <p>• Join university ride-share groups for safer travel in numbers</p>
               <p>• Share your location with trusted contacts when traveling alone</p>
             </div>
           </section>
 
           <section>
-            <h3 className="font-semibold mb-2">📱 Using RAIL SAVIOR Safely</h3>
+            <h3 className="font-semibold mb-2">📱 Using RAILSAVIOR Safely</h3>
             <div className="text-muted-foreground space-y-2">
               <p>• Enable location services for accurate emergency response</p>
               <p>• Keep your profile information updated and accurate</p>

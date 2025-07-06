@@ -141,8 +141,8 @@ const Index = () => {
   const handleShare = async () => {
     const url = window.location.href;
     const shareData = {
-      title: 'Rail Savior - Safety App for Chicago Riders',
-      text: 'Join me on Rail Savior for safer transit in Chicago!',
+      title: 'RAILSAVIOR - Safety App for Chicago Riders',
+      text: 'Join me on RAILSAVIOR for safer transit in Chicago!',
       url: url
     };
 
@@ -269,7 +269,7 @@ const Index = () => {
                 <CardHeader className="text-center pb-3">
                    <CardTitle className="text-lg text-chicago-blue flex items-center justify-center gap-2">
                      <Share className="w-5 h-5" />
-                     Share Rail Savior
+                     Share RAILSAVIOR
                    </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -370,7 +370,7 @@ const Index = () => {
             <div className="flex items-center justify-center gap-0.5">
               <Logo className="w-32 h-32 drop-shadow-md" />
               <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal tracking-tight">
-                RAIL SAVIOR
+                RAILSAVIOR
               </h1>
             </div>
           </CardHeader>
