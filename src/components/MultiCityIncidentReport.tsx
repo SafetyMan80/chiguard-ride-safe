@@ -24,7 +24,7 @@ const CITIES_WITH_RAIL: City[] = [
     railLines: ["Red", "Blue", "Brown", "Green", "Orange", "Pink", "Purple", "Yellow"],
     color: "bg-chicago-blue",
     available: true,
-    majorStations: ["Union Station", "Millennium Station", "LaSalle Street Station", "Ogilvie Transportation Center"]
+    majorStations: ["Union Station", "Millennium Station", "LaSalle Street Station", "Ogilvie Transportation Center", "Roosevelt", "Clark/Lake", "Jackson", "Monroe"]
   },
   {
     id: "nyc",
@@ -34,7 +34,37 @@ const CITIES_WITH_RAIL: City[] = [
     railLines: ["4", "5", "6", "7", "A", "B", "C", "D", "E", "F", "G", "J", "L", "M", "N", "Q", "R", "W", "Z"],
     color: "bg-blue-600",
     available: true,
-    majorStations: ["Times Square", "Grand Central", "Union Square", "Penn Station", "Atlantic Terminal"]
+    majorStations: ["Times Square-42nd St", "Grand Central-42nd St", "Union Square-14th St", "Penn Station-34th St", "Atlantic Terminal", "14th St-Union Sq", "42nd St-Port Authority"]
+  },
+  {
+    id: "denver",
+    name: "Denver",
+    agency: "RTD (Regional Transportation District)",
+    description: "Light Rail & Commuter Rail - Multiple lettered lines",
+    railLines: ["A Line", "B Line", "C Line", "D Line", "E Line", "F Line", "G Line", "H Line", "N Line", "R Line", "W Line"],
+    color: "bg-green-700",
+    available: true,
+    majorStations: ["Union Station", "Downtown-Littleton", "Denver International Airport", "Westminster", "Lakewood", "Thornton"]
+  },
+  {
+    id: "washington_dc",
+    name: "Washington D.C.",
+    agency: "WMATA (Washington Metropolitan Area Transit Authority)",
+    description: "Metrorail System - 6 color-coded lines",
+    railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
+    color: "bg-blue-800",
+    available: true,
+    majorStations: ["Union Station", "Gallery Pl-Chinatown", "Metro Center", "L'Enfant Plaza", "Dupont Circle", "Rosslyn"]
+  },
+  {
+    id: "philadelphia",
+    name: "Philadelphia",
+    agency: "SEPTA (Southeastern Pennsylvania Transportation Authority)",
+    description: "Regional Rail and Subway System - Market-Frankford and Broad Street Lines",
+    railLines: ["Market-Frankford Line", "Broad Street Line", "Regional Rail"],
+    color: "bg-purple-600",
+    available: true,
+    majorStations: ["30th Street Station", "Suburban Station", "Jefferson Station", "Temple University", "City Hall", "Broad St-Pattison"]
   },
   {
     id: "los_angeles",
@@ -44,27 +74,7 @@ const CITIES_WITH_RAIL: City[] = [
     railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
     color: "bg-red-600",
     available: false,
-    majorStations: ["Union Station", "7th St/Metro Center", "Hollywood/Highland", "Westlake/MacArthur Park"]
-  },
-  {
-    id: "washington_dc",
-    name: "Washington D.C.",
-    agency: "WMATA (Washington Metropolitan Area Transit Authority)",
-    description: "Metrorail System - 6 color-coded lines",
-    railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
-    color: "bg-blue-800",
-    available: false,
-    majorStations: ["Union Station", "Gallery Pl-Chinatown", "Metro Center", "L'Enfant Plaza"]
-  },
-  {
-    id: "philadelphia",
-    name: "Philadelphia",
-    agency: "SEPTA (Southeastern Pennsylvania Transportation Authority)",
-    description: "Regional Rail and Subway System",
-    railLines: ["Market-Frankford", "Broad Street", "Regional Rail"],
-    color: "bg-purple-600",
-    available: false,
-    majorStations: ["30th Street Station", "Suburban Station", "Jefferson Station", "Temple University"]
+    majorStations: ["Union Station", "7th St/Metro Center", "Hollywood/Highland", "Westlake/MacArthur Park", "North Hollywood", "Long Beach"]
   },
   {
     id: "atlanta",
@@ -74,7 +84,7 @@ const CITIES_WITH_RAIL: City[] = [
     railLines: ["Red", "Gold", "Blue", "Green"],
     color: "bg-orange-600",
     available: false,
-    majorStations: ["Five Points", "Peachtree Center", "Airport", "Lindbergh Center"]
+    majorStations: ["Five Points", "Peachtree Center", "Airport", "Lindbergh Center", "North Springs"]
   }
 ];
 
@@ -218,17 +228,17 @@ export const MultiCityIncidentReport = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>🚨 Currently Available:</strong> Chicago CTA and New York City MTA incident 
-              reporting with location tracking, photo upload, and real-time alerts.
+          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              <strong>🚨 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, 
+              Denver RTD, and Philadelphia SEPTA incident reporting with location tracking, photo upload, and real-time alerts.
             </p>
           </div>
           
-          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>🚧 Coming Soon:</strong> Safety reporting for LA Metro, 
-              DC Metro, SEPTA, and MARTA with the same comprehensive features.
+          <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <strong>🚧 Coming Soon:</strong> Safety reporting for LA Metro and MARTA 
+              with the same comprehensive features.
             </p>
           </div>
           

@@ -12,6 +12,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { sanitizeInput, rateLimiter, validateLocation } from "@/lib/security";
+import { DraggableIncidentCard } from "@/components/DraggableIncidentCard";
 
 interface IncidentReportData {
   id: string;
@@ -106,11 +107,11 @@ export const IncidentReport = ({ selectedCity }: IncidentReportProps) => {
       majorStations: ["Times Square-42nd St", "Grand Central-42nd St", "Union Square-14th St", "Penn Station-34th St", "Atlantic Terminal", "14th St-Union Sq", "42nd St-Port Authority"]
     },
     {
-      id: "los_angeles",
-      name: "Los Angeles",
-      agency: "LA Metro",
-      railLines: ["Red Line", "Purple Line", "Blue Line", "Green Line", "Gold Line", "Expo Line"],
-      majorStations: ["Union Station", "7th St/Metro Center", "Hollywood/Highland", "Westlake/MacArthur Park", "North Hollywood", "Long Beach"]
+      id: "denver",
+      name: "Denver",
+      agency: "RTD (Regional Transportation District)",
+      railLines: ["A Line", "B Line", "C Line", "D Line", "E Line", "F Line", "G Line", "H Line", "N Line", "R Line", "W Line"],
+      majorStations: ["Union Station", "Downtown-Littleton", "Denver International Airport", "Westminster", "Lakewood", "Thornton"]
     },
     {
       id: "washington_dc", 
@@ -654,69 +655,16 @@ export const IncidentReport = ({ selectedCity }: IncidentReportProps) => {
             </CardContent>
           </Card>
         ) : (
-          incidents.slice(0, 8).map(incident => {
-            const { time, date } = formatDateTime(incident.created_at);
-            return (
-              <Card key={incident.id} className="animate-fade-in">
-                 <CardContent className="py-4">
-                   <div className="flex items-start justify-between">
-                     <div className="space-y-2 flex-1">
-                       <div className="flex items-center gap-2">
-                         <Badge variant="secondary" className="font-semibold">
-                           {incident.incident_type}
-                         </Badge>
-                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                           <div className={`w-2 h-2 rounded-full ${getLineColor(incident.cta_line)}`} />
-                           {incident.cta_line}
-                         </div>
-                       </div>
-                       <div className="flex items-center gap-1 text-sm font-medium">
-                         <MapPin className="w-3 h-3" />
-                         {incident.location_name}
-                       </div>
-                       <p className="text-sm">{incident.description}</p>
-                       <p className="text-xs text-muted-foreground">
-                         Reported anonymously
-                       </p>
-                       
-                       {incident.image_url && (
-                         <div className="mt-2">
-                           <img 
-                             src={incident.image_url} 
-                             alt="Incident evidence" 
-                             className="w-20 h-20 object-cover rounded border"
-                           />
-                         </div>
-                       )}
-                       
-                       {incident.latitude && incident.longitude && (
-                         <div className="text-xs text-muted-foreground mt-1">
-                           📍 GPS: {incident.latitude}, {incident.longitude}
-                           {incident.accuracy && ` (±${Math.round(incident.accuracy)}m)`}
-                         </div>
-                       )}
-                     </div>
-                     <div className="flex flex-col items-end gap-1">
-                       <div className="text-right">
-                         <span className="text-xs text-muted-foreground">{time}</span>
-                         <div className="text-xs text-muted-foreground">{date}</div>
-                       </div>
-                       {currentUser && incident.reporter_id === currentUser.id && (
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           onClick={() => handleDeleteReport(incident.id)}
-                           className="text-destructive hover:text-destructive hover:bg-destructive/10 p-1 h-8 w-8"
-                         >
-                           <Trash2 className="w-3 h-3" />
-                         </Button>
-                       )}
-                     </div>
-                   </div>
-                 </CardContent>
-              </Card>
-            );
-          })
+          incidents.slice(0, 8).map(incident => (
+            <DraggableIncidentCard
+              key={incident.id}
+              incident={incident}
+              currentUser={currentUser}
+              onDelete={handleDeleteReport}
+              getLineColor={getLineColor}
+              formatDateTime={formatDateTime}
+            />
+          ))
         )}
       </div>
 
