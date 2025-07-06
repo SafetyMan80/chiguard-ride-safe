@@ -76,9 +76,20 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
+    // Parse request body for parameters
+    let body: any = {};
+    try {
+      const text = await req.text();
+      if (text) {
+        body = JSON.parse(text);
+      }
+    } catch (e) {
+      console.log('No body or invalid JSON body');
+    }
+    
     const url = new URL(req.url);
-    const stationCode = url.searchParams.get('station');
-    const action = url.searchParams.get('action') || 'arrivals';
+    const stationCode = body.station || url.searchParams.get('station');
+    const action = body.action || url.searchParams.get('action') || 'arrivals';
 
     console.log(`Action: ${action}, Station: ${stationCode}`);
 
