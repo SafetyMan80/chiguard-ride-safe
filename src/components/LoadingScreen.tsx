@@ -6,9 +6,9 @@ export const LoadingScreen = () => {
       <div className="flex items-center justify-center gap-4 mb-8">
         <Logo className="w-32 h-32 drop-shadow-md" />
         <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight animate-zoom-in-text flex items-center">
-          <span className="text-7xl text-chicago-blue font-playfair">R</span>
+          <span className="text-7xl text-black font-playfair" style={{ textShadow: '2px 2px 0 hsl(var(--chicago-gold)), -2px -2px 0 hsl(var(--chicago-gold)), 2px -2px 0 hsl(var(--chicago-gold)), -2px 2px 0 hsl(var(--chicago-gold))' }}>R</span>
           <span>AIL</span>
-          <span className="text-7xl text-chicago-red font-playfair">S</span>
+          <span className="text-7xl text-black font-playfair" style={{ textShadow: '2px 2px 0 hsl(var(--chicago-gold)), -2px -2px 0 hsl(var(--chicago-gold)), 2px -2px 0 hsl(var(--chicago-gold)), -2px 2px 0 hsl(var(--chicago-gold))' }}>S</span>
           <span>AVIOR</span>
         </h1>
       </div>

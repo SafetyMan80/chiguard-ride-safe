@@ -375,9 +375,9 @@ const Index = () => {
             <div className="flex items-center justify-center gap-2">
               <Logo className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md" />
               <h1 className="text-2xl md:text-3xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight flex items-center">
-                <span className="text-3xl md:text-4xl text-chicago-blue font-playfair">R</span>
+                <span className="text-3xl md:text-4xl text-black font-playfair" style={{ textShadow: '1px 1px 0 hsl(var(--chicago-gold)), -1px -1px 0 hsl(var(--chicago-gold)), 1px -1px 0 hsl(var(--chicago-gold)), -1px 1px 0 hsl(var(--chicago-gold))' }}>R</span>
                 <span>AIL</span>
-                <span className="text-3xl md:text-4xl text-chicago-red font-playfair">S</span>
+                <span className="text-3xl md:text-4xl text-black font-playfair" style={{ textShadow: '1px 1px 0 hsl(var(--chicago-gold)), -1px -1px 0 hsl(var(--chicago-gold)), 1px -1px 0 hsl(var(--chicago-gold)), -1px 1px 0 hsl(var(--chicago-gold))' }}>S</span>
                 <span>AVIOR</span>
               </h1>
             </div>
