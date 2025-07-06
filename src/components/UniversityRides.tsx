@@ -513,7 +513,7 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
             </Button>
             
             <div className="grid grid-cols-1 gap-2">
-              {universities.slice(0, 6).map(uni => (
+              {universities.map(uni => (
                 <Button
                   key={uni.id}
                   variant={selectedUniversity === uni.name ? "chicago" : "chicago-outline"}
