@@ -32,10 +32,11 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
     stopWatching
   } = useGeolocation({ trackLocation: isActive });
 
-  const createEmergencyTone = () => {
+  const createEmergencyTone = async () => {
     try {
-      console.log("🚨 Creating LOUD emergency tone...");
+      console.log("🚨 Creating emergency tone...");
       
+      // Try Web Audio API first
       if (!audioContextRef.current) {
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
         if (AudioContext) {
@@ -44,53 +45,108 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         }
       }
       
-      if (!audioContextRef.current) {
-        console.log("❌ No audio context available");
+      if (audioContextRef.current) {
+        const ctx = audioContextRef.current;
+        
+        // Resume context if suspended
+        if (ctx.state === 'suspended') {
+          await ctx.resume();
+          console.log("🔄 Audio context resumed");
+        }
+        
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        // Urgent alarm sound - square wave for maximum urgency
+        oscillator.frequency.setValueAtTime(1200, ctx.currentTime);
+        oscillator.type = 'square';
+        
+        // Pulsing volume for attention
+        gainNode.gain.setValueAtTime(0.8, ctx.currentTime);
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime + 0.15);
+        gainNode.gain.setValueAtTime(0.8, ctx.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0, ctx.currentTime + 0.5);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.5);
+        
+        console.log("🔊 Web Audio tone played");
         return;
       }
       
-      const ctx = audioContextRef.current;
+      // Fallback to HTML5 Audio with data URI
+      console.log("📱 Using HTML5 Audio fallback...");
+      const audio = new Audio();
       
-      // Resume context if it's suspended (required for mobile)
-      if (ctx.state === 'suspended') {
-        console.log("🔄 Resuming audio context...");
-        ctx.resume();
+      // Generate a simple beep tone using data URI
+      const sampleRate = 8000;
+      const duration = 0.5;
+      const frequency = 1200;
+      const samples = sampleRate * duration;
+      const buffer = new ArrayBuffer(44 + samples);
+      const view = new DataView(buffer);
+      
+      // WAV header
+      const writeString = (offset: number, string: string) => {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+      
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + samples, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate, true);
+      view.setUint16(32, 1, true);
+      view.setUint16(34, 8, true);
+      writeString(36, 'data');
+      view.setUint32(40, samples, true);
+      
+      // Generate square wave samples
+      for (let i = 0; i < samples; i++) {
+        const t = i / sampleRate;
+        const sample = Math.sign(Math.sin(2 * Math.PI * frequency * t)) * 127;
+        view.setInt8(44 + i, sample);
       }
       
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
+      const blob = new Blob([buffer], { type: 'audio/wav' });
+      audio.src = URL.createObjectURL(blob);
+      audio.volume = 0.8;
       
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      await audio.play();
+      console.log("🔊 HTML5 Audio tone played");
       
-      // VERY LOUD and urgent alarm sound
-      oscillator.frequency.setValueAtTime(1200, ctx.currentTime);
-      oscillator.type = 'square';
-      
-      gainNode.gain.setValueAtTime(1.0, ctx.currentTime);
-      gainNode.gain.setValueAtTime(0.5, ctx.currentTime + 0.2);
-      gainNode.gain.setValueAtTime(1.0, ctx.currentTime + 0.4);
-      gainNode.gain.setValueAtTime(0, ctx.currentTime + 0.6);
-      
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.6);
-      
-      console.log("🔊 LOUD Emergency tone played");
     } catch (error) {
       console.error('❌ Audio playback failed:', error);
+      
+      // Ultimate fallback - system beep
+      try {
+        console.log("📢 Using system beep fallback");
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFOo4O9yJQQmdcb1z4A7Chxxtujvpkl'); await audio.play();
+      } catch {
+        console.log("⚠️ All audio methods failed");
+      }
     }
   };
 
-  const playEmergencyAlert = () => {
+  const playEmergencyAlert = async () => {
     console.log("🚨 STARTING EMERGENCY ALERT SYSTEM...");
     
-    // Play VERY loud alarm tone every 300ms for maximum urgency - continues until stopped
-    intervalRef.current = setInterval(() => {
-      createEmergencyTone();
-    }, 300);
-
     // Initial tone
-    createEmergencyTone();
+    await createEmergencyTone();
+    
+    // Play alarm tone every 800ms (gives time for 500ms tone + gap) - continues until stopped
+    intervalRef.current = setInterval(async () => {
+      await createEmergencyTone();
+    }, 800);
 
     // Load voices first, then start announcements
     const loadVoicesAndStart = () => {
@@ -157,11 +213,11 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       // Start immediately
       announceMessage();
       
-      // Repeat announcement every 4 seconds (gives time for full message)
+      // Repeat announcement every 2.5 seconds for more frequent alerts
       voiceIntervalRef.current = setInterval(() => {
         console.log("🔄 Repeating voice announcement...");
         announceMessage();
-      }, 4000);
+      }, 2500);
     };
 
     // Start the voice loading process
@@ -218,6 +274,25 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       setIsHolding(false);
       setHoldProgress(0);
       
+      // User interaction happened - enable audio contexts
+      try {
+        // Enable Web Audio API
+        if (!audioContextRef.current) {
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          if (AudioContext) {
+            audioContextRef.current = new AudioContext();
+            await audioContextRef.current.resume();
+            console.log("✅ Audio context initialized with user interaction");
+          }
+        }
+        
+        // Prepare speech synthesis
+        speechSynthesis.getVoices();
+        console.log("✅ Speech synthesis prepared");
+      } catch (error) {
+        console.error("⚠️ Audio initialization error:", error);
+      }
+      
       // Activate emergency
       setIsActive(true);
       getCurrentLocation();
@@ -240,7 +315,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       }
       
       onEmergencyActivated();
-      playEmergencyAlert();
+      await playEmergencyAlert();
       
       // Start countdown
       let timeLeft = 30;
