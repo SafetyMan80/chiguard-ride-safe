@@ -7,6 +7,7 @@ import { CTASchedule } from "./CTASchedule";
 import { WMATASchedule } from "./WMATASchedule";
 import { RTDSchedule } from "./RTDSchedule";
 import { SEPTASchedule } from "./SEPTASchedule";
+import { MARTASchedule } from "./MARTASchedule";
 
 interface City {
   id: string;
@@ -80,7 +81,7 @@ const CITIES_WITH_RAIL: City[] = [
     description: "Heavy Rail System - 4 colored lines",
     railLines: ["Red", "Gold", "Blue", "Green"],
     color: "bg-orange-600",
-    available: false
+    available: true
   }
 ];
 
@@ -182,6 +183,23 @@ export const MultiCitySchedule = () => {
     );
   }
 
+  // If Atlanta is selected, show the MARTA schedule
+  if (selectedCity === "atlanta") {
+    return (
+      <div className="space-y-4">
+        <Button
+          variant="outline"
+          onClick={handleBackToSelection}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to City Selection
+        </Button>
+        <MARTASchedule />
+      </div>
+    );
+  }
+
   // Show city selection interface
   return (
     <div className="space-y-6">
@@ -267,14 +285,14 @@ export const MultiCitySchedule = () => {
         <CardContent className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, Denver RTD, and Philadelphia SEPTA with 
+              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, Denver RTD, Philadelphia SEPTA, and Atlanta MARTA with 
               real-time schedules, station search, and system information.
             </p>
           </div>
           
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
-              <strong>🚧 Coming Soon:</strong> Real-time integration for LA Metro and MARTA with the same features.
+              <strong>🚧 Coming Soon:</strong> Real-time integration for LA Metro with the same features.
             </p>
           </div>
           
