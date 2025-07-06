@@ -6,7 +6,7 @@ export const LoadingScreen = () => {
     <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 animate-fade-in">
       <div className="flex items-center justify-center gap-2 mb-6 -ml-4">
         <Logo className="w-32 h-32 drop-shadow-md" />
-        <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal tracking-tight">
+        <h1 className="text-5xl font-urbanist font-black tracking-tight bg-gradient-to-r from-chicago-gold to-chicago-gold-dark bg-clip-text text-transparent">
           RAILSAVIOR
         </h1>
       </div>

@@ -40,6 +40,8 @@ All colors MUST be HSL.
     --chicago-navy: 213 92% 20%;
     --chicago-gunmetal: 210 15% 25%;
     --chicago-accent: 213 20% 95%;
+    --chicago-gold: 45 85% 65%;
+    --chicago-gold-dark: 38 70% 45%;
     
     /* Premium gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--chicago-blue)), hsl(var(--chicago-navy)));

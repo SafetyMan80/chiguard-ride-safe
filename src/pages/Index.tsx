@@ -379,7 +379,7 @@ const Index = () => {
           <CardHeader className="text-center pb-3">
             <div className="flex items-center justify-center gap-2">
               <Logo className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md" />
-              <h1 className="text-2xl md:text-3xl font-urbanist font-black text-chicago-gunmetal tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-urbanist font-black tracking-tight bg-gradient-to-r from-chicago-gold to-chicago-gold-dark bg-clip-text text-transparent">
                 RAILSAVIOR
               </h1>
             </div>
