@@ -62,6 +62,9 @@ export const SEPTASchedule = () => {
         payload.station = selectedStation;
       } else if (selectedLine !== "all") {
         payload.line = selectedLine;
+      } else {
+        // Default to a popular station when nothing is selected
+        payload.station = '15th-street';
       }
       
       console.log('🚇 SEPTA calling function with payload:', payload);

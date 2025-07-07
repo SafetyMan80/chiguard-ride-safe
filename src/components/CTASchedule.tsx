@@ -87,7 +87,7 @@ export const CTASchedule = () => {
       console.log('🚆 CTA API call with body:', requestBody);
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        body: Object.keys(requestBody).length > 0 ? requestBody : {}
+        body: Object.keys(requestBody).length > 0 ? requestBody : { stopId: '30173' }
       });
 
       console.log('🚆 CTA API response received:', { data, error });
