@@ -85,13 +85,15 @@ export const CTASchedule = () => {
       
       console.log('🚆 CTA API call with body:', requestBody);
       console.log('🚆 CTA invoking edge function...');
+      console.log('🚆 CTA making POST to cta-schedule function');
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         method: 'POST',
         body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
 
-      console.log('🚆 CTA API response:', { data, error });
+      console.log('🚆 CTA API response received:', { data, error });
+      console.log('🚆 CTA API response data details:', JSON.stringify(data, null, 2));
 
       if (error) throw error;
 
@@ -106,7 +108,12 @@ export const CTASchedule = () => {
         setArrivals([]);
       }
     } catch (error) {
-      console.error('Error fetching CTA arrivals:', error);
+      console.error('🚆 CTA Error details:', error);
+      console.error('🚆 CTA Error message:', error.message);
+      console.error('🚆 CTA Error stack:', error.stack);
+      
+      // Set empty arrivals on error
+      setArrivals([]);
       
       toast({
         title: "Hold tight! We're working to get real-time data",
@@ -139,16 +146,26 @@ export const CTASchedule = () => {
   useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
 
   useEffect(() => {
-    console.log('CTA useEffect triggered with selectedLine/selectedStation change', { selectedLine, selectedStation });
-    console.log('CTA calling fetchArrivals now');
+    console.log('🚆 CTA useEffect triggered with selectedLine/selectedStation change', { selectedLine, selectedStation });
+    console.log('🚆 CTA calling fetchArrivals now');
     fetchArrivals();
   }, [selectedLine, selectedStation]);
 
   // Initial load
   useEffect(() => {
-    console.log('CTA component mounted, initial fetchArrivals call');
+    console.log('🚆 CTA component mounted, initial fetchArrivals call');
     fetchArrivals();
   }, []);
+
+  // Add debugging for component render
+  console.log('🚆 CTA Component rendering with state:', {
+    arrivals: arrivals.length,
+    loading,
+    selectedLine,
+    selectedStation,
+    lastUpdated,
+    isOnline
+  });
 
   // Reset station when line changes
   const handleLineChange = (newLine: string) => {
