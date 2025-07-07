@@ -1,31 +1,43 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Loader2, RefreshCw, Train, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
+import { StandardArrival, CITY_CONFIGS } from "@/types/standardSchedule";
 
-interface RTDArrival {
-  line: string;
-  destination: string;
-  arrival: string;
-  direction: string;
+interface RTDResponse {
+  success: boolean;
+  arrivals: StandardArrival[];
+  error?: string;
+  lastUpdated: string;
 }
 
 export const RTDSchedule = () => {
-  const [selectedStation, setSelectedStation] = useState("");
-  const [arrivals, setArrivals] = useState<RTDArrival[]>([]);
+  const [arrivals, setArrivals] = useState<StandardArrival[]>([]);
   const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [selectedLine, setSelectedLine] = useState<string>("all");
+  const [selectedStation, setSelectedStation] = useState<string>("all");
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
 
+  const config = CITY_CONFIGS.denver;
+
+  useEffect(() => {
+    const handleOnlineStatus = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  }, []);
+
   const fetchArrivals = async () => {
-    if (!selectedStation.trim()) {
+    if (!isOnline) {
       toast({
-        title: "Station required",
-        description: "Please enter a station name to get arrivals.",
+        title: "No Internet Connection",
+        description: "Please check your connection and try again.",
         variant: "destructive"
       });
       return;
@@ -33,228 +45,86 @@ export const RTDSchedule = () => {
 
     setLoading(true);
     try {
+      const requestBody: any = {};
+      if (selectedLine !== "all") requestBody.line = selectedLine;
+      if (selectedStation !== "all") requestBody.station = selectedStation;
+      
       const { data, error } = await supabase.functions.invoke('rtd-schedule', {
         body: { 
           action: 'arrivals',
-          station: selectedStation.trim()
+          ...requestBody
         }
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      setArrivals(data?.arrivals || []);
-      setLastUpdated(data?.lastUpdated || new Date().toISOString());
-      
-      toast({
-        title: "✅ Schedule Updated",
-        description: `Updated arrivals for ${selectedStation}`,
-      });
+      const response: RTDResponse = data;
+      if (response.arrivals) {
+        setArrivals(response.arrivals || []);
+        setLastUpdated(new Date().toLocaleTimeString());
+        toast({
+          title: "Schedule Updated",
+          description: `Found ${response.arrivals?.length || 0} upcoming arrivals`
+        });
+      } else {
+        throw new Error('Failed to fetch RTD data');
+      }
     } catch (error) {
       console.error('Error fetching RTD arrivals:', error);
+      
+      const errorMessage = error.message || 'Unknown error';
+      let userMessage = "Failed to fetch RTD schedule. Please try again.";
+      
+      if (errorMessage.includes('502') || errorMessage.includes('gateway')) {
+        userMessage = "RTD's servers are currently experiencing issues. Please try again later.";
+      }
+      
       toast({
-        title: "Failed to fetch arrivals",
-        description: "Please check if the RTD API is configured correctly.",
+        title: "RTD Schedule Unavailable",
+        description: userMessage,
         variant: "destructive"
       });
-      setArrivals([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getLineColor = (lineCode: string) => {
-    const colorMap: { [key: string]: string } = {
-      'A': 'bg-green-600',
-      'B': 'bg-blue-600',
-      'C': 'bg-orange-600',
-      'D': 'bg-yellow-600',
-      'E': 'bg-purple-600',
-      'F': 'bg-red-600',
-      'G': 'bg-teal-600',
-      'H': 'bg-pink-600',
-      'N': 'bg-cyan-600',
-      'R': 'bg-indigo-600',
-      'W': 'bg-amber-600'
-    };
-    return colorMap[lineCode] || 'bg-gray-500';
+  const getLineColor = (line: string) => {
+    const lineData = config.lines.find(l => l.name.toLowerCase().includes(line.toLowerCase()));
+    return lineData?.color || "bg-gray-500";
   };
 
+  const formatArrivalTime = (arrivalTime: string) => {
+    if (arrivalTime === "Arriving" || arrivalTime === "Due") {
+      return arrivalTime;
+    }
+    const minutes = parseInt(arrivalTime);
+    if (!isNaN(minutes)) {
+      return minutes <= 1 ? "Arriving" : `${minutes} min`;
+    }
+    return arrivalTime;
+  };
+
+  useEffect(() => {
+    fetchArrivals();
+    const interval = setInterval(fetchArrivals, 30000);
+    return () => clearInterval(interval);
+  }, [selectedLine, selectedStation]);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Train className="w-5 h-5" />
-            Denver RTD Light Rail & Commuter Rail
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Real-time arrival information for RTD trains
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Input
-                placeholder="Enter station name (e.g., Union Station, Airport)"
-                value={selectedStation}
-                onChange={(e) => setSelectedStation(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && fetchArrivals()}
-              />
-            </div>
-            <Button 
-              onClick={fetchArrivals} 
-              disabled={loading || !selectedStation.trim()}
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Search className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-
-          {selectedStation && (
-            <Button 
-              onClick={fetchArrivals} 
-              disabled={loading}
-              variant="outline" 
-              size="sm"
-              className="w-full"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <RefreshCw className="w-4 h-4 mr-2" />
-              )}
-              Refresh Arrivals
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Arrivals */}
-      {selectedStation && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Live Arrivals
-              {lastUpdated && (
-                <span className="text-sm font-normal text-muted-foreground">
-                  • Updated {new Date(lastUpdated).toLocaleTimeString()}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading && arrivals.length === 0 ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span className="ml-2">Loading arrivals...</span>
-              </div>
-            ) : arrivals.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {selectedStation ? "No upcoming arrivals found" : "Enter a station name to view arrivals"}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {arrivals.map((arrival, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${getLineColor(arrival.line)}`} />
-                      <div>
-                        <div className="font-medium">
-                          {arrival.destination}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {arrival.line} Line • {arrival.direction}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`font-bold ${
-                        arrival.arrival === 'Arriving' || arrival.arrival === 'Due'
-                          ? 'text-green-600' 
-                          : 'text-foreground'
-                      }`}>
-                        {arrival.arrival}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Lines Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle>RTD Rail Lines</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Denver's Light Rail and Commuter Rail system
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {[
-              { code: 'A', name: 'A Line', desc: 'Airport to Union Station' },
-              { code: 'B', name: 'B Line', desc: 'Westminster to Union Station' },
-              { code: 'C', name: 'C Line', desc: 'Littleton to Union Station' },
-              { code: 'D', name: 'D Line', desc: '18th & California to Littleton' },
-              { code: 'E', name: 'E Line', desc: 'Union Station to Ridgegate' },
-              { code: 'F', name: 'F Line', desc: '18th & California to Ridgegate' },
-              { code: 'G', name: 'G Line', desc: 'Wheat Ridge to Union Station' },
-              { code: 'H', name: 'H Line', desc: '18th & California to Eastlake' },
-              { code: 'N', name: 'N Line', desc: 'Eastlake to Thornton' },
-              { code: 'R', name: 'R Line', desc: 'Littleton to 9th & Colorado' },
-              { code: 'W', name: 'W Line', desc: 'Union Station to 13th & Federal' }
-            ].map(line => (
-              <div key={line.code} className="flex items-center gap-3 p-2 border rounded">
-                <div className={`w-4 h-4 rounded-full ${getLineColor(line.code)}`} />
-                <div>
-                  <div className="font-medium">{line.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {line.desc}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* API Notice */}
-      <Card>
-        <CardContent className="pt-6 space-y-4">
-          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>Note:</strong> RTD provides GTFS and GTFS-RT data feeds. 
-              Real-time arrivals require RTD API configuration.
-            </p>
-          </div>
-          
-          {/* Denver Transit Tips */}
-          <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-2">🏔️ Denver Transit Tips</h4>
-            <ul className="text-sm space-y-1 text-green-700">
-              <li>• MyRide card or mobile app for all RTD services</li>
-              <li>• A-Line connects downtown to Denver Airport (DEN)</li>
-              <li>• Free shuttle buses connect light rail to downtown</li>
-              <li>• Purchase tickets before boarding trains</li>
-              <li>• Bikes allowed on trains with bike car</li>
-              <li>• Union Station is the main transit hub downtown</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <StandardScheduleLayout
+      config={config}
+      selectedLine={selectedLine}
+      selectedStation={selectedStation}
+      arrivals={arrivals}
+      loading={loading}
+      lastUpdated={lastUpdated}
+      isOnline={isOnline}
+      onLineChange={setSelectedLine}
+      onStationChange={setSelectedStation}
+      onRefresh={fetchArrivals}
+      formatArrivalTime={formatArrivalTime}
+      getLineColor={getLineColor}
+    />
   );
 };

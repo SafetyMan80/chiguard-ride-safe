@@ -1,169 +1,122 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { type CTAArrival, type CTARoute, type Station } from "@/data/ctaStations";
-import { CTALineStationSelector } from "./cta/CTALineStationSelector";
-import { CTAArrivals } from "./cta/CTAArrivals";
-import { CTASystemOverview } from "./cta/CTASystemOverview";
-import { CTADebug } from "./cta/CTADebug";
-import { CTAHelpSection } from "./cta/CTAHelpSection";
+import { supabase } from "@/integrations/supabase/client";
+import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
+import { StandardArrival, CITY_CONFIGS } from "@/types/standardSchedule";
+
+interface CTAResponse {
+  success: boolean;
+  data: StandardArrival[];
+  error?: string;
+  timestamp: string;
+  source: string;
+}
 
 export const CTASchedule = () => {
-  const [stopId, setStopId] = useState("");
-  const [arrivals, setArrivals] = useState<CTAArrival[]>([]);
-  const [routes, setRoutes] = useState<CTARoute[]>([]);
+  const [arrivals, setArrivals] = useState<StandardArrival[]>([]);
   const [loading, setLoading] = useState(false);
-  const [routesLoading, setRoutesLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [debugMode, setDebugMode] = useState(false);
+  const [selectedLine, setSelectedLine] = useState<string>("all");
+  const [selectedStation, setSelectedStation] = useState<string>("all");
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
 
+  const config = CITY_CONFIGS.chicago;
+
   useEffect(() => {
-    fetchRoutes();
+    const handleOnlineStatus = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
   }, []);
 
-  const fetchRoutes = async () => {
-    try {
-      setRoutesLoading(true);
-      console.log('🚊 Fetching CTA routes...');
-      
-      const { data, error } = await supabase.functions.invoke('cta-schedule');
-      
-      console.log('📊 CTA routes response:', { data, error });
-      
-      if (error) {
-        console.error('❌ Supabase function error:', error);
-        throw error;
-      }
-      
-      if (data && data.type === 'routes' && Array.isArray(data.data)) {
-        console.log('✅ Setting routes:', data.data);
-        setRoutes(data.data);
-      } else {
-        console.warn('⚠️ Unexpected routes data format:', data);
-        setRoutes([]);
-      }
-    } catch (error: any) {
-      console.error('❌ Error fetching routes:', error);
-      // Show user-friendly message instead of technical errors
-      toast({
-        title: "Hold tight! We're working to get real-time data",
-        description: "CTA train information will be available soon. You can still search stations.",
-        variant: "default",
-      });
-      setRoutes([]);
-    } finally {
-      setRoutesLoading(false);
-    }
-  };
-
   const fetchArrivals = async () => {
-    await fetchArrivalsForStopId(stopId);
-  };
-
-  const fetchArrivalsForStopId = async (selectedStopId: string) => {
-    if (!selectedStopId.trim()) {
+    if (!isOnline) {
       toast({
-        title: "Stop ID Required",
-        description: "Please enter a valid CTA stop ID",
-        variant: "destructive",
+        title: "No Internet Connection",
+        description: "Please check your connection and try again.",
+        variant: "destructive"
       });
       return;
     }
 
     setLoading(true);
     try {
-      console.log('🚊 Fetching arrivals for stop:', selectedStopId.trim());
+      const requestBody: any = {};
+      if (selectedLine !== "all") requestBody.line = selectedLine;
+      if (selectedStation !== "all") requestBody.station = selectedStation;
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        body: { stopId: selectedStopId.trim() }
+        method: 'POST',
+        body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
-      
-      console.log('📊 CTA arrivals response:', { data, error });
-      
-      if (error) {
-        console.error('❌ Supabase function error:', error);
-        throw error;
-      }
-      
-      if (data && data.type === 'arrivals') {
-        console.log('✅ Setting arrivals:', data.data);
-        setArrivals(data.data || []);
-        setLastUpdated(data.timestamp);
-        
-        if (!data.data || data.data.length === 0) {
-          toast({
-            title: "No arrivals found",
-            description: `No upcoming trains for Stop ID: ${selectedStopId}. Check if the Stop ID is correct.`,
-            variant: "default"
-          });
-        } else {
-          toast({
-            title: "✅ Arrivals Updated",
-            description: `Found ${data.data.length} upcoming train${data.data.length !== 1 ? 's' : ''}`,
-          });
-        }
+
+      if (error) throw error;
+
+      const response: CTAResponse = data;
+      if (response.success) {
+        setArrivals(response.data || []);
+        setLastUpdated(new Date().toLocaleTimeString());
+        toast({
+          title: "Schedule Updated",
+          description: `Found ${response.data?.length || 0} upcoming arrivals`
+        });
       } else {
-        console.warn('⚠️ Unexpected arrivals data format:', data);
-        setArrivals([]);
+        throw new Error(response.error || 'Failed to fetch CTA data');
       }
-    } catch (error: any) {
-      console.error('❌ Error fetching arrivals:', error);
+    } catch (error) {
+      console.error('Error fetching CTA arrivals:', error);
       
       toast({
         title: "Hold tight! We're working to get real-time data",
-        description: "CTA arrivals will be available soon.",
-        variant: "default",
+        description: "CTA train information will be available soon.",
+        variant: "default"
       });
-      setArrivals([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStationSelect = (station: Station) => {
-    if (station.stopId) {
-      setStopId(station.stopId);
-      // Automatically fetch arrivals when station is selected
-      setTimeout(() => {
-        fetchArrivalsForStopId(station.stopId!);
-      }, 100);
-    }
+  const getLineColor = (line: string) => {
+    const lineData = config.lines.find(l => l.name.toLowerCase().includes(line.toLowerCase()));
+    return lineData?.color || "bg-gray-500";
   };
 
+  const formatArrivalTime = (arrivalTime: string) => {
+    if (arrivalTime === "Boarding" || arrivalTime === "Arrived") {
+      return arrivalTime;
+    }
+    const minutes = parseInt(arrivalTime);
+    if (!isNaN(minutes)) {
+      return minutes <= 1 ? "Arriving" : `${minutes} min`;
+    }
+    return arrivalTime;
+  };
+
+  useEffect(() => {
+    fetchArrivals();
+    const interval = setInterval(fetchArrivals, 30000);
+    return () => clearInterval(interval);
+  }, [selectedLine, selectedStation]);
+
   return (
-    <div className="space-y-6">
-      <CTALineStationSelector onStationSelect={handleStationSelect} />
-      
-      <CTAArrivals
-        stopId={stopId}
-        setStopId={setStopId}
-        arrivals={arrivals}
-        loading={loading}
-        lastUpdated={lastUpdated}
-        onFetchArrivals={fetchArrivals}
-      />
-
-      <CTASystemOverview
-        routes={routes}
-        routesLoading={routesLoading}
-        onFetchRoutes={fetchRoutes}
-      />
-
-      <CTADebug
-        debugMode={debugMode}
-        setDebugMode={setDebugMode}
-        loading={loading}
-        routesLoading={routesLoading}
-        routes={routes}
-        arrivals={arrivals}
-        stopId={stopId}
-        lastUpdated={lastUpdated}
-        onFetchArrivalsForStopId={fetchArrivalsForStopId}
-        onFetchRoutes={fetchRoutes}
-      />
-
-      <CTAHelpSection />
-    </div>
+    <StandardScheduleLayout
+      config={config}
+      selectedLine={selectedLine}
+      selectedStation={selectedStation}
+      arrivals={arrivals}
+      loading={loading}
+      lastUpdated={lastUpdated}
+      isOnline={isOnline}
+      onLineChange={setSelectedLine}
+      onStationChange={setSelectedStation}
+      onRefresh={fetchArrivals}
+      formatArrivalTime={formatArrivalTime}
+      getLineColor={getLineColor}
+    />
   );
 };

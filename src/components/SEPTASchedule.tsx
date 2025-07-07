@@ -1,25 +1,43 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { SEPTAArrival } from "@/data/septaStations";
-import { SEPTAStationSearch } from "@/components/septa/SEPTAStationSearch";
-import { SEPTAArrivals } from "@/components/septa/SEPTAArrivals";
-import { SEPTASystemOverview } from "@/components/septa/SEPTASystemOverview";
+import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
+import { StandardArrival, CITY_CONFIGS } from "@/types/standardSchedule";
+
+interface SEPTAResponse {
+  success: boolean;
+  arrivals: StandardArrival[];
+  error?: string;
+  lastUpdated: string;
+}
 
 export const SEPTASchedule = () => {
-  const [selectedStation, setSelectedStation] = useState("");
-  const [arrivals, setArrivals] = useState<SEPTAArrival[]>([]);
+  const [arrivals, setArrivals] = useState<StandardArrival[]>([]);
   const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [selectedLine, setSelectedLine] = useState<string>("all");
+  const [selectedStation, setSelectedStation] = useState<string>("all");
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
 
+  const config = CITY_CONFIGS.philadelphia;
+
+  useEffect(() => {
+    const handleOnlineStatus = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  }, []);
+
   const fetchArrivals = async () => {
-    if (!selectedStation.trim()) {
+    if (!isOnline) {
       toast({
-        title: "Station required",
-        description: "Please enter a station name to get arrivals.",
+        title: "No Internet Connection",
+        description: "Please check your connection and try again.",
         variant: "destructive"
       });
       return;
@@ -27,68 +45,79 @@ export const SEPTASchedule = () => {
 
     setLoading(true);
     try {
+      const requestBody: any = {};
+      if (selectedLine !== "all") requestBody.line = selectedLine;
+      if (selectedStation !== "all") requestBody.station = selectedStation;
+      
       const { data, error } = await supabase.functions.invoke('septa-schedule', {
         body: { 
           action: 'arrivals',
-          station: selectedStation.trim()
+          ...requestBody
         }
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      setArrivals(data?.arrivals || []);
-      setLastUpdated(data?.lastUpdated || new Date().toISOString());
-      
-      toast({
-        title: "✅ Schedule Updated",
-        description: `Updated arrivals for ${selectedStation}`,
-      });
+      const response: SEPTAResponse = data;
+      if (response.arrivals) {
+        setArrivals(response.arrivals || []);
+        setLastUpdated(new Date().toLocaleTimeString());
+        toast({
+          title: "Schedule Updated",
+          description: `Found ${response.arrivals?.length || 0} upcoming arrivals`
+        });
+      } else {
+        throw new Error('Failed to fetch SEPTA data');
+      }
     } catch (error) {
       console.error('Error fetching SEPTA arrivals:', error);
+      
       toast({
         title: "Hold tight! We're working to get real-time data",
         description: "SEPTA arrivals will be available soon.",
         variant: "default"
       });
-      setArrivals([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const getLineColor = (line: string) => {
+    const lineData = config.lines.find(l => l.name.toLowerCase().includes(line.toLowerCase()));
+    return lineData?.color || "bg-gray-500";
+  };
+
+  const formatArrivalTime = (arrivalTime: string) => {
+    if (arrivalTime === "Boarding" || arrivalTime === "Arrived") {
+      return arrivalTime;
+    }
+    const minutes = parseInt(arrivalTime);
+    if (!isNaN(minutes)) {
+      return minutes <= 1 ? "Arriving" : `${minutes} min`;
+    }
+    return arrivalTime;
+  };
+
+  useEffect(() => {
+    fetchArrivals();
+    const interval = setInterval(fetchArrivals, 30000);
+    return () => clearInterval(interval);
+  }, [selectedLine, selectedStation]);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Train className="w-5 h-5" />
-            SEPTA Philadelphia Transit
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Real-time arrival information for SEPTA trains and subway
-          </p>
-        </CardHeader>
-        <CardContent>
-          <SEPTAStationSearch
-            selectedStation={selectedStation}
-            setSelectedStation={setSelectedStation}
-            onFetchArrivals={fetchArrivals}
-            loading={loading}
-          />
-        </CardContent>
-      </Card>
-
-      <SEPTAArrivals
-        selectedStation={selectedStation}
-        arrivals={arrivals}
-        loading={loading}
-        lastUpdated={lastUpdated}
-      />
-
-      <SEPTASystemOverview />
-    </div>
+    <StandardScheduleLayout
+      config={config}
+      selectedLine={selectedLine}
+      selectedStation={selectedStation}
+      arrivals={arrivals}
+      loading={loading}
+      lastUpdated={lastUpdated}
+      isOnline={isOnline}
+      onLineChange={setSelectedLine}
+      onStationChange={setSelectedStation}
+      onRefresh={fetchArrivals}
+      formatArrivalTime={formatArrivalTime}
+      getLineColor={getLineColor}
+    />
   );
 };
