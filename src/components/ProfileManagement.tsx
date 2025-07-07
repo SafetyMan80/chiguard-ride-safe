@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Shield, ArrowLeft, Edit } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Shield, ArrowLeft, Edit, Download, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -120,6 +121,73 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
     }
 
     return null;
+  };
+
+  const handleExportData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase.functions.invoke('user-data-management', {
+        body: { action: 'export', userId: user.id }
+      });
+
+      if (error) throw error;
+
+      // Create and download the file
+      const blob = new Blob([JSON.stringify(data.data, null, 2)], { 
+        type: 'application/json' 
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `railsavior-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Data exported successfully",
+        description: "Your data has been downloaded to your device.",
+      });
+    } catch (error: any) {
+      console.error('Export error:', error);
+      toast({
+        title: "Export failed",
+        description: error.message || "Failed to export your data",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase.functions.invoke('user-data-management', {
+        body: { action: 'delete', userId: user.id }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Account deleted",
+        description: "Your account and all data have been permanently deleted.",
+      });
+
+      // Sign out the user
+      await supabase.auth.signOut();
+      
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Deletion failed",
+        description: error.message || "Failed to delete your account",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {
@@ -296,6 +364,62 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
             </CardContent>
           </Card>
         )}
+
+        {/* Data Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Data Management</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={handleExportData}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export My Data
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Download a complete copy of all your data stored in RAILSAVIOR
+            </p>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete My Account
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your account and remove all your data from our servers, including:
+                    <br />• Profile information
+                    <br />• Group ride history
+                    <br />• Messages and incident reports
+                    <br />• All associated data
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDeleteAccount}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Delete Everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <p className="text-xs text-muted-foreground">
+              Permanently delete your account and all associated data
+            </p>
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );
