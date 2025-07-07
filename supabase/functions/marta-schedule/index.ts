@@ -42,8 +42,8 @@ serve(async (req) => {
     console.log('MARTA API Key configured:', !!martaApiKey)
     console.log('Request parameters:', { line, station })
 
-    // MARTA API endpoint for real-time arrivals
-    const apiUrl = `https://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals?apikey=${martaApiKey}`
+    // MARTA API endpoint for real-time arrivals (updated endpoint)
+    const apiUrl = `https://developerservices.itsmarta.com:18096/itsmarta/railrealtimearrivals/developerservices/traindata?apiKey=${martaApiKey}`
 
     console.log('Fetching MARTA data from:', apiUrl.replace(martaApiKey, '[REDACTED]'))
 
