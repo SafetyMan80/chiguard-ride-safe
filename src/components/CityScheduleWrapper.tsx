@@ -6,6 +6,7 @@ import { WMATASchedule } from "./WMATASchedule";
 import { RTDSchedule } from "./RTDSchedule";
 import { SEPTASchedule } from "./SEPTASchedule";
 import { MARTASchedule } from "./MARTASchedule";
+import { LAMetroSchedule } from "./LAMetroSchedule";
 
 interface CityScheduleWrapperProps {
   cityId: string;
@@ -27,6 +28,8 @@ export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps
         return <SEPTASchedule />;
       case "atlanta":
         return <MARTASchedule />;
+      case "los_angeles":
+        return <LAMetroSchedule />;
       default:
         return <div>Schedule not available</div>;
     }
