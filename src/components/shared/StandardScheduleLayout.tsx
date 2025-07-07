@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Train, Clock, MapPin, Wifi, WifiOff, RefreshCw } from "lucide-react";
-import { StandardArrival, CityConfig } from "@/types/standardSchedule";
+import { StandardArrival, CityConfig } from "@/types/schedule";
 
 interface StandardScheduleLayoutProps {
   config: CityConfig;

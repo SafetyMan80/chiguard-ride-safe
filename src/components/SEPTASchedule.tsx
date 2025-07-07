@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
-import { StandardArrival, CITY_CONFIGS } from "@/types/standardSchedule";
+import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
 
 interface SEPTAResponse {
   success: boolean;
