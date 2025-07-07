@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { MapPin, AlertTriangle, ArrowLeft } from "lucide-react";
 import { IncidentReport } from "./IncidentReport";
+import { FailsafeIncidentReports } from "./FailsafeIncidentReports";
 import { CitySelectionSkeleton } from "./LoadingSkeleton";
 
 interface City {
@@ -123,6 +124,9 @@ export const MultiCityIncidentReport = () => {
           <p className="text-sm text-muted-foreground">{city?.agency}</p>
         </div>
         <IncidentReport selectedCity={city} />
+        <div className="mt-6">
+          <FailsafeIncidentReports city={city?.id} />
+        </div>
       </div>
     );
   }
