@@ -136,6 +136,18 @@ export default {
 						transform: 'translateX(-50%) translateY(-10px)'
 					}
 				},
+				'float-towards-screen': {
+					'0%': {
+						transform: 'scale(0.2) translateZ(-300px) rotateY(20deg) rotateX(10deg)',
+						opacity: '0',
+						filter: 'blur(12px)'
+					},
+					'100%': {
+						transform: 'scale(1) translateZ(0) rotateY(0deg) rotateX(0deg)',
+						opacity: '1',
+						filter: 'blur(0px)'
+					}
+				},
 				'zoom-in-text': {
 					'0%': {
 						transform: 'scale(0.7) translateX(0)',
@@ -158,6 +170,7 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'train-city': 'train-city 8s linear infinite',
 				'float-logo': 'float-logo 3s ease-in-out infinite',
+				'float-towards-screen': 'float-towards-screen 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
 				'zoom-in-text': 'zoom-in-text 3s ease-out forwards'
 			}
 		}
