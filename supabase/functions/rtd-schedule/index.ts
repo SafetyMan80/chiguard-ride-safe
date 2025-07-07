@@ -49,20 +49,23 @@ serve(async (req) => {
           {
             line: 'A',
             destination: 'Denver International Airport',
-            arrival: '5 min',
-            direction: 'Eastbound'
+            arrivalTime: '5 min',
+            direction: 'Eastbound',
+            station: targetStation
           },
           {
-            line: 'B',
+            line: 'B', 
             destination: 'Westminster',
-            arrival: '12 min',
-            direction: 'Northbound'
+            arrivalTime: '12 min',
+            direction: 'Northbound',
+            station: targetStation
           },
           {
             line: 'C',
-            destination: 'Littleton-Mineral',
-            arrival: '8 min',
-            direction: 'Southbound'
+            destination: 'Littleton-Mineral', 
+            arrivalTime: '8 min',
+            direction: 'Southbound',
+            station: targetStation
           }
         ];
 
