@@ -10,8 +10,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
     { id: "home", label: "Home", emoji: "🏠" },
     { id: "emergency", label: "SOS", emoji: "🆘" },
     { id: "incidents", label: "Reports", emoji: "📢" },
-    { id: "groups", label: "University", emoji: "🎓" },
-    { id: "general", label: "General", emoji: "👥" },
+    { id: "groups", label: "Group Up", emoji: "👥" },
     { id: "schedule", label: "Schedule", emoji: "🚊" },
     { id: "settings", label: "Settings", emoji: "⚙️" },
   ];

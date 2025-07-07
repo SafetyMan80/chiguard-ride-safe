@@ -2,8 +2,7 @@ import { useState } from "react";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { MultiCitySchedule } from "@/components/MultiCitySchedule";
 import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
-import { MultiCityGroupRides } from "@/components/MultiCityGroupRides";
-import { GeneralGroupRides } from "@/components/GeneralGroupRides";
+import { GroupRideSelector } from "@/components/GroupRideSelector";
 import { Settings } from "@/components/Settings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -90,16 +89,9 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
     },
     {
       id: "groups",
-      title: "UNIVERSITY",
-      icon: "🎓",
-      description: "Student Rides",
-      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
-    },
-    {
-      id: "general",
-      title: "GENERAL",
+      title: "GROUP UP",
       icon: "👥",
-      description: "Public Rides",
+      description: "Find Ride Partners",
       color: "bg-card text-card-foreground border-border hover:bg-muted/50",
     },
     {
@@ -128,9 +120,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
       case "incidents":
         return <MultiCityIncidentReport />;
       case "groups":
-        return <MultiCityGroupRides />;
-      case "general":
-        return <GeneralGroupRides />;
+        return <GroupRideSelector />;
       case "schedule":
         return <MultiCitySchedule />;
       case "settings":
