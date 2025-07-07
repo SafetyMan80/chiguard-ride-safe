@@ -132,7 +132,7 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
             {lastUpdated && (
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
-                Last updated: {new Date(lastUpdated).toLocaleTimeString()}
+                Last updated: {lastUpdated}
               </div>
             )}
           </div>
