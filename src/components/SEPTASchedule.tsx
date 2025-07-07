@@ -7,9 +7,10 @@ import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
 
 interface SEPTAResponse {
   success: boolean;
-  arrivals: StandardArrival[];
+  data: StandardArrival[];
   error?: string;
-  lastUpdated: string;
+  timestamp: string;
+  source: string;
 }
 
 export const SEPTASchedule = () => {
@@ -60,23 +61,23 @@ export const SEPTASchedule = () => {
       if (error) throw error;
 
       const response: SEPTAResponse = data;
-      if (response.arrivals) {
-        setArrivals(response.arrivals || []);
+      if (response.success) {
+        setArrivals(response.data || []);
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
           title: "Schedule Updated",
-          description: `Found ${response.arrivals?.length || 0} upcoming arrivals`
+          description: `Found ${response.data?.length || 0} upcoming arrivals`
         });
       } else {
-        throw new Error('Failed to fetch SEPTA data');
+        throw new Error(response.error || 'Failed to fetch SEPTA data');
       }
     } catch (error) {
-      console.error('Error fetching SEPTA arrivals:', error);
+      console.error('❌ Error fetching SEPTA arrivals:', error);
       
       toast({
-        title: "Hold tight! We're working to get real-time data",
-        description: "SEPTA arrivals will be available soon.",
-        variant: "default"
+        title: "SEPTA API Error",
+        description: `Failed to fetch Philadelphia transit data: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
       });
     } finally {
       setLoading(false);

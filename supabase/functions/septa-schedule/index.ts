@@ -37,11 +37,14 @@ serve(async (req) => {
     console.error('Error in SEPTA schedule function:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to fetch SEPTA data',
-        details: error.message 
+        success: false,
+        data: [],
+        error: error.message || 'Failed to fetch SEPTA data',
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
@@ -107,22 +110,22 @@ async function getArrivals(station: string) {
 
         return {
           line: lineKey,
+          station: station || 'Unknown Station',
           destination: arrival.destination || arrival.trip_destination || 'Unknown Destination',
-          arrival: arrivalTime,
           direction: arrival.direction || arrival.Direction || 'Unknown',
-          track: arrival.track || arrival.Track || null,
-          status: arrival.status || arrival.train_status || 'On Time',
-          delay: arrival.delay || arrival.late || '0'
+          arrivalTime: arrivalTime,
+          trainId: arrival.track || arrival.Track || null,
+          status: arrival.status || arrival.train_status || 'On Time'
         };
       });
     });
 
     return new Response(
       JSON.stringify({
-        arrivals,
-        station,
-        lastUpdated: new Date().toISOString(),
-        source: 'SEPTA Real-time API'
+        success: true,
+        data: arrivals,
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -133,12 +136,14 @@ async function getArrivals(station: string) {
     console.error('Error fetching SEPTA arrivals:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to fetch SEPTA arrivals',
-        details: error.message,
-        arrivals: []
+        success: false,
+        data: [],
+        error: error.message || 'Failed to fetch SEPTA arrivals',
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
@@ -183,9 +188,10 @@ async function getRoutes() {
 
     return new Response(
       JSON.stringify({
-        routes,
-        lastUpdated: new Date().toISOString(),
-        source: 'SEPTA Static Data'
+        success: true,
+        data: routes,
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -196,12 +202,14 @@ async function getRoutes() {
     console.error('Error fetching SEPTA routes:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to fetch SEPTA routes',
-        details: error.message,
-        routes: []
+        success: false,
+        data: [],
+        error: error.message || 'Failed to fetch SEPTA routes',
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
@@ -240,9 +248,10 @@ async function getStations(route?: string) {
 
     return new Response(
       JSON.stringify({
-        stations: filteredStations,
-        lastUpdated: new Date().toISOString(),
-        source: 'SEPTA Static Data'
+        success: true,
+        data: filteredStations,
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -253,12 +262,14 @@ async function getStations(route?: string) {
     console.error('Error fetching SEPTA stations:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to fetch SEPTA stations',
-        details: error.message,
-        stations: []
+        success: false,
+        data: [],
+        error: error.message || 'Failed to fetch SEPTA stations',
+        timestamp: new Date().toISOString(),
+        source: 'SEPTA'
       }),
       { 
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
