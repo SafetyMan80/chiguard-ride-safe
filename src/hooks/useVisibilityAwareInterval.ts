@@ -40,6 +40,8 @@ export const useVisibilityAwareInterval = (callback: () => void, delay: number |
     // Start interval if page is visible
     if (!document.hidden) {
       startInterval();
+      // Call immediately on mount
+      tick();
     }
 
     // Listen for visibility changes
