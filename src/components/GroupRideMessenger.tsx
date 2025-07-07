@@ -51,6 +51,7 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
 
   const fetchMessages = async () => {
     try {
+      console.log('Fetching messages for ride:', rideId);
       const { data: messagesData, error } = await supabase
         .from('group_messages')
         .select('*')
@@ -58,6 +59,7 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
         .order('created_at', { ascending: true });
 
       if (error) throw error;
+      console.log('Messages fetched:', messagesData);
 
       // Get sender profiles
       const senderIds = [...new Set(messagesData?.map(msg => msg.sender_id) || [])];
@@ -66,11 +68,14 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
         .select('user_id, full_name')
         .in('user_id', senderIds);
 
+      console.log('Profiles fetched:', profiles);
+
       const messagesWithNames = (messagesData || []).map(msg => ({
         ...msg,
         sender_name: profiles?.find(p => p.user_id === msg.sender_id)?.full_name || 'Anonymous'
       }));
 
+      console.log('Messages with names:', messagesWithNames);
       setMessages(messagesWithNames);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -83,6 +88,7 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
   };
 
   const subscribeToMessages = () => {
+    console.log('Setting up real-time subscription for ride:', rideId);
     const channel = supabase
       .channel(`messages-${rideId}`)
       .on(
@@ -93,13 +99,15 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
           table: 'group_messages',
           filter: `ride_id=eq.${rideId}`
         },
-        () => {
+        (payload) => {
+          console.log('Real-time message received:', payload);
           fetchMessages();
         }
       )
       .subscribe();
 
     return () => {
+      console.log('Unsubscribing from messages channel');
       supabase.removeChannel(channel);
     };
   };
@@ -108,17 +116,20 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
     e.preventDefault();
     if (!newMessage.trim() || !currentUser) return;
 
+    console.log('Sending message:', { rideId, userId: currentUser.id, message: newMessage.trim() });
     setLoading(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('group_messages')
         .insert({
           ride_id: rideId,
           sender_id: currentUser.id,
           message_text: newMessage.trim()
-        });
+        })
+        .select();
 
       if (error) throw error;
+      console.log('Message sent successfully:', data);
 
       setNewMessage("");
     } catch (error) {
