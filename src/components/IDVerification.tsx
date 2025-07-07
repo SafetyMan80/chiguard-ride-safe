@@ -101,8 +101,17 @@ export const IDVerification = ({ onVerificationComplete, onBack, requiredUnivers
   };
 
   const handleCameraCapture = () => {
-    // Trigger camera input
+    // Trigger camera input with capture attribute for camera
     if (fileInputRef.current) {
+      fileInputRef.current.setAttribute('capture', 'environment');
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileUpload = () => {
+    // Trigger file input without capture for gallery selection
+    if (fileInputRef.current) {
+      fileInputRef.current.removeAttribute('capture');
       fileInputRef.current.click();
     }
   };
@@ -298,7 +307,7 @@ export const IDVerification = ({ onVerificationComplete, onBack, requiredUnivers
                 type="button"
                 variant="outline"
                 className="h-32 flex flex-col gap-2"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={handleFileUpload}
               >
                 <Upload className="w-8 h-8" />
                 <span>Upload File</span>
@@ -327,7 +336,7 @@ export const IDVerification = ({ onVerificationComplete, onBack, requiredUnivers
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={handleFileUpload}
                 >
                   Change Photo
                 </Button>

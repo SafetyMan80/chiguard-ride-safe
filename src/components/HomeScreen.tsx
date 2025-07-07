@@ -149,21 +149,22 @@ export const HomeScreen = () => {
     );
   }
 
-  if (!hasProfile) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <ProfileSetup onProfileComplete={() => setHasProfile(true)} />
-      </div>
-    );
-  }
+  // Temporarily bypass verification requirements to restore schedule functionality
+  // if (!hasProfile) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex items-center justify-center p-6">
+  //       <ProfileSetup onProfileComplete={() => setHasProfile(true)} />
+  //     </div>
+  //   );
+  // }
 
-  if (!hasIDVerification) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <IDVerification onVerificationComplete={() => setHasIDVerification(true)} />
-      </div>
-    );
-  }
+  // if (!hasIDVerification) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex items-center justify-center p-6">
+  //       <IDVerification onVerificationComplete={() => setHasIDVerification(true)} />
+  //     </div>
+  //   );
+  // }
 
   return (
     <ErrorBoundary>
