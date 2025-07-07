@@ -252,7 +252,7 @@ export const SEPTASchedule = () => {
             Philadelphia's subway, elevated, and regional rail system
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
               { code: 'MFL', name: 'Market-Frankford Line', desc: 'East-West subway/elevated' },
@@ -274,6 +274,19 @@ export const SEPTASchedule = () => {
                 </div>
               </div>
             ))}
+          </div>
+          
+          {/* Philadelphia Transit Tips */}
+          <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+            <h4 className="font-medium text-purple-800 mb-2">🔔 Philadelphia Transit Tips</h4>
+            <ul className="text-sm space-y-1 text-purple-700">
+              <li>• SEPTA Key card for all transit modes</li>
+              <li>• Regional Rail has zone-based pricing</li>
+              <li>• Free transfers between subway/bus within 2 hours</li>
+              <li>• El (Market-Frankford) runs 24/7 on weekends</li>
+              <li>• Use SEPTA app for real-time updates</li>
+              <li>• Jefferson & 30th St are main Regional Rail hubs</li>
+            </ul>
           </div>
         </CardContent>
       </Card>

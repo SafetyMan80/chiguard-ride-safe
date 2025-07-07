@@ -220,6 +220,19 @@ export const WMATASchedule = () => {
               Connected to official WMATA API for up-to-date train schedules.
             </p>
           </div>
+          
+          {/* DC Metro Tips */}
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-800 mb-2">🏛️ DC Metro Tips</h4>
+            <ul className="text-sm space-y-1 text-blue-700">
+              <li>• SmarTrip card required for all rides</li>
+              <li>• Fares vary by distance and time of day</li>
+              <li>• Stand right on escalators (seriously enforced!)</li>
+              <li>• No eating/drinking on trains or platforms</li>
+              <li>• Free transfers between bus and rail within 2 hours</li>
+              <li>• Use Mobile SmarTrip app for convenience</li>
+            </ul>
+          </div>
 
           {selectedStation && (
             <Button 

@@ -307,6 +307,23 @@ export const MARTASchedule = () => {
           </CardContent>
         </Card>
       )}
+      
+      {/* Atlanta Transit Tips */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+            <h4 className="font-medium text-orange-800 mb-2">🍑 Atlanta Transit Tips</h4>
+            <ul className="text-sm space-y-1 text-orange-700">
+              <li>• Breeze Card or mobile app for MARTA rides</li>
+              <li>• Red/Gold Lines serve Hartsfield-Jackson Airport</li>
+              <li>• Five Points is the main downtown transfer station</li>
+              <li>• Free parking at most suburban rail stations</li>
+              <li>• Last trains run around midnight on weekdays</li>
+              <li>• Use MARTA app for real-time arrival info</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

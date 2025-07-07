@@ -214,6 +214,19 @@ export const MTASchedule = () => {
               Connected to official MTA GTFS-RT feeds for up-to-date train schedules.
             </p>
           </div>
+          
+          {/* NYC Transit Tips */}
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-800 mb-2">🗽 NYC Transit Tips</h4>
+            <ul className="text-sm space-y-1 text-blue-700">
+              <li>• OMNY or MetroCard for subway/bus rides</li>
+              <li>• Express trains (4,5,6,N,Q,R,W) skip local stops</li>
+              <li>• Stand right, walk left on escalators</li>
+              <li>• Transfer within 2 hours for free bus connections</li>
+              <li>• Avoid rush hours: 7-10 AM, 5-7 PM weekdays</li>
+              <li>• Use first/last car for less crowded rides</li>
+            </ul>
+          </div>
         </CardContent>
       </Card>
 

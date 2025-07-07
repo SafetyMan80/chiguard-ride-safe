@@ -233,12 +233,25 @@ export const RTDSchedule = () => {
 
       {/* API Notice */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 space-y-4">
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
               <strong>Note:</strong> RTD provides GTFS and GTFS-RT data feeds. 
               Real-time arrivals require RTD API configuration.
             </p>
+          </div>
+          
+          {/* Denver Transit Tips */}
+          <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+            <h4 className="font-medium text-green-800 mb-2">🏔️ Denver Transit Tips</h4>
+            <ul className="text-sm space-y-1 text-green-700">
+              <li>• MyRide card or mobile app for all RTD services</li>
+              <li>• A-Line connects downtown to Denver Airport (DEN)</li>
+              <li>• Free shuttle buses connect light rail to downtown</li>
+              <li>• Purchase tickets before boarding trains</li>
+              <li>• Bikes allowed on trains with bike car</li>
+              <li>• Union Station is the main transit hub downtown</li>
+            </ul>
           </div>
         </CardContent>
       </Card>
