@@ -39,8 +39,10 @@ export const CTASchedule = () => {
     console.log('🚆 CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
     console.log('🚆 CTA starting fetch process...');
     console.log('🚆 CTA config lines:', config.lines);
+    console.log('🚆 CTA config object:', config);
     
     if (!isOnline) {
+      console.log('🚆 CTA offline, showing toast');
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
