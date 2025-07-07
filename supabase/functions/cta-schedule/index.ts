@@ -86,22 +86,40 @@ serve(async (req) => {
     }
 
     console.log(`🚆 Fetching CTA data from: ${apiUrl}`);
+    console.log('🚆 About to make HTTP request to CTA API...');
 
     const response = await fetch(apiUrl);
     console.log(`🚆 CTA API HTTP Status: ${response.status} ${response.statusText}`);
+    console.log('🚆 CTA API Response Headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ CTA API HTTP Error: ${response.status} ${response.statusText}`);
-      console.error(`Response body: ${errorText}`);
+      console.error(`❌ Response body: ${errorText}`);
+      
+      // Return specific error message based on status code
+      let errorMessage = `CTA API error: ${response.status}`;
+      if (response.status === 401 || response.status === 403) {
+        errorMessage = 'CTA API key authentication failed';
+      } else if (response.status === 404) {
+        errorMessage = 'CTA station/route not found';
+      } else if (response.status >= 500) {
+        errorMessage = 'CTA API server error';
+      }
       
       return new Response(
         JSON.stringify({
           success: false,
           data: [],
-          error: `CTA API error: ${response.status} ${response.statusText}`,
+          error: errorMessage,
           timestamp: new Date().toISOString(),
-          source: 'CTA'
+          source: 'CTA',
+          debug: {
+            url: apiUrl,
+            status: response.status,
+            statusText: response.statusText,
+            body: errorText
+          }
         }),
         { 
           status: 200, // Return 200 to client, but indicate API failure in response
