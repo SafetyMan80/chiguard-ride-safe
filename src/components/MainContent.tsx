@@ -78,28 +78,29 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
       title: "SOS",
       icon: "🚨",
       description: "Emergency Alert",
-      color: "bg-chicago-red text-white border-chicago-red/20",
+      color: "bg-gradient-to-br from-chicago-red to-chicago-red/90 text-white border-chicago-red/20 shadow-[var(--shadow-emergency)] hover:shadow-[var(--shadow-emergency)]",
+      priority: true
     },
     {
       id: "incidents",
       title: "INCIDENTS",
       icon: "📝",
       description: "Report Issues",
-      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
+      color: "bg-card/95 backdrop-blur-md text-card-foreground border-border/50 hover:bg-muted/50 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)]",
     },
     {
       id: "groups",
       title: "GROUP UP",
       icon: "👥",
       description: "Find Ride Partners",
-      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
+      color: "bg-card/95 backdrop-blur-md text-card-foreground border-border/50 hover:bg-muted/50 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)]",
     },
     {
       id: "schedule",
       title: "SCHEDULE",
       icon: "🚇",
-      description: "Rail Times",
-      color: "bg-card text-card-foreground border-border hover:bg-muted/50",
+      description: "Real-time Transit Data",
+      color: "bg-card/95 backdrop-blur-md text-card-foreground border-border/50 hover:bg-muted/50 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)]",
     },
   ];
 

@@ -183,7 +183,7 @@ All colors MUST be HSL.
 
   /* Modern card styling like iOS/Material Design */
   .card-modern {
-    @apply bg-card/90 backdrop-blur-md border border-border/50 shadow-[var(--shadow-card)] rounded-2xl;
+    @apply bg-card/95 backdrop-blur-md border border-border/50 shadow-[var(--shadow-card)] rounded-2xl;
   }
 
   /* Interactive cards with hover effects */
@@ -191,9 +191,66 @@ All colors MUST be HSL.
     @apply transition-all duration-200 hover:shadow-[var(--shadow-elevated)] hover:scale-[1.02] active:scale-[0.98];
   }
 
+  /* Professional gradient cards */
+  .card-professional {
+    @apply bg-gradient-to-br from-card/95 to-card/90 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 shadow-[var(--shadow-floating)] rounded-2xl overflow-hidden;
+  }
+
+  /* Emergency card styling */
+  .card-emergency {
+    @apply bg-gradient-to-br from-chicago-red to-chicago-red/90 border border-chicago-red/20 shadow-[var(--shadow-emergency)] rounded-2xl overflow-hidden;
+  }
+
   /* Glass morphism effects */
   .glass-card {
     @apply bg-white/80 dark:bg-black/80 backdrop-blur-[var(--blur-light)] border border-white/20;
+  }
+
+  /* Professional status indicators */
+  .status-indicator {
+    @apply inline-flex items-center justify-center w-2 h-2 rounded-full;
+  }
+
+  .status-live {
+    @apply bg-chicago-green animate-pulse;
+  }
+
+  .status-delayed {
+    @apply bg-chicago-orange;
+  }
+
+  .status-offline {
+    @apply bg-chicago-grey;
+  }
+
+  /* Professional list items */
+  .list-item {
+    @apply flex items-center justify-between p-4 border-b border-border/50 last:border-b-0 hover:bg-muted/30 transition-colors duration-200;
+  }
+
+  /* Enhanced typography scale */
+  .text-hero {
+    @apply text-4xl font-playfair font-bold leading-tight tracking-tight;
+  }
+
+  .text-display {
+    @apply text-2xl font-urbanist font-semibold leading-tight;
+  }
+
+  .text-title {
+    @apply text-xl font-urbanist font-semibold leading-snug;
+  }
+
+  .text-subtitle {
+    @apply text-lg font-urbanist font-medium leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-sm font-urbanist font-medium leading-relaxed;
+  }
+
+  .text-micro {
+    @apply text-xs font-urbanist font-medium leading-relaxed;
   }
 
   /* Mobile gesture support */
@@ -216,4 +273,18 @@ All colors MUST be HSL.
     perspective-origin: center center;
     transform-style: preserve-3d;
   }
+
+  /* Professional loading states */
+  .skeleton {
+    @apply bg-muted/50 animate-pulse rounded;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-muted/50 animate-pulse rounded;
+  }
+
+  .skeleton-avatar {
+    @apply w-10 h-10 bg-muted/50 animate-pulse rounded-full;
+  }
+}
 }
