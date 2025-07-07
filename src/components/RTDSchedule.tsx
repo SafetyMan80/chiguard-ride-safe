@@ -7,9 +7,10 @@ import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
 
 interface RTDResponse {
   success: boolean;
-  arrivals: StandardArrival[];
+  data: StandardArrival[];
   error?: string;
-  lastUpdated: string;
+  timestamp: string;
+  source: string;
 }
 
 export const RTDSchedule = () => {
@@ -60,15 +61,15 @@ export const RTDSchedule = () => {
       if (error) throw error;
 
       const response: RTDResponse = data;
-      if (response.arrivals) {
-        setArrivals(response.arrivals || []);
+      if (response.success) {
+        setArrivals(response.data || []);
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
-          title: "Schedule Updated",
-          description: `Found ${response.arrivals?.length || 0} upcoming arrivals`
+          title: "Schedule Updated", 
+          description: `Found ${response.data?.length || 0} upcoming arrivals`
         });
       } else {
-        throw new Error('Failed to fetch RTD data');
+        throw new Error(response.error || 'Failed to fetch RTD data');
       }
     } catch (error) {
       console.error('Error fetching RTD arrivals:', error);
@@ -81,9 +82,9 @@ export const RTDSchedule = () => {
       }
       
       toast({
-        title: "RTD Schedule Unavailable",
-        description: userMessage,
-        variant: "destructive"
+        title: "Hold tight! We're working to get real-time data",
+        description: "RTD schedule information will be available soon.",
+        variant: "default"
       });
     } finally {
       setLoading(false);
