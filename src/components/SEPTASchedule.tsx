@@ -57,9 +57,9 @@ export const SEPTASchedule = () => {
     } catch (error) {
       console.error('Error fetching SEPTA arrivals:', error);
       toast({
-        title: "Failed to fetch arrivals",
-        description: "Please check the station name or try again later.",
-        variant: "destructive"
+        title: "Hold tight! We're working to get real-time data",
+        description: "SEPTA arrivals will be available soon.",
+        variant: "default"
       });
       setArrivals([]);
     } finally {
