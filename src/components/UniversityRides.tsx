@@ -8,6 +8,7 @@ import { Users, MapPin, Clock, UserCheck, Trash2, Repeat, Plus, Phone, MessageSq
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateRideForm } from "./CreateRideForm";
+import { ProfileView } from "./ProfileView";
 import { GroupRideMessenger } from "./GroupRideMessenger";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCampusSecurity } from "@/data/campusSecurity";
@@ -106,6 +107,8 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showMessenger, setShowMessenger] = useState(false);
   const [selectedRideForMessaging, setSelectedRideForMessaging] = useState<GroupRide | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string>("");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const { toast } = useToast();
@@ -289,6 +292,11 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
     // Pre-select the university from the clicked ride
     setSelectedUniversity(rideUniversity);
     setShowCreateForm(true);
+  };
+
+  const handleViewProfile = (userId: string) => {
+    setSelectedProfileUserId(userId);
+    setShowProfile(true);
   };
 
 
@@ -540,17 +548,22 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
               <Card key={ride.id} className="animate-fade-in">
                 <CardContent className="py-4">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue">
-                          {ride.creator_name[0]?.toUpperCase() || 'A'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{ride.creator_name}</p>
-                        <p className="text-sm text-muted-foreground">{ride.university_name}</p>
-                      </div>
-                    </div>
+                     <div className="flex items-center gap-3">
+                       <Avatar className="cursor-pointer" onClick={() => handleViewProfile(ride.creator_id)}>
+                         <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue">
+                           {ride.creator_name[0]?.toUpperCase() || 'A'}
+                         </AvatarFallback>
+                       </Avatar>
+                       <div>
+                         <button 
+                           className="font-medium hover:text-chicago-blue hover:underline text-left"
+                           onClick={() => handleViewProfile(ride.creator_id)}
+                         >
+                           {ride.creator_name}
+                         </button>
+                         <p className="text-sm text-muted-foreground">{ride.university_name}</p>
+                       </div>
+                     </div>
                     <div className="flex items-center gap-2">
                      {ride.is_member && (
                          <Badge variant="default" className="bg-green-600">
@@ -672,7 +685,17 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
              setSelectedRideForMessaging(null);
            }}
          />
-       )}
-     </div>
+        )}
+        
+        {/* Profile View Modal */}
+        <ProfileView
+          userId={selectedProfileUserId}
+          isOpen={showProfile}
+          onClose={() => {
+            setShowProfile(false);
+            setSelectedProfileUserId("");
+          }}
+        />
+      </div>
   );
 };

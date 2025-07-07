@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Users, MapPin, Clock, Search, X, Trash2, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ProfileView } from "./ProfileView";
 import { GroupRideMessenger } from "./GroupRideMessenger";
 import { RideCardSkeleton } from "./LoadingSkeleton";
 
@@ -25,6 +27,7 @@ interface GeneralRide {
   created_at: string;
   status: string;
   is_member?: boolean;
+  creator_name?: string;
 }
 
 export const GeneralGroupRides = () => {
@@ -35,6 +38,8 @@ export const GeneralGroupRides = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [showMessenger, setShowMessenger] = useState(false);
   const [selectedRideForMessaging, setSelectedRideForMessaging] = useState<GeneralRide | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string>("");
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -59,7 +64,7 @@ export const GeneralGroupRides = () => {
   const fetchRides = async () => {
     setLoading(true);
     try {
-      // First get all active rides
+      // Get all active rides
       const { data: ridesData, error: ridesError } = await supabase
         .from('general_group_rides')
         .select('*')
@@ -69,9 +74,17 @@ export const GeneralGroupRides = () => {
 
       if (ridesError) throw ridesError;
 
-      // Then get member counts and check membership for each ride
+      // Get creator names and member counts for each ride
       const ridesWithCounts = await Promise.all(
         (ridesData || []).map(async (ride) => {
+          // Get creator profile
+          const { data: creatorData } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('user_id', ride.creator_id)
+            .maybeSingle();
+
+          // Get member count
           const { count } = await supabase
             .from('general_ride_members')
             .select('*', { count: 'exact', head: true })
@@ -95,7 +108,8 @@ export const GeneralGroupRides = () => {
           return {
             ...ride,
             current_members: count || 0,
-            is_member
+            is_member,
+            creator_name: creatorData?.full_name || 'Unknown User'
           };
         })
       );
@@ -240,6 +254,11 @@ export const GeneralGroupRides = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleViewProfile = (userId: string) => {
+    setSelectedProfileUserId(userId);
+    setShowProfile(true);
   };
 
   const filteredRides = rides.filter(ride => 
@@ -426,6 +445,26 @@ export const GeneralGroupRides = () => {
                     {ride.current_members}/{ride.max_spots}
                   </Badge>
                 </div>
+                
+                {/* Creator Info */}
+                <div className="flex items-center gap-3 mb-4">
+                  <Avatar className="cursor-pointer w-8 h-8" onClick={() => handleViewProfile(ride.creator_id)}>
+                    <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue text-sm">
+                      {ride.creator_name?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <button 
+                      className="text-sm font-medium hover:text-chicago-blue hover:underline text-left"
+                      onClick={() => handleViewProfile(ride.creator_id)}
+                    >
+                      Created by {ride.creator_name}
+                    </button>
+                    <p className="text-xs text-muted-foreground">
+                      Posted {new Date(ride.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {ride.description && (
@@ -450,7 +489,7 @@ export const GeneralGroupRides = () => {
                 
                 <div className="flex justify-between items-center">
                   <div className="text-xs text-muted-foreground">
-                    Posted {new Date(ride.created_at).toLocaleDateString()}
+                    {ride.current_members}/{ride.max_spots} members
                   </div>
                   {currentUser && ride.creator_id === currentUser.id ? (
                     <Button 
@@ -494,6 +533,16 @@ export const GeneralGroupRides = () => {
           }}
         />
       )}
+      
+      {/* Profile View Modal */}
+      <ProfileView
+        userId={selectedProfileUserId}
+        isOpen={showProfile}
+        onClose={() => {
+          setShowProfile(false);
+          setSelectedProfileUserId("");
+        }}
+      />
     </div>
   );
 };
