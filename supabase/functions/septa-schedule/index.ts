@@ -63,10 +63,30 @@ async function getArrivals(station: string) {
   }
 
   try {
-    console.log(`Fetching SEPTA arrivals for station: ${station}`);
+    console.log(`🚇 SEPTA: Fetching arrivals for station: ${station}`);
+
+    // Map our station IDs to SEPTA API station names
+    const stationMapping: { [key: string]: string } = {
+      'millbourne': 'Millbourne',
+      '69th-street': '69th Street TC',
+      '30th-street': '30th Street',
+      '15th-street': '15th Street',
+      '8th-market': '8th & Market',
+      '5th-independence': '5th St-Independence Hall',
+      '2nd-street': '2nd Street',
+      'frankford': 'Frankford TC',
+      'fern-rock': 'Fern Rock TC',
+      'olney': 'Olney',
+      'city-hall': 'City Hall',
+      'walnut-locust': 'Walnut-Locust'
+    };
+
+    const septaStationName = stationMapping[station] || station;
+    console.log(`🚇 SEPTA: Mapped ${station} -> ${septaStationName}`);
 
     // SEPTA Real-time arrival API
-    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(station)}`;
+    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}`;
+    console.log(`🚇 SEPTA: Calling API: ${url}`);
     
     const response = await fetch(url, {
       method: 'GET',
@@ -76,8 +96,12 @@ async function getArrivals(station: string) {
       }
     });
 
+    console.log(`🚇 SEPTA: API Response Status: ${response.status} ${response.statusText}`);
+
     if (!response.ok) {
-      console.error(`SEPTA API error: ${response.status} ${response.statusText}`);
+      console.error(`🚇 SEPTA API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`🚇 SEPTA Error response body:`, errorText);
       throw new Error(`SEPTA API responded with status ${response.status}`);
     }
 
