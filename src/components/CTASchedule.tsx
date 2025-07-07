@@ -56,10 +56,29 @@ export const CTASchedule = () => {
       
       // Only send parameters if they're actually selected (not "all")
       if (selectedLine !== "all") {
-        requestBody.routeId = selectedLine;
+        // Convert line ID to CTA route name (red -> Red, blue -> Blue, etc.)
+        const routeName = selectedLine.charAt(0).toUpperCase() + selectedLine.slice(1);
+        requestBody.routeId = routeName;
       }
       if (selectedStation !== "all") {
-        requestBody.stopId = selectedStation;
+        // Map station ID to CTA stop ID
+        const stationMapping: { [key: string]: string } = {
+          "ohare": "30171",
+          "howard": "30173", 
+          "95th-dan-ryan": "30089",
+          "fullerton": "30057",
+          "belmont-red": "30254",
+          "addison": "30278",
+          "wilson": "30256",
+          "jackson-blue": "30212",
+          "clark-lake": "30131",
+          "chicago-state": "30013",
+          "roosevelt": "30001",
+          "logan-square": "30077",
+          "merchandise-mart": "30768",
+          "north-clybourn": "30017"
+        };
+        requestBody.stopId = stationMapping[selectedStation] || selectedStation;
       }
       
       console.log('🚆 CTA API call with body:', requestBody);
