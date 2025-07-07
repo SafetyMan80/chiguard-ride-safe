@@ -36,6 +36,8 @@ export const CTASchedule = () => {
   }, []);
 
   const fetchArrivals = async () => {
+    console.log('CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
+    
     if (!isOnline) {
       toast({
         title: "No Internet Connection",
@@ -51,10 +53,14 @@ export const CTASchedule = () => {
       if (selectedLine !== "all") requestBody.line = selectedLine;
       if (selectedStation !== "all") requestBody.station = selectedStation;
       
+      console.log('CTA API call with body:', requestBody);
+      
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         method: 'POST',
         body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
+
+      console.log('CTA API response:', { data, error });
 
       if (error) throw error;
 
@@ -102,6 +108,7 @@ export const CTASchedule = () => {
   useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
 
   useEffect(() => {
+    console.log('CTA useEffect triggered with selectedLine/selectedStation change');
     fetchArrivals();
   }, [selectedLine, selectedStation]);
 
