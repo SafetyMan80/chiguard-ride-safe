@@ -337,7 +337,7 @@ export const GeneralGroupRides = () => {
                     type="datetime-local"
                     value={formData.departure_time}
                     onChange={(e) => setFormData(prev => ({ ...prev, departure_time: e.target.value }))}
-                    min={new Date().toISOString().slice(0, 16)}
+                    min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                     required
                   />
                 </div>
