@@ -50,10 +50,16 @@ export const CTASchedule = () => {
     setLoading(true);
     try {
       const requestBody: any = {};
-      if (selectedLine !== "all") requestBody.line = selectedLine;
-      if (selectedStation !== "all") requestBody.station = selectedStation;
       
-      console.log('CTA API call with body:', requestBody);
+      // Convert our component parameters to what the edge function expects
+      if (selectedLine !== "all") {
+        requestBody.routeId = selectedLine; // The edge function expects 'routeId', not 'line'
+      }
+      if (selectedStation !== "all") {
+        requestBody.stopId = selectedStation; // The edge function expects 'stopId', not 'station'
+      }
+      
+      console.log('CTA API call with correct body:', requestBody);
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         method: 'POST',
