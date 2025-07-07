@@ -106,6 +106,14 @@ export const SEPTASchedule = () => {
     fetchArrivals();
   }, [selectedLine, selectedStation]);
 
+  // Reset station when line changes
+  const handleLineChange = (newLine: string) => {
+    setSelectedLine(newLine);
+    if (newLine !== selectedLine && selectedStation !== "all") {
+      setSelectedStation("all");
+    }
+  };
+
   return (
     <StandardScheduleLayout
       config={config}
@@ -115,7 +123,7 @@ export const SEPTASchedule = () => {
       loading={loading}
       lastUpdated={lastUpdated}
       isOnline={isOnline}
-      onLineChange={setSelectedLine}
+      onLineChange={handleLineChange}
       onStationChange={setSelectedStation}
       onRefresh={fetchArrivals}
       formatArrivalTime={formatArrivalTime}

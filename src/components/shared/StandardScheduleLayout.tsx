@@ -82,14 +82,31 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                 <SelectValue placeholder="Select Station" />
               </SelectTrigger>
               <SelectContent>
-                <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                  Popular Stations
-                </div>
-                {config.stations.filter(s => s.popular).map((station) => (
-                  <SelectItem key={station.id} value={station.id}>
-                    {station.name}
-                  </SelectItem>
-                ))}
+                {selectedLine === "all" ? (
+                  <>
+                    <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                      Popular Stations
+                    </div>
+                    {config.stations.filter(s => s.popular).map((station) => (
+                      <SelectItem key={station.id} value={station.id}>
+                        {station.name}
+                      </SelectItem>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                      {config.lines.find(l => l.id === selectedLine)?.name} Stations
+                    </div>
+                    {config.stations
+                      .filter(s => s.lines?.includes(selectedLine) || s.id === "all")
+                      .map((station) => (
+                        <SelectItem key={station.id} value={station.id}>
+                          {station.name}
+                        </SelectItem>
+                      ))}
+                  </>
+                )}
               </SelectContent>
             </Select>
           </div>
