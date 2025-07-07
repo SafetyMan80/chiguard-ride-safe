@@ -316,6 +316,35 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
     setShowCreateForm(true);
   };
 
+  const handleCreateRideFromCard = async (rideUniversity: string) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required", 
+        description: "Please log in to create a group ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Pre-select the university from the clicked ride
+    setSelectedUniversity(rideUniversity);
+
+    // Check verification for the selected university
+    const isVerified = await checkStudentVerification(rideUniversity);
+    if (!isVerified) {
+      setPendingAction({ type: 'create' });
+      setShowVerification(true);
+      toast({
+        title: "Student verification required",
+        description: `Please upload your student ID for ${rideUniversity} to create rides.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setShowCreateForm(true);
+  };
+
   const handleVerificationComplete = () => {
     setShowVerification(false);
     
@@ -714,25 +743,36 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
                        >
                          <Trash2 className="w-3 h-3" />
                        </Button>
-                     </div>
-                   ) : (
-                     <Button 
-                       variant={ride.is_member ? "outline" : "chicago-outline"}
-                       size="sm" 
-                       className="w-full mb-3"
-                       onClick={() => handleJoinRide(ride.id, ride.university_name)}
-                       disabled={!currentUser || ride.is_member || isFull}
-                     >
-                       {!currentUser 
-                         ? "Login to Join" 
-                         : ride.is_member 
-                           ? "Already Joined" 
-                           : isFull 
-                             ? "Ride Full" 
-                             : "Join Group Ride"
-                       }
-                     </Button>
-                   )}
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 mb-3">
+                        <Button 
+                          variant={ride.is_member ? "outline" : "chicago-outline"}
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleJoinRide(ride.id, ride.university_name)}
+                          disabled={!currentUser || ride.is_member || isFull}
+                        >
+                          {!currentUser 
+                            ? "Login to Join" 
+                            : ride.is_member 
+                              ? "Already Joined" 
+                              : isFull 
+                                ? "Ride Full" 
+                                : "Join Group Ride"
+                          }
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          size="sm" 
+                          onClick={() => handleCreateRideFromCard(ride.university_name)}
+                          disabled={!currentUser}
+                          className="px-3"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
                  </CardContent>
                </Card>
              );
