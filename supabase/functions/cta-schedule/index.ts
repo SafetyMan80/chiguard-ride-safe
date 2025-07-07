@@ -71,12 +71,11 @@ serve(async (req) => {
       );
     }
 
-    // If no specific parameters, try multiple major stations to find active data
+    // If no specific parameters, try the busiest downtown stations first
     if (!stopId && !routeId) {
-      console.log('🚆 No specific parameters, trying major CTA stations');
-      // Try multiple major stations that usually have frequent service
-      const majorStations = ['30173', '30171', '30131', '30089']; // Howard, O'Hare, Clark/Lake, 95th
-      stopId = majorStations[0]; // Start with Howard
+      console.log('🚆 No specific parameters, trying busiest downtown stations');
+      // Try Clark/Lake (downtown hub) first - this should always have trains
+      stopId = '30131'; // Clark/Lake - busiest downtown interchange
     }
 
     let apiUrl: string;
@@ -323,17 +322,95 @@ serve(async (req) => {
           .filter(result => result !== null);
       }
     } else {
-      // No ETA data found - provide helpful message
-      console.log('🚆 ⚠️  NO ETA DATA - API responded but no arrival predictions available');
-      transformedData = [{
-        line: 'CTA',
-        station: 'Service Notice',
-        destination: 'No current arrivals',
-        direction: '',
-        arrivalTime: 'Check back later',
-        trainId: '',
-        status: 'No trains currently predicted for this location'
-      }];
+      // No ETA data found - try alternative busy stations automatically
+      console.log('🚆 ⚠️  NO ETA DATA - trying alternative stations...');
+      
+      const alternativeStations = ['30171', '30089', '30077', '30057']; // O'Hare, 95th, Logan Sq, Fullerton
+      
+      for (const altStopId of alternativeStations) {
+        console.log(`🚆 Trying alternative station: ${altStopId}`);
+        
+        const altApiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${altStopId}&outputType=JSON`;
+        
+        try {
+          const altResponse = await fetch(altApiUrl);
+          if (altResponse.ok) {
+            const altData = JSON.parse(await altResponse.text());
+            if (altData.ctatt?.eta && altData.ctatt.eta.length > 0) {
+              console.log(`🚆 ✅ Found data at station ${altStopId}!`);
+              
+              // Process this data instead
+              transformedData = altData.ctatt.eta
+                .map((arrival: any) => {
+                  let arrivalTime = 'Due';
+                  
+                  if (arrival.isApp === '1' || arrival.isApp === 1) {
+                    arrivalTime = 'Approaching';
+                  } else if (arrival.arrT && arrival.arrT !== '') {
+                    // Parse arrival time
+                    try {
+                      const year = parseInt(arrival.arrT.substring(0, 4));
+                      const month = parseInt(arrival.arrT.substring(4, 6));
+                      const day = parseInt(arrival.arrT.substring(6, 8));
+                      const hour = parseInt(arrival.arrT.substring(9, 11));
+                      const minute = parseInt(arrival.arrT.substring(12, 14));
+                      const second = parseInt(arrival.arrT.substring(15, 17));
+                      
+                      const arrivalDate = new Date(year, month - 1, day, hour, minute, second);
+                      const currentTime = new Date();
+                      const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
+                      const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+                      
+                      if (timeDiffMinutes <= 0) {
+                        arrivalTime = 'Arriving';
+                      } else if (timeDiffMinutes === 1) {
+                        arrivalTime = '1 min';
+                      } else if (timeDiffMinutes > 60) {
+                        arrivalTime = 'Scheduled';
+                      } else {
+                        arrivalTime = `${timeDiffMinutes} min`;
+                      }
+                    } catch (e) {
+                      arrivalTime = 'Due';
+                    }
+                  } else if (arrival.isSch === '1') {
+                    arrivalTime = 'Scheduled';
+                  }
+                  
+                  return {
+                    line: arrival.rt || 'Unknown',
+                    station: arrival.staNm || 'Unknown',
+                    destination: arrival.destNm || 'Unknown',
+                    direction: arrival.trDr || 'Unknown',
+                    arrivalTime: arrivalTime,
+                    trainId: arrival.rn || 'Unknown',
+                    status: arrival.isApp === '1' ? 'Approaching' : 
+                           arrival.isDly === '1' ? 'Delayed' : 'On Time'
+                  };
+                })
+                .filter(result => result !== null);
+              
+              break; // Found data, stop trying
+            }
+          }
+        } catch (e) {
+          console.log(`🚆 Failed to fetch from station ${altStopId}:`, e.message);
+        }
+      }
+      
+      // If still no data after trying alternatives
+      if (transformedData.length === 0) {
+        console.log('🚆 ⚠️  NO DATA from any station - providing service notice');
+        transformedData = [{
+          line: 'CTA',
+          station: 'Service Notice',
+          destination: 'No current arrivals',
+          direction: '',
+          arrivalTime: 'Trains may be running',
+          trainId: '',
+          status: 'Check official CTA app for live updates'
+        }];
+      }
     }
 
     console.log(`✅ Transformed ${transformedData.length} CTA records`);
