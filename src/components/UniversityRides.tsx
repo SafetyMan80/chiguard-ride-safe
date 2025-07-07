@@ -4,11 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Users, MapPin, Clock, UserCheck, Trash2, Repeat, Shield, Plus, Phone, MessageSquare, ChevronDown } from "lucide-react";
+import { Users, MapPin, Clock, UserCheck, Trash2, Repeat, Plus, Phone, MessageSquare, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateRideForm } from "./CreateRideForm";
-import { IDVerification } from "./IDVerification";
 import { GroupRideMessenger } from "./GroupRideMessenger";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCampusSecurity } from "@/data/campusSecurity";
@@ -94,12 +93,19 @@ const fetchGroupRides = async (selectedUniversity: string, userId: string | null
 };
 
 export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRidesProps) => {
-  const [selectedUniversity, setSelectedUniversity] = useState("");
+  // Auto-select university if selectedUniversityId is provided
+  const getInitialUniversity = () => {
+    if (selectedUniversityId && cityData?.universities) {
+      const university = cityData.universities.find(uni => uni.id === selectedUniversityId);
+      return university?.name || "";
+    }
+    return "";
+  };
+  
+  const [selectedUniversity, setSelectedUniversity] = useState(getInitialUniversity());
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
   const [showMessenger, setShowMessenger] = useState(false);
   const [selectedRideForMessaging, setSelectedRideForMessaging] = useState<GroupRide | null>(null);
-  const [pendingAction, setPendingAction] = useState<{type: 'join' | 'create', rideId?: string} | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const { toast } = useToast();
@@ -256,37 +262,6 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
     }
   };
 
-  const checkStudentVerification = async (university: string): Promise<boolean> => {
-    if (!currentUser) return false;
-    
-    try {
-      const { data: verification, error } = await supabase
-        .from('id_verifications')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .eq('verification_status', 'verified')
-        .eq('id_type', 'student_id')
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error checking verification:', error);
-        return false;
-      }
-
-      if (!verification) return false;
-
-      // Additional check: ensure the user's profile university matches the requested university
-      if (userProfile?.university_name && userProfile.university_name !== university) {
-        console.warn('University mismatch: profile university does not match requested university');
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error checking student verification:', error);
-      return false;
-    }
-  };
 
   const handleCreateRide = async () => {
     if (!currentUser) {
@@ -296,21 +271,6 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
         variant: "destructive"
       });
       return;
-    }
-
-    // If a university is selected, check verification
-    if (selectedUniversity) {
-      const isVerified = await checkStudentVerification(selectedUniversity);
-      if (!isVerified) {
-        setPendingAction({ type: 'create' });
-        setShowVerification(true);
-        toast({
-          title: "Student verification required",
-          description: `Please upload your student ID for ${selectedUniversity} to create rides.`,
-          variant: "destructive"
-        });
-        return;
-      }
     }
 
     setShowCreateForm(true);
@@ -328,61 +288,15 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
 
     // Pre-select the university from the clicked ride
     setSelectedUniversity(rideUniversity);
-
-    // Check verification for the selected university
-    const isVerified = await checkStudentVerification(rideUniversity);
-    if (!isVerified) {
-      setPendingAction({ type: 'create' });
-      setShowVerification(true);
-      toast({
-        title: "Student verification required",
-        description: `Please upload your student ID for ${rideUniversity} to create rides.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
     setShowCreateForm(true);
   };
 
-  const handleVerificationComplete = () => {
-    setShowVerification(false);
-    
-    if (pendingAction?.type === 'create') {
-      setShowCreateForm(true);
-      toast({
-        title: "Verification complete!",
-        description: "You can now create university rides.",
-      });
-    } else if (pendingAction?.type === 'join' && pendingAction.rideId) {
-      // Find the ride to get its university
-      const ride = rides?.find(r => r.id === pendingAction.rideId);
-      if (ride) {
-        handleJoinRide(pendingAction.rideId, ride.university_name);
-      }
-    }
-    
-    setPendingAction(null);
-  };
 
   const handleJoinRide = async (rideId: string, rideUniversity: string) => {
     if (!currentUser) {
       toast({
         title: "Authentication required",
         description: "Please log in to join a group ride.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check student verification for university rides
-    const isVerified = await checkStudentVerification(rideUniversity);
-    if (!isVerified) {
-      setPendingAction({ type: 'join', rideId });
-      setShowVerification(true);
-      toast({
-        title: "Student verification required",
-        description: `Please upload your student ID for ${rideUniversity} to join university rides.`,
         variant: "destructive"
       });
       return;
@@ -485,35 +399,6 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
 
   return (
     <div className="space-y-6">
-      {showVerification && (
-        <Card className="border-yellow-500 bg-yellow-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-yellow-800">
-              <Shield className="w-5 h-5" />
-              Student ID Verification Required
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-yellow-700 mb-4">
-              To ensure safety and validity, you must verify your student status by uploading your student ID before creating university rides.
-            </p>
-            <IDVerification 
-              onVerificationComplete={handleVerificationComplete} 
-              requiredUniversity={selectedUniversity}
-            />
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setShowVerification(false);
-                setPendingAction(null);
-              }}
-              className="mt-4"
-            >
-              Cancel
-            </Button>
-          </CardContent>
-        </Card>
-      )}
 
       {showCreateForm && (
         <CreateRideForm
@@ -569,9 +454,6 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
           >
             <Plus className="w-4 h-4 mr-2" />
             Create New Ride
-            {selectedUniversity && (
-              <Shield className="w-4 h-4 ml-2 text-yellow-300" />
-            )}
           </Button>
         </CardContent>
       </Card>
