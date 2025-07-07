@@ -34,12 +34,55 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
   });
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
+  const [emailVerification, setEmailVerification] = useState<{
+    isValidated: boolean;
+    universityName: string | null;
+    message: string;
+  }>({ isValidated: false, universityName: null, message: "" });
   const { toast } = useToast();
 
   useEffect(() => {
     fetchUniversities();
     checkExistingProfile();
+    checkEmailVerification();
   }, []);
+
+  const checkEmailVerification = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) return;
+
+    // Check if user's email domain matches a university
+    const { data, error } = await supabase
+      .rpc('validate_university_email', { email_address: user.email });
+
+    if (error) {
+      console.error("Error validating email:", error);
+      return;
+    }
+
+    if (data && data.length > 0 && data[0].is_student_email) {
+      setEmailVerification({
+        isValidated: true,
+        universityName: data[0].university_name,
+        message: `Your email is verified with ${data[0].university_name}!`
+      });
+      
+      // Auto-set university if not already set
+      if (!formData.university_name) {
+        setFormData(prev => ({ 
+          ...prev, 
+          university_name: data[0].university_name,
+          student_status: true
+        }));
+      }
+    } else {
+      setEmailVerification({
+        isValidated: false,
+        universityName: null,
+        message: "Your email domain doesn't match a supported university. You can still mark yourself as a student and provide verification later."
+      });
+    }
+  };
 
   const fetchUniversities = async () => {
     const { data, error } = await supabase
@@ -215,6 +258,44 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
             </div>
           </div>
 
+          {/* Email Verification Status */}
+          {emailVerification.message && (
+            <div className={`rounded-lg p-4 ${
+              emailVerification.isValidated 
+                ? 'bg-green-50 border border-green-200' 
+                : 'bg-yellow-50 border border-yellow-200'
+            }`}>
+              <div className="flex items-start gap-2">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
+                  emailVerification.isValidated ? 'bg-green-100' : 'bg-yellow-100'
+                }`}>
+                  {emailVerification.isValidated ? (
+                    <span className="text-green-600 text-xs">✓</span>
+                  ) : (
+                    <span className="text-yellow-600 text-xs">!</span>
+                  )}
+                </div>
+                <div>
+                  <p className={`font-medium ${
+                    emailVerification.isValidated ? 'text-green-800' : 'text-yellow-800'
+                  }`}>
+                    {emailVerification.isValidated ? 'Email Verified' : 'Email Not Verified'}
+                  </p>
+                  <p className={`text-sm ${
+                    emailVerification.isValidated ? 'text-green-600' : 'text-yellow-600'
+                  }`}>
+                    {emailVerification.message}
+                  </p>
+                  {!emailVerification.isValidated && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      To get instant verification, sign up with your university email (e.g., @uchicago.edu, @northwestern.edu)
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -224,7 +305,9 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
                   setFormData(prev => ({ ...prev, student_status: checked as boolean }))
                 }
               />
-              <Label htmlFor="student_status">I am a student (optional - can be verified later)</Label>
+              <Label htmlFor="student_status">
+                I am a student {emailVerification.isValidated && '(automatically verified via email)'}
+              </Label>
             </div>
 
             {formData.student_status && (
@@ -260,7 +343,10 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
                 </div>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-sm text-blue-700">
-                    <strong>Note:</strong> ID verification will be required later when creating university group rides to ensure student safety.
+                    <strong>Note:</strong> {emailVerification.isValidated 
+                      ? 'Your student status is automatically verified via your university email domain.'
+                      : 'Additional verification may be required for university group rides if your email domain isn\'t recognized.'
+                    }
                   </p>
                 </div>
               </>

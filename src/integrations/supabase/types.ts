@@ -333,9 +333,11 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          auto_verified_at: string | null
           created_at: string
           date_of_birth: string | null
           email: string | null
+          email_verified_university: string | null
           full_name: string | null
           id: string
           notification_city: string | null
@@ -346,13 +348,16 @@ export type Database = {
           university_name: string | null
           updated_at: string
           user_id: string
+          verification_method: string | null
           verification_status: string | null
         }
         Insert: {
           address?: string | null
+          auto_verified_at?: string | null
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          email_verified_university?: string | null
           full_name?: string | null
           id?: string
           notification_city?: string | null
@@ -363,13 +368,16 @@ export type Database = {
           university_name?: string | null
           updated_at?: string
           user_id: string
+          verification_method?: string | null
           verification_status?: string | null
         }
         Update: {
           address?: string | null
+          auto_verified_at?: string | null
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          email_verified_university?: string | null
           full_name?: string | null
           id?: string
           notification_city?: string | null
@@ -380,6 +388,7 @@ export type Database = {
           university_name?: string | null
           updated_at?: string
           user_id?: string
+          verification_method?: string | null
           verification_status?: string | null
         }
         Relationships: []
@@ -559,6 +568,14 @@ export type Database = {
           _ip_address?: unknown
         }
         Returns: string
+      }
+      validate_university_email: {
+        Args: { email_address: string }
+        Returns: {
+          is_student_email: boolean
+          university_name: string
+          university_id: string
+        }[]
       }
     }
     Enums: {

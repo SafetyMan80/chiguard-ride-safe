@@ -124,7 +124,7 @@ const Auth = () => {
             <CardTitle>{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
             <CardDescription>
               {isSignUp 
-                ? "Create your account to get started with RAILSAVIOR" 
+                ? "Create your account to get started with RAILSAVIOR. Students: use your university email for instant verification!" 
                 : "Sign in to your account to continue"
               }
             </CardDescription>
