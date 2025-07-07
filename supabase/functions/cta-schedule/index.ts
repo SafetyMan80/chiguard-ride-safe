@@ -150,112 +150,149 @@ serve(async (req) => {
     let transformedData = [];
     
     if (stopId && data.ctatt?.eta) {
-      transformedData = data.ctatt.eta.map((arrival: any) => {
-        console.log('🚆 Raw arrival data:', JSON.stringify(arrival, null, 2));
-        
-        let arrivalTime = 'Due';
-        
-        // Helper function to parse CTA datetime format: "yyyyMMdd HH:mm:ss"
-        function parseCTADateTime(dateTimeStr: string): Date | null {
-          if (!dateTimeStr || dateTimeStr === '') return null;
+      console.log('🚆 Processing CTA ETA data. Total arrivals:', data.ctatt.eta.length);
+      
+      transformedData = data.ctatt.eta
+        .map((arrival: any, index: number) => {
+          console.log(`🚆 Processing arrival #${index + 1}:`, JSON.stringify(arrival, null, 2));
           
-          try {
-            console.log('🚆 Input datetime string:', dateTimeStr);
-            
-            // CTA format: "20250107 17:45:30"
-            if (dateTimeStr.length < 17) {
-              console.error('❌ CTA datetime string too short:', dateTimeStr);
+          let arrivalTime = 'Due';
+          
+          // 1. VERIFY API RESPONSE DATE FIELDS
+          console.log('🚆 Available time fields:', {
+            arrT: arrival.arrT,
+            prdt: arrival.prdt,
+            isApp: arrival.isApp,
+            isSch: arrival.isSch
+          });
+          
+          // Helper function with improved CTA datetime parsing
+          function parseCTADateTime(dateTimeStr: string): Date | null {
+            if (!dateTimeStr || dateTimeStr === '') {
+              console.log('🚆 Empty datetime string');
               return null;
             }
             
-            const year = dateTimeStr.substring(0, 4);
-            const month = dateTimeStr.substring(4, 6);
-            const day = dateTimeStr.substring(6, 8);
-            const hour = dateTimeStr.substring(9, 11);
-            const minute = dateTimeStr.substring(12, 14);
-            const second = dateTimeStr.substring(15, 17);
-            
-            console.log('🚆 Parsed components:', { year, month, day, hour, minute, second });
-            
-            // Create date object manually to avoid timezone issues
-            const date = new Date(
-              parseInt(year),
-              parseInt(month) - 1, // Month is 0-indexed
-              parseInt(day),
-              parseInt(hour),
-              parseInt(minute),
-              parseInt(second)
-            );
-            
-            console.log('🚆 Created date object:', date);
-            console.log('🚆 Date is valid:', !isNaN(date.getTime()));
-            
-            return isNaN(date.getTime()) ? null : date;
-          } catch (error) {
-            console.error('❌ Error parsing CTA datetime:', dateTimeStr, error);
-            return null;
+            try {
+              console.log('🚆 Parsing CTA datetime:', dateTimeStr);
+              
+              // CTA format: "20250107 17:45:30"
+              if (dateTimeStr.length < 17) {
+                console.error('❌ Invalid CTA datetime format (too short):', dateTimeStr);
+                return null;
+              }
+              
+              const year = parseInt(dateTimeStr.substring(0, 4));
+              const month = parseInt(dateTimeStr.substring(4, 6));
+              const day = parseInt(dateTimeStr.substring(6, 8));
+              const hour = parseInt(dateTimeStr.substring(9, 11));
+              const minute = parseInt(dateTimeStr.substring(12, 14));
+              const second = parseInt(dateTimeStr.substring(15, 17));
+              
+              console.log('🚆 Parsed components:', { year, month, day, hour, minute, second });
+              
+              // Validate components
+              if (year < 2020 || year > 2030 || month < 1 || month > 12 || day < 1 || day > 31 ||
+                  hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+                console.error('❌ Invalid date components:', { year, month, day, hour, minute, second });
+                return null;
+              }
+              
+              // Create date object (month is 0-indexed in JavaScript)
+              const date = new Date(year, month - 1, day, hour, minute, second);
+              
+              console.log('🚆 Created date object:', date.toISOString());
+              console.log('🚆 Date is valid:', !isNaN(date.getTime()));
+              
+              return isNaN(date.getTime()) ? null : date;
+            } catch (error) {
+              console.error('❌ Error parsing CTA datetime:', dateTimeStr, error);
+              return null;
+            }
           }
-        }
-        
-        // Check if train is approaching/due first
-        if (arrival.isApp === '1' || arrival.isApp === 1) {
-          arrivalTime = 'Approaching';
-        } else if (arrival.arrT && arrival.arrT !== '') {
-          console.log('🚆 Parsing arrT:', arrival.arrT);
-          const arrivalDate = parseCTADateTime(arrival.arrT);
           
-          // Use simple current time in local timezone 
-          const now = new Date();
-          
-          console.log('🚆 Parsed arrival date:', arrivalDate);
-          console.log('🚆 Current time:', now);
-          
-          if (arrivalDate && !isNaN(arrivalDate.getTime())) {
-            const diffMs = arrivalDate.getTime() - now.getTime();
-            const diffMinutes = Math.round(diffMs / (1000 * 60));
+          // Check if train is explicitly marked as approaching
+          if (arrival.isApp === '1' || arrival.isApp === 1) {
+            console.log('🚆 Train marked as approaching');
+            arrivalTime = 'Approaching';
+          } else if (arrival.arrT && arrival.arrT !== '') {
+            console.log('🚆 Processing arrT field:', arrival.arrT);
+            const arrivalDate = parseCTADateTime(arrival.arrT);
+            const currentTime = new Date();
             
-            console.log('🚆 Time difference in ms:', diffMs);
-            console.log('🚆 Calculated diff minutes:', diffMinutes);
-            console.log('🚆 diffMinutes type:', typeof diffMinutes, 'isNaN:', isNaN(diffMinutes));
+            console.log('🚆 Parsed arrival date:', arrivalDate?.toISOString());
+            console.log('🚆 Current time:', currentTime.toISOString());
             
-            if (isNaN(diffMinutes)) {
-              console.log('🚆 NaN detected in calculation, using Due');
-              arrivalTime = 'Due';
-            } else if (Math.abs(diffMinutes) > 1440) { // 1440 minutes = 1 day
-              console.log('🚆 Data appears stale (>1 day difference), using Due');
-              arrivalTime = 'Due';
-            } else if (diffMinutes <= 0) {
-              arrivalTime = 'Arriving';
-            } else if (diffMinutes === 1) {
-              arrivalTime = '1 min';
-            } else if (diffMinutes > 60) {
-              arrivalTime = 'Scheduled';
+            if (arrivalDate && !isNaN(arrivalDate.getTime())) {
+              const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
+              const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+              
+              console.log('🚆 Time difference (ms):', timeDiffMs);
+              console.log('🚆 Time difference (minutes):', timeDiffMinutes);
+              
+              // 2. ADD SANITY CHECKS
+              const isInFuture = timeDiffMs > 0;
+              const isReasonableTime = Math.abs(timeDiffMinutes) < 180; // Within 3 hours
+              const isNotStale = Math.abs(timeDiffMinutes) < 1440; // Not more than 1 day
+              
+              console.log('🚆 Sanity checks:', {
+                isInFuture,
+                isReasonableTime,
+                isNotStale,
+                isValidNumber: !isNaN(timeDiffMinutes)
+              });
+              
+              // 3. HANDLE INCORRECT DATES GRACEFULLY
+              if (isNaN(timeDiffMinutes)) {
+                console.log('🚆 Invalid time calculation (NaN)');
+                return null; // Filter out this entry
+              } else if (!isNotStale) {
+                console.log('🚆 Stale data detected (>1 day old)');
+                return null; // Filter out this entry
+              } else if (!isReasonableTime) {
+                console.log('🚆 Unreasonable time difference (>3 hours)');
+                return null; // Filter out this entry
+              } else if (!isInFuture) {
+                console.log('🚆 Arrival time is in the past');
+                arrivalTime = 'Arriving';
+              } else if (timeDiffMinutes === 1) {
+                arrivalTime = '1 min';
+              } else if (timeDiffMinutes > 60) {
+                arrivalTime = 'Scheduled';
+              } else {
+                arrivalTime = `${timeDiffMinutes} min`;
+              }
             } else {
-              arrivalTime = `${diffMinutes} min`;
+              console.log('🚆 Failed to parse arrival time');
+              return null; // Filter out this entry
             }
           } else {
-            console.log('🚆 Failed to parse arrT or invalid date, using Due');
-            arrivalTime = 'Due';
+            console.log('🚆 No valid time fields found');
+            // Only include if it's scheduled or has other valid indicators
+            if (arrival.isSch === '1') {
+              arrivalTime = 'Scheduled';
+            } else {
+              return null; // Filter out this entry
+            }
           }
-        } else {
-          console.log('🚆 No arrT field, checking other fields');
-          console.log('🚆 Available fields:', Object.keys(arrival));
-        }
-        
-        const result = {
-          line: arrival.rt || 'Unknown',
-          station: arrival.staNm || 'Unknown',
-          destination: arrival.destNm || 'Unknown',
-          direction: arrival.trDr || 'Unknown',
-          arrivalTime: arrivalTime,
-          trainId: arrival.rn || 'Unknown',
-          status: arrival.isApp === '1' ? 'Approaching' : 
-                 arrival.isDly === '1' ? 'Delayed' : 'On Time'
-        };
-        
-        console.log('🚆 Final transformed result:', JSON.stringify(result, null, 2));
-        return result;
-      });
+          
+          const result = {
+            line: arrival.rt || 'Unknown',
+            station: arrival.staNm || 'Unknown',
+            destination: arrival.destNm || 'Unknown',
+            direction: arrival.trDr || 'Unknown',
+            arrivalTime: arrivalTime,
+            trainId: arrival.rn || 'Unknown',
+            status: arrival.isApp === '1' ? 'Approaching' : 
+                   arrival.isDly === '1' ? 'Delayed' : 'On Time'
+          };
+          
+          console.log('🚆 Final transformed result:', JSON.stringify(result, null, 2));
+          return result;
+        })
+        .filter(result => result !== null); // Remove filtered out entries
+      
+      console.log(`🚆 Final results after filtering: ${transformedData.length} valid arrivals`);
     } else if (routeId && data.ctatt?.vehicle) {
       transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
         line: vehicle.rt || 'Unknown',
