@@ -54,10 +54,16 @@ export const HomeScreen = () => {
   });
 
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!mounted) return;
+        
+        console.log('HomeScreen auth state change:', event, !!session?.user);
         setUser(session?.user ?? null);
         if (!session?.user) {
+          console.log('No user session, redirecting to auth');
           navigate("/auth");
         }
       }
@@ -65,13 +71,20 @@ export const HomeScreen = () => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      console.log('HomeScreen initial session check:', !!session?.user);
       setUser(session?.user ?? null);
       if (!session?.user) {
+        console.log('No initial session, redirecting to auth');
         navigate("/auth");
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   useEffect(() => {
