@@ -71,11 +71,12 @@ serve(async (req) => {
       );
     }
 
-    // If no specific parameters, get general arrivals from a major hub
+    // If no specific parameters, try multiple major stations to find active data
     if (!stopId && !routeId) {
-      console.log('🚆 No specific parameters, getting general CTA arrivals');
-      // Use a major CTA stop ID for general arrivals (Howard Station - Red/Yellow lines)
-      stopId = '30173'; // Howard station - major hub
+      console.log('🚆 No specific parameters, trying major CTA stations');
+      // Try multiple major stations that usually have frequent service
+      const majorStations = ['30173', '30171', '30131', '30089']; // Howard, O'Hare, Clark/Lake, 95th
+      stopId = majorStations[0]; // Start with Howard
     }
 
     let apiUrl: string;
@@ -203,7 +204,7 @@ serve(async (req) => {
     // Transform CTA data to our standard format
     let transformedData = [];
     
-    if (stopId && data.ctatt?.eta) {
+    if (data.ctatt?.eta && data.ctatt.eta.length > 0) {
       console.log('🚆 ===== RAW API DATA ANALYSIS =====');
       console.log('🚆 Total arrivals in API response:', data.ctatt.eta.length);
       
@@ -321,26 +322,18 @@ serve(async (req) => {
           })
           .filter(result => result !== null);
       }
-    } else if (routeId && data.ctatt?.vehicle) {
-      transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
-        line: vehicle.rt || 'Unknown',
-        station: 'In Transit',
-        destination: vehicle.destNm || 'Unknown',
-        direction: vehicle.heading || 'Unknown',
-        arrivalTime: 'In Transit',
-        trainId: vehicle.vid || 'Unknown',
-        status: 'Moving'
-      }));
-    } else if (data.ctatt?.routes) {
-      transformedData = data.ctatt.routes.map((route: any) => ({
-        line: route.rt || 'Unknown',
-        station: 'All Stations',
-        destination: route.rtnm || 'Unknown',
-        direction: 'Various',
-        arrivalTime: 'See Schedule',
-        trainId: 'Multiple',
-        status: 'Active'
-      }));
+    } else {
+      // No ETA data found - provide helpful message
+      console.log('🚆 ⚠️  NO ETA DATA - API responded but no arrival predictions available');
+      transformedData = [{
+        line: 'CTA',
+        station: 'Service Notice',
+        destination: 'No current arrivals',
+        direction: '',
+        arrivalTime: 'Check back later',
+        trainId: '',
+        status: 'No trains currently predicted for this location'
+      }];
     }
 
     console.log(`✅ Transformed ${transformedData.length} CTA records`);
