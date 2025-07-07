@@ -5,6 +5,7 @@ import { MapPin, AlertTriangle, ArrowLeft } from "lucide-react";
 import { IncidentReport } from "./IncidentReport";
 import { FailsafeIncidentReports } from "./FailsafeIncidentReports";
 import { CitySelectionSkeleton } from "./LoadingSkeleton";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 interface City {
   id: string;
@@ -107,27 +108,33 @@ export const MultiCityIncidentReport = () => {
   if (selectedCity) {
     const city = CITIES_WITH_RAIL.find(c => c.id === selectedCity);
     return (
-      <div className="space-y-4">
-        <Button
-          variant="outline"
-          onClick={handleBackToSelection}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to City Selection
-        </Button>
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5" />
-            {city?.name} Rail Incident Reporting
-          </h3>
-          <p className="text-sm text-muted-foreground">{city?.agency}</p>
+      <ErrorBoundary>
+        <div className="space-y-4">
+          <Button
+            variant="outline"
+            onClick={handleBackToSelection}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to City Selection
+          </Button>
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              {city?.name} Rail Incident Reporting
+            </h3>
+            <p className="text-sm text-muted-foreground">{city?.agency}</p>
+          </div>
+          <ErrorBoundary>
+            <IncidentReport selectedCity={city} />
+          </ErrorBoundary>
+          <div className="mt-6">
+            <ErrorBoundary>
+              <FailsafeIncidentReports city={city?.id} />
+            </ErrorBoundary>
+          </div>
         </div>
-        <IncidentReport selectedCity={city} />
-        <div className="mt-6">
-          <FailsafeIncidentReports city={city?.id} />
-        </div>
-      </div>
+      </ErrorBoundary>
     );
   }
 

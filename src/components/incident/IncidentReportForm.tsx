@@ -182,7 +182,14 @@ export const IncidentReportForm = ({ selectedCity, onSubmitSuccess }: IncidentRe
         try {
           // Convert blob URL to actual file
           const response = await fetch(imageUrl);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.status}`);
+          }
+          
           const blob = await response.blob();
+          if (blob.size === 0) {
+            throw new Error('Image file is empty');
+          }
           
           const fileName = `incident-${Date.now()}.jpg`;
           const { data: uploadData, error: uploadError } = await supabase.storage
@@ -216,20 +223,41 @@ export const IncidentReportForm = ({ selectedCity, onSubmitSuccess }: IncidentRe
       }
 
       console.log('Inserting incident report into database...');
-      // Insert incident report
-      const { data: insertData, error } = await supabase
-        .from('incident_reports')
-        .insert({
-          ...reportData,
-          image_url: uploadedImageUrl
-        })
-        .select();
+      // Insert incident report with retry logic
+      let retryCount = 0;
+      const maxRetries = 2;
+      let insertData, error;
+      
+      while (retryCount <= maxRetries) {
+        const result = await supabase
+          .from('incident_reports')
+          .insert({
+            ...reportData,
+            image_url: uploadedImageUrl
+          })
+          .select();
+          
+        insertData = result.data;
+        error = result.error;
+        
+        if (!error) break;
+        
+        retryCount++;
+        if (retryCount <= maxRetries) {
+          console.log(`Retrying database insert... Attempt ${retryCount}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
+      }
 
       console.log('Database insert result:', { data: insertData, error });
 
       if (error) {
         console.error('Database insert error:', error);
-        throw error;
+        throw new Error(`Database error: ${error.message || 'Failed to save report'}`);
+      }
+
+      if (!insertData || insertData.length === 0) {
+        throw new Error('Report was not saved properly');
       }
 
       // Reset form
@@ -244,19 +272,22 @@ export const IncidentReportForm = ({ selectedCity, onSubmitSuccess }: IncidentRe
     } catch (error: any) {
       console.error('Error submitting report:', error);
       
-      // Show detailed error information
-      const errorMessage = error?.message || error?.details || error?.hint || JSON.stringify(error);
-      console.error('Detailed error info:', {
-        message: error?.message,
-        details: error?.details,
-        hint: error?.hint,
-        code: error?.code,
-        fullError: error
-      });
+      // Provide user-friendly error messages
+      let userMessage = "An unexpected error occurred. Please try again.";
+      
+      if (error?.message?.includes('Network')) {
+        userMessage = "Network error. Please check your connection and try again.";
+      } else if (error?.message?.includes('Database')) {
+        userMessage = "Database error. Please try again in a moment.";
+      } else if (error?.message?.includes('Image')) {
+        userMessage = "Image upload failed. Please try with a different image.";
+      } else if (error?.message) {
+        userMessage = error.message;
+      }
       
       toast({
         title: "Failed to submit report",
-        description: `Error: ${errorMessage}`,
+        description: userMessage,
         variant: "destructive"
       });
     } finally {

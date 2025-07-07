@@ -8,6 +8,7 @@ import { ProfileSetup } from "@/components/ProfileSetup";
 import { IDVerification } from "@/components/IDVerification";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { Logo } from "@/components/Logo";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useOffline } from "@/hooks/useOffline";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -97,26 +98,37 @@ export const HomeScreen = () => {
 
     try {
       // Check if user has profile
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
 
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        // Continue with false value if error
+      }
+
       setHasProfile(!!profile);
 
       // Check if user has ID verification
-      const { data: verification } = await supabase
+      const { data: verification, error: verificationError } = await supabase
         .from("id_verifications")
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
 
+      if (verificationError) {
+        console.error("Error fetching verification:", verificationError);
+        // Continue with false value if error
+      }
+
       setHasIDVerification(!!verification);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error("Error checking user setup:", error);
-      }
+      console.error("Error checking user setup:", error);
+      // Set defaults on error to prevent blocking
+      setHasProfile(false);
+      setHasIDVerification(false);
     } finally {
       setLoading(false);
     }
@@ -151,32 +163,36 @@ export const HomeScreen = () => {
   }
 
   return (
-    <div 
-      ref={containerRef}
-      className="min-h-screen bg-background flex flex-col relative overflow-auto"
-    >
-      <PullToRefresh
-        isRefreshing={isRefreshing}
-        pullDistance={pullDistance}
-        isPulling={isPulling}
-        threshold={threshold}
-      />
-      
-      <HeaderSection />
+    <ErrorBoundary>
+      <div 
+        ref={containerRef}
+        className="min-h-screen bg-background flex flex-col relative overflow-auto"
+      >
+        <PullToRefresh
+          isRefreshing={isRefreshing}
+          pullDistance={pullDistance}
+          isPulling={isPulling}
+          threshold={threshold}
+        />
+        
+        <HeaderSection />
 
-      <MainContent 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        user={user}
-        qrCodeUrl={qrCodeUrl}
-      />
+        <ErrorBoundary>
+          <MainContent 
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            user={user}
+            qrCodeUrl={qrCodeUrl}
+          />
+        </ErrorBoundary>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border/30 shadow-[var(--shadow-floating)] z-50">
-        <div className="max-w-md mx-auto safe-area-bottom">
-          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
-      </nav>
-    </div>
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border/30 shadow-[var(--shadow-floating)] z-50">
+          <div className="max-w-md mx-auto safe-area-bottom">
+            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          </div>
+        </nav>
+      </div>
+    </ErrorBoundary>
   );
 };

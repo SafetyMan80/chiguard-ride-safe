@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
@@ -10,7 +10,7 @@ interface ErrorBoundaryState {
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
-  fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
+  fallback?: React.ComponentType<{error?: Error; retry: () => void}>;
 }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -24,12 +24,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
-    }
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  resetError = () => {
+  retry = () => {
     this.setState({ hasError: false, error: undefined });
   };
 
@@ -37,40 +35,56 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
-        return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
+        return <FallbackComponent error={this.state.error} retry={this.retry} />;
       }
 
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-6">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-8 h-8 text-destructive" />
+        <Card className="m-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Something went wrong
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              An unexpected error occurred. Please try refreshing the page.
+            </p>
+            {this.state.error && process.env.NODE_ENV === 'development' && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
+                <p className="text-xs font-mono text-destructive">
+                  {this.state.error.message}
+                </p>
               </div>
-              <CardTitle className="text-xl">Something went wrong</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-center">
-              <p className="text-muted-foreground">
-                We're sorry, but an unexpected error occurred. Please try refreshing the app.
-              </p>
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="text-left bg-muted p-3 rounded-md text-sm">
-                  <summary className="cursor-pointer font-medium">Error Details</summary>
-                  <pre className="mt-2 whitespace-pre-wrap break-words">
-                    {this.state.error.toString()}
-                  </pre>
-                </details>
-              )}
-              <Button onClick={this.resetError} className="w-full" variant="chicago">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+            )}
+            <Button 
+              onClick={this.retry}
+              variant="outline"
+              className="w-full"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
       );
     }
 
     return this.props.children;
   }
 }
+
+// Simple error fallback component
+export const SimpleErrorFallback = ({ error, retry }: { error?: Error; retry: () => void }) => (
+  <div className="flex flex-col items-center justify-center p-6 text-center">
+    <AlertTriangle className="w-8 h-8 text-destructive mb-4" />
+    <h3 className="text-lg font-semibold mb-2">Oops! Something went wrong</h3>
+    <p className="text-sm text-muted-foreground mb-4">
+      Please try again or contact support if the problem persists.
+    </p>
+    <Button onClick={retry} variant="outline">
+      <RefreshCw className="w-4 h-4 mr-2" />
+      Retry
+    </Button>
+  </div>
+);
