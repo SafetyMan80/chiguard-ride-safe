@@ -12,6 +12,7 @@ import { useLocationService } from "@/hooks/useLocationService";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import "./utils/manualIncidentTest"; // Make manual test available in console
 
 const queryClient = new QueryClient({
   defaultOptions: {
