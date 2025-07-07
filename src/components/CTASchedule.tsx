@@ -24,6 +24,10 @@ export const CTASchedule = () => {
 
   const config = CITY_CONFIGS.chicago;
 
+  // Component mount debugging
+  console.log('🚆 CTASchedule component mounted!');
+  console.log('🚆 CTASchedule config:', config);
+
   useEffect(() => {
     const handleOnlineStatus = () => setIsOnline(navigator.onLine);
     window.addEventListener('online', handleOnlineStatus);
@@ -37,9 +41,6 @@ export const CTASchedule = () => {
 
   const fetchArrivals = async () => {
     console.log('🚆 CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
-    console.log('🚆 CTA starting fetch process...');
-    console.log('🚆 CTA config lines:', config.lines);
-    console.log('🚆 CTA config object:', config);
     
     if (!isOnline) {
       console.log('🚆 CTA offline, showing toast');
@@ -54,17 +55,14 @@ export const CTASchedule = () => {
 
     setLoading(true);
     try {
-      // CTA doesn't require special actions - just pass the station/route parameters
       const requestBody: any = {};
       
       // Only send parameters if they're actually selected (not "all")
       if (selectedLine !== "all") {
-        // Convert line ID to CTA route name (red -> Red, blue -> Blue, etc.)
         const routeName = selectedLine.charAt(0).toUpperCase() + selectedLine.slice(1);
         requestBody.routeId = routeName;
       }
       if (selectedStation !== "all") {
-        // Map station ID to CTA stop ID
         const stationMapping: { [key: string]: string } = {
           "ohare": "30171",
           "howard": "30173", 
@@ -84,40 +82,59 @@ export const CTASchedule = () => {
         requestBody.stopId = stationMapping[selectedStation] || selectedStation;
       }
       
-      console.log('🚆 CTA API call with body:', requestBody);
+      console.log('🚆 CTA calling edge function with body:', requestBody);
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         body: Object.keys(requestBody).length > 0 ? requestBody : { stopId: '30173' }
       });
 
-      console.log('🚆 CTA API response received:', { data, error });
-      console.log('🚆 CTA API response data details:', JSON.stringify(data, null, 2));
+      console.log('🚆 CTA Edge function response:', { data, error });
 
-      if (error) throw error;
+      if (error) {
+        console.error('🚆 CTA Edge function error:', error);
+        throw error;
+      }
 
       const response: CTAResponse = data;
+      console.log('🚆 CTA Response success:', response.success);
+      console.log('🚆 CTA Response data length:', response.data?.length || 0);
+      
       if (response.success) {
         setArrivals(response.data || []);
         setLastUpdated(new Date().toLocaleTimeString());
-        console.log('🚆 CTA Success:', response.data?.length || 0, 'arrivals');
+        
+        if (response.data && response.data.length > 0) {
+          toast({
+            title: "Schedule Updated",
+            description: `Found ${response.data.length} upcoming arrivals`,
+            duration: 2000
+          });
+        } else {
+          toast({
+            title: "No Current Arrivals",
+            description: "No trains currently scheduled at this location",
+            duration: 2000
+          });
+        }
       } else {
         console.log('🚆 CTA API returned error:', response.error);
-        // Still show the error in toast but don't throw
         setArrivals([]);
+        toast({
+          title: "CTA Data Issue", 
+          description: response.error || "Unable to fetch train data",
+          variant: "destructive",
+          duration: 3000
+        });
       }
     } catch (error) {
-      console.error('🚆 CTA Error details:', error);
-      console.error('🚆 CTA Error message:', error.message);
-      console.error('🚆 CTA Error stack:', error.stack);
-      
-      // Set empty arrivals on error
+      console.error('🚆 CTA Complete error:', error);
       setArrivals([]);
       
       toast({
-        title: "Hold tight! We're working to get real-time data",
-        description: "CTA train information will be available soon.",
-        variant: "default",
-        duration: 2000
+        title: "CTA Service Issue",
+        description: "Having trouble connecting to train data. Please try again.",
+        variant: "destructive",
+        duration: 3000
       });
     } finally {
       setLoading(false);
