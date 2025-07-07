@@ -52,11 +52,22 @@ export const SEPTASchedule = () => {
       if (selectedLine !== "all") requestBody.line = selectedLine;
       if (selectedStation !== "all") requestBody.station = selectedStation;
       
+      // For SEPTA, we need to send the correct station parameter for arrivals
+      const payload: any = {
+        action: 'arrivals'
+      };
+      
+      // Add station parameter based on what's selected
+      if (selectedStation !== "all") {
+        payload.station = selectedStation;
+      } else if (selectedLine !== "all") {
+        payload.line = selectedLine;
+      }
+      
+      console.log('🚇 SEPTA calling function with payload:', payload);
+      
       const { data, error } = await supabase.functions.invoke('septa-schedule', {
-        body: { 
-          action: 'arrivals',
-          ...requestBody
-        }
+        body: payload
       });
 
       if (error) throw error;

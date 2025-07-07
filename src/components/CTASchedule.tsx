@@ -54,6 +54,7 @@ export const CTASchedule = () => {
 
     setLoading(true);
     try {
+      // CTA doesn't require special actions - just pass the station/route parameters
       const requestBody: any = {};
       
       // Only send parameters if they're actually selected (not "all")
@@ -84,12 +85,9 @@ export const CTASchedule = () => {
       }
       
       console.log('🚆 CTA API call with body:', requestBody);
-      console.log('🚆 CTA invoking edge function...');
-      console.log('🚆 CTA making POST to cta-schedule function');
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        method: 'POST',
-        body: Object.keys(requestBody).length > 0 ? requestBody : undefined
+        body: Object.keys(requestBody).length > 0 ? requestBody : {}
       });
 
       console.log('🚆 CTA API response received:', { data, error });
