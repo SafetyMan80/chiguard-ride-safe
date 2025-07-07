@@ -153,7 +153,10 @@ export const ProfilePhotoUpload = ({
     // Simple avatar display for smaller sizes
     return (
       <Avatar className={sizeClasses[size]}>
-        <AvatarImage src={currentPhotoUrl} />
+        <AvatarImage 
+          src={currentPhotoUrl} 
+          className="object-cover w-full h-full"
+        />
         <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue">
           {userName[0]?.toUpperCase() || 'U'}
         </AvatarFallback>
@@ -167,7 +170,10 @@ export const ProfilePhotoUpload = ({
         <div className="flex flex-col items-center space-y-4">
           <div className="relative">
             <Avatar className={sizeClasses[size]}>
-              <AvatarImage src={currentPhotoUrl} />
+              <AvatarImage 
+                src={currentPhotoUrl} 
+                className="object-cover w-full h-full"
+              />
               <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue text-xl">
                 {userName[0]?.toUpperCase() || 'U'}
               </AvatarFallback>
