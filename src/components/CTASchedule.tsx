@@ -108,9 +108,16 @@ export const CTASchedule = () => {
   useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
 
   useEffect(() => {
-    console.log('CTA useEffect triggered with selectedLine/selectedStation change');
+    console.log('CTA useEffect triggered with selectedLine/selectedStation change', { selectedLine, selectedStation });
+    console.log('CTA calling fetchArrivals now');
     fetchArrivals();
   }, [selectedLine, selectedStation]);
+
+  // Initial load
+  useEffect(() => {
+    console.log('CTA component mounted, initial fetchArrivals call');
+    fetchArrivals();
+  }, []);
 
   // Reset station when line changes
   const handleLineChange = (newLine: string) => {

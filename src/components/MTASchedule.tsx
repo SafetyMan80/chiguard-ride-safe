@@ -36,6 +36,8 @@ export const MTASchedule = () => {
   }, []);
 
   const fetchArrivals = async () => {
+    console.log('MTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
+    
     if (!isOnline) {
       toast({
         title: "No Internet Connection",
@@ -102,8 +104,15 @@ export const MTASchedule = () => {
   useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
 
   useEffect(() => {
+    console.log('MTA fetchArrivals triggered by selectedLine/selectedStation change');
     fetchArrivals();
   }, [selectedLine, selectedStation]);
+
+  // Initial load
+  useEffect(() => {
+    console.log('MTA component mounted, initial fetchArrivals call');
+    fetchArrivals();
+  }, []);
 
   // Reset station when line changes
   const handleLineChange = (newLine: string) => {
