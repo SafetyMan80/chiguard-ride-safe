@@ -144,9 +144,13 @@ serve(async (req) => {
         station: arrival.staNm || 'Unknown',
         destination: arrival.destNm || 'Unknown',
         direction: arrival.trDr || 'Unknown',
-        arrivalTime: arrival.isApp === '1' ? 'Approaching' : (arrival.min || 'Unknown'),
+        arrivalTime: arrival.isApp === '1' ? 'Approaching' : 
+                    arrival.isSch === '1' ? 'Scheduled' :
+                    arrival.isDly === '1' ? 'Delayed' :
+                    arrival.min || arrival.prdtm || 'Due',
         trainId: arrival.rn || 'Unknown',
-        status: arrival.isApp === '1' ? 'Approaching' : 'On Time'
+        status: arrival.isApp === '1' ? 'Approaching' : 
+               arrival.isDly === '1' ? 'Delayed' : 'On Time'
       }));
     } else if (routeId && data.ctatt?.vehicle) {
       transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
