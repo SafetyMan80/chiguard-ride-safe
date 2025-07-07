@@ -446,11 +446,16 @@ export const IncidentReport = ({ selectedCity }: IncidentReportProps) => {
 
       // Refresh the data
       queryClient.invalidateQueries({ queryKey: ['incident-reports'] });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting report:', error);
+      
+      // Show more specific error message
+      const errorMessage = error?.message || error?.details || "Unknown error occurred";
+      console.error('Detailed error:', errorMessage);
+      
       toast({
         title: "Failed to submit report",
-        description: "Please try again later.",
+        description: `Error: ${errorMessage}. Please try again.`,
         variant: "destructive"
       });
     } finally {
