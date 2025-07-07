@@ -37,17 +37,10 @@ serve(async (req) => {
     switch (action) {
       case 'arrivals':
       default: {
-        if (!station) {
-          return new Response(
-            JSON.stringify({ error: 'Station name is required for arrivals' }),
-            { 
-              status: 400, 
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-            }
-          );
-        }
+        // Use default station if none provided
+        const targetStation = station || 'Union Station';
 
-        console.log(`Fetching RTD arrivals for station: ${station}`);
+        console.log(`Fetching RTD arrivals for station: ${targetStation}`);
         
         // RTD uses GTFS-RT feeds which require different handling than simple REST APIs
         // For now, return sample data structure
@@ -74,9 +67,10 @@ serve(async (req) => {
 
         return new Response(
           JSON.stringify({ 
-            arrivals: sampleArrivals,
-            station: station,
-            lastUpdated: new Date().toISOString(),
+            success: true,
+            data: sampleArrivals,
+            timestamp: new Date().toISOString(),
+            source: 'RTD',
             note: 'Sample data - RTD API integration needed for real-time data'
           }),
           { 
@@ -91,12 +85,14 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to fetch RTD data',
-        message: error.message,
-        timestamp: new Date().toISOString()
+        success: false,
+        data: [],
+        error: error.message || 'Failed to fetch RTD data',
+        timestamp: new Date().toISOString(),
+        source: 'RTD'
       }),
       { 
-        status: 500, 
+        status: 200, // Return 200 to prevent client errors
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
