@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { type CTAArrival, type CTARoute, type Station } from "@/data/ctaStations";
-import { CTAStationSearch } from "./cta/CTAStationSearch";
+import { CTALineStationSelector } from "./cta/CTALineStationSelector";
 import { CTAArrivals } from "./cta/CTAArrivals";
 import { CTASystemOverview } from "./cta/CTASystemOverview";
 import { CTADebug } from "./cta/CTADebug";
@@ -133,7 +133,7 @@ export const CTASchedule = () => {
 
   return (
     <div className="space-y-6">
-      <CTAStationSearch onStationSelect={handleStationSelect} />
+      <CTALineStationSelector onStationSelect={handleStationSelect} />
       
       <CTAArrivals
         stopId={stopId}

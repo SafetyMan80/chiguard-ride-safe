@@ -68,17 +68,34 @@ export const useLocationService = () => {
 
   const checkLocationPermissions = async () => {
     try {
+      // Check if geolocation is supported
+      if (!navigator.geolocation) {
+        console.log('Geolocation not supported by browser');
+        return false;
+      }
+
       const permissions = await Geolocation.checkPermissions();
       setPermissionStatus(permissions.location);
       return permissions.location === 'granted';
     } catch (error) {
-      console.error('Error checking location permissions:', error);
-      return false;
+      console.log('Location permission check failed - using fallback:', error);
+      // Fallback for web browsers that don't support Capacitor
+      return 'geolocation' in navigator;
     }
   };
 
   const requestLocationPermissions = async () => {
     try {
+      // Check if geolocation is supported first
+      if (!navigator.geolocation) {
+        toast({
+          title: "Location Not Supported",
+          description: "Your browser doesn't support location services",
+          variant: "destructive"
+        });
+        return false;
+      }
+
       const permissions = await Geolocation.requestPermissions();
       setPermissionStatus(permissions.location);
       
@@ -92,18 +109,33 @@ export const useLocationService = () => {
         toast({
           title: "Location Access Denied", 
           description: "You'll receive all incident alerts regardless of location",
-          variant: "destructive"
+          variant: "default"
         });
         return false;
       }
     } catch (error) {
-      console.error('Error requesting location permissions:', error);
-      toast({
-        title: "Location Error",
-        description: "Unable to access location services",
-        variant: "destructive"
-      });
-      return false;
+      console.log('Location permission request failed - trying browser fallback:', error);
+      
+      // Fallback for web browsers
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        });
+        
+        setPermissionStatus('granted');
+        toast({
+          title: "Location Access Granted",
+          description: "Using browser location services"
+        });
+        return true;
+      } catch (browserError) {
+        toast({
+          title: "Unable to Access Location",
+          description: "Location services not available - you'll receive alerts for all cities",
+          variant: "default"
+        });
+        return false;
+      }
     }
   };
 
@@ -144,22 +176,45 @@ export const useLocationService = () => {
     setLoading(true);
     
     try {
-      // Check permissions first
-      const hasPermission = await checkLocationPermissions();
-      if (!hasPermission) {
-        const granted = await requestLocationPermissions();
-        if (!granted) {
-          setLoading(false);
-          return null;
-        }
+      // Check if geolocation is supported
+      if (!navigator.geolocation) {
+        throw new Error('Geolocation not supported by this browser');
       }
 
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000, // 5 minutes
-        ...options
-      });
+      // Try Capacitor first (for mobile), then fall back to browser API
+      let position: GeolocationPosition;
+      
+      try {
+        // Try Capacitor geolocation
+        const capacitorPosition = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000, // 5 minutes
+          ...options
+        });
+        
+        position = {
+          coords: capacitorPosition.coords,
+          timestamp: capacitorPosition.timestamp
+        } as GeolocationPosition;
+        
+      } catch (capacitorError) {
+        console.log('Capacitor geolocation failed, trying browser API:', capacitorError);
+        
+        // Fallback to browser geolocation
+        position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            resolve,
+            reject,
+            {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 300000,
+              ...options
+            }
+          );
+        });
+      }
 
       const locationData: LocationData = {
         latitude: position.coords.latitude,
@@ -190,21 +245,10 @@ export const useLocationService = () => {
       return locationData;
       
     } catch (error: any) {
-      console.error('Error getting location:', error);
+      console.log('Location detection failed:', error);
       
-      let errorMessage = "Unable to get your location";
-      if (error.message?.includes('timeout')) {
-        errorMessage = "Location request timed out - please try again";
-      } else if (error.message?.includes('denied')) {
-        errorMessage = "Location access denied";
-      }
-      
-      toast({
-        title: "Location Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      
+      // Don't show error toast on first load - just silently fail
+      setUserCity(null);
       return null;
     } finally {
       setLoading(false);
