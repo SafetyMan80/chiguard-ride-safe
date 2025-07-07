@@ -7,7 +7,7 @@ export const HeaderSection = () => {
   return (
     <header className="p-6 safe-area-top bg-gradient-to-b from-background via-background/95 to-background/90 -mx-6 px-6 backdrop-blur-md">
       <OfflineIndicator />
-      <div className="flex justify-end items-center mb-6">
+      <div className="flex justify-center items-center mb-6">
         <ThemeToggle />
       </div>
       <Card className="glass-card shadow-[var(--shadow-elevated)] border-chicago-blue/10">

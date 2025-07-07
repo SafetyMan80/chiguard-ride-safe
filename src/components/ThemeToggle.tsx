@@ -8,9 +8,9 @@ export const ThemeToggle = () => {
   return (
     <Button
       variant="chicago-outline"
-      size="sm"
+      size="default"
       onClick={toggleTheme}
-      className="flex items-center gap-2 shadow-md shrink-0 min-w-0"
+      className="flex items-center gap-2 shadow-md"
     >
       {theme === 'light' ? (
         <>
