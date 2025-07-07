@@ -11,6 +11,7 @@ import { TermsOfService } from "./TermsOfService";
 import { PrivacyPolicy } from "./PrivacyPolicy";
 import { SafetyGuidelines } from "./SafetyGuidelines";
 import { ProfileSetup } from "./ProfileSetup";
+import { ProfileManagement } from "./ProfileManagement";
 import { IDVerification } from "./IDVerification";
 import { SecurityAudit } from "./SecurityAudit";
 import { NotificationSettings } from "./NotificationSettings";
@@ -23,7 +24,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'verification' | 'security' | 'notifications'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'profile-edit' | 'verification' | 'security' | 'notifications'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -80,7 +81,11 @@ export const Settings = ({ user }: SettingsProps) => {
   }
 
   if (activeView === 'profile') {
-    return <ProfileSetup onProfileComplete={() => setActiveView('settings')} onBack={() => setActiveView('settings')} />;
+    return <ProfileManagement onBack={() => setActiveView('settings')} onEdit={() => setActiveView('profile-edit')} />;
+  }
+
+  if (activeView === 'profile-edit') {
+    return <ProfileSetup onProfileComplete={() => setActiveView('profile')} onBack={() => setActiveView('profile')} />;
   }
 
   if (activeView === 'verification') {
