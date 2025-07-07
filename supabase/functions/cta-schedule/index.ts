@@ -21,25 +21,77 @@ serve(async (req) => {
       stopId = searchParams.get('stopId');
       routeId = searchParams.get('routeId');
     } else if (req.method === 'POST') {
-      const body = await req.json();
-      stopId = body.stopId;
-      routeId = body.routeId;
+      try {
+        const body = await req.json();
+        stopId = body.stopId;
+        routeId = body.routeId;
+      } catch (e) {
+        console.log('No valid JSON body provided, treating as general request');
+      }
     }
     
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
     console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
-    console.log('🔑 CTA_API_KEY length:', CTA_API_KEY?.length || 0);
     console.log('📥 Request params:', { stopId, routeId, method: req.method });
     
     if (!CTA_API_KEY) {
-      throw new Error('CTA API key not configured in Supabase secrets');
+      console.error('❌ CTA API key not configured');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: [],
+          error: 'CTA API key not configured',
+          timestamp: new Date().toISOString(),
+          source: 'CTA'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // If no specific parameters, return sample data for now
+    if (!stopId && !routeId) {
+      console.log('🚆 No specific parameters, returning sample data');
+      const sampleData = [
+        {
+          line: 'Red',
+          station: 'Howard',
+          destination: '95th/Dan Ryan',
+          direction: 'Southbound',
+          arrivalTime: '3 min',
+          trainId: '123',
+          status: 'On Time'
+        },
+        {
+          line: 'Blue',
+          station: 'O\'Hare',
+          destination: 'Forest Park',
+          direction: 'Westbound', 
+          arrivalTime: '7 min',
+          trainId: '456',
+          status: 'On Time'
+        }
+      ];
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: sampleData,
+          timestamp: new Date().toISOString(),
+          source: 'CTA',
+          note: 'Sample data - select specific line/station for real-time data'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     let apiUrl: string;
-    let responseData: any;
 
     if (stopId) {
-      // Get arrivals for a specific stop - CTA uses 'key' parameter and 'stpid'
+      // Get arrivals for a specific stop
       apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`;
     } else if (routeId) {
       // Get vehicles for a specific route
@@ -49,79 +101,134 @@ serve(async (req) => {
       apiUrl = `http://lapi.transitchicago.com/api/1.0/getroutes.aspx?key=${CTA_API_KEY}&outputType=JSON`;
     }
 
-    console.log(`Fetching CTA data from: ${apiUrl.replace(CTA_API_KEY, '[API_KEY_REDACTED]')}`);
+    console.log(`🚆 Fetching CTA data from API...`);
 
     const response = await fetch(apiUrl);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`CTA API HTTP Error: ${response.status} ${response.statusText}`);
+      console.error(`❌ CTA API HTTP Error: ${response.status} ${response.statusText}`);
       console.error(`Response body: ${errorText}`);
-      throw new Error(`CTA API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: [],
+          error: `CTA API error: ${response.status} ${response.statusText}`,
+          timestamp: new Date().toISOString(),
+          source: 'CTA'
+        }),
+        { 
+          status: 200, // Return 200 to client, but indicate API failure in response
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     const responseText = await response.text();
-    console.log(`CTA API Response (first 500 chars): ${responseText.substring(0, 500)}...`);
+    console.log(`✅ CTA API Response received (${responseText.length} chars)`);
     
     let data;
     try {
       data = JSON.parse(responseText);
     } catch (parseError) {
-      console.error('Failed to parse CTA API response as JSON');
-      console.error(`Response text: ${responseText}`);
-      throw new Error(`CTA API returned invalid JSON: ${parseError.message}`);
+      console.error('❌ Failed to parse CTA API response as JSON');
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: [],
+          error: 'Invalid response from CTA API',
+          timestamp: new Date().toISOString(),
+          source: 'CTA'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
     
     // Handle CTA API error responses
     if (data.ctatt?.errCd && data.ctatt.errCd !== '0') {
-      throw new Error(`CTA API Error: ${data.ctatt.errNm}`);
+      console.error('❌ CTA API Error:', data.ctatt.errNm);
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: [],
+          error: `CTA API Error: ${data.ctatt.errNm}`,
+          timestamp: new Date().toISOString(),
+          source: 'CTA'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    // Parse and clean the response based on request type
-    if (stopId) {
-      responseData = {
-        type: 'arrivals',
-        data: data.ctatt?.eta || [],
-        timestamp: data.ctatt?.tmst,
-      };
-    } else if (routeId) {
-      responseData = {
-        type: 'vehicles',
-        data: data.ctatt?.vehicle || [],
-        timestamp: data.ctatt?.tmst,
-      };
-    } else {
-      responseData = {
-        type: 'routes',
-        data: data.ctatt?.routes || [],
-        timestamp: data.ctatt?.tmst,
-      };
+    // Transform CTA data to our standard format
+    let transformedData = [];
+    
+    if (stopId && data.ctatt?.eta) {
+      transformedData = data.ctatt.eta.map((arrival: any) => ({
+        line: arrival.rt || 'Unknown',
+        station: arrival.staNm || 'Unknown',
+        destination: arrival.destNm || 'Unknown',
+        direction: arrival.trDr || 'Unknown',
+        arrivalTime: arrival.isApp === '1' ? 'Approaching' : (arrival.min || 'Unknown'),
+        trainId: arrival.rn || 'Unknown',
+        status: arrival.isApp === '1' ? 'Approaching' : 'On Time'
+      }));
+    } else if (routeId && data.ctatt?.vehicle) {
+      transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
+        line: vehicle.rt || 'Unknown',
+        station: 'In Transit',
+        destination: vehicle.destNm || 'Unknown',
+        direction: vehicle.heading || 'Unknown',
+        arrivalTime: 'In Transit',
+        trainId: vehicle.vid || 'Unknown',
+        status: 'Moving'
+      }));
+    } else if (data.ctatt?.routes) {
+      transformedData = data.ctatt.routes.map((route: any) => ({
+        line: route.rt || 'Unknown',
+        station: 'All Stations',
+        destination: route.rtnm || 'Unknown',
+        direction: 'Various',
+        arrivalTime: 'See Schedule',
+        trainId: 'Multiple',
+        status: 'Active'
+      }));
     }
+
+    console.log(`✅ Transformed ${transformedData.length} CTA records`);
 
     return new Response(
-      JSON.stringify(responseData),
+      JSON.stringify({
+        success: true,
+        data: transformedData,
+        timestamp: new Date().toISOString(),
+        source: 'CTA'
+      }),
       {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
   } catch (error) {
-    console.error('CTA Schedule API Error:', error);
+    console.error('❌ CTA Schedule API Error:', error);
     
     return new Response(
       JSON.stringify({
+        success: false,
+        data: [],
         error: error.message || 'Failed to fetch CTA schedule data',
         timestamp: new Date().toISOString(),
+        source: 'CTA'
       }),
       {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
+        status: 200, // Return 200 to prevent client-side errors
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
