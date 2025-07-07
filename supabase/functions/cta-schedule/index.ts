@@ -160,15 +160,19 @@ serve(async (req) => {
           if (!dateTimeStr || dateTimeStr === '') return null;
           
           try {
-            // Format: "20250107 17:45:30"
-            const year = parseInt(dateTimeStr.substring(0, 4));
-            const month = parseInt(dateTimeStr.substring(4, 6)) - 1; // Month is 0-indexed
-            const day = parseInt(dateTimeStr.substring(6, 8));
-            const hour = parseInt(dateTimeStr.substring(9, 11));
-            const minute = parseInt(dateTimeStr.substring(12, 14));
-            const second = parseInt(dateTimeStr.substring(15, 17));
+            // CTA format: "20250107 17:45:30" -> need to add dashes and T
+            // Convert to ISO format: "2025-01-07T17:45:30"
+            const year = dateTimeStr.substring(0, 4);
+            const month = dateTimeStr.substring(4, 6);
+            const day = dateTimeStr.substring(6, 8);
+            const time = dateTimeStr.substring(9); // "17:45:30"
             
-            return new Date(year, month, day, hour, minute, second);
+            const isoString = `${year}-${month}-${day}T${time}`;
+            console.log('🚆 Converting CTA datetime:', dateTimeStr, '-> ISO:', isoString);
+            
+            const date = new Date(isoString);
+            console.log('🚆 Parsed date object:', date);
+            return date;
           } catch (error) {
             console.error('❌ Error parsing CTA datetime:', dateTimeStr, error);
             return null;
@@ -181,19 +185,30 @@ serve(async (req) => {
         } else if (arrival.arrT && arrival.arrT !== '') {
           console.log('🚆 Parsing arrT:', arrival.arrT);
           const arrivalDate = parseCTADateTime(arrival.arrT);
+          
+          // Get Chicago time (UTC-6 or UTC-5 depending on DST)
           const now = new Date();
+          const chicagoTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
           
           console.log('🚆 Parsed arrival date:', arrivalDate);
-          console.log('🚆 Current time:', now);
+          console.log('🚆 Current Chicago time:', chicagoTime);
+          console.log('🚆 Current UTC time:', now);
           
           if (arrivalDate) {
-            const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
+            const diffMinutes = Math.round((arrivalDate.getTime() - chicagoTime.getTime()) / (1000 * 60));
             console.log('🚆 Calculated diff minutes:', diffMinutes);
             
-            if (diffMinutes <= 0) {
+            // Handle stale data - if more than 1 day old, it's probably stale
+            if (Math.abs(diffMinutes) > 1440) { // 1440 minutes = 1 day
+              console.log('🚆 Data appears stale (>1 day difference), using Due');
+              arrivalTime = 'Due';
+            } else if (diffMinutes <= 0) {
               arrivalTime = 'Arriving';
             } else if (diffMinutes === 1) {
               arrivalTime = '1 min';
+            } else if (diffMinutes > 60) {
+              // If more than 60 minutes, show as schedule
+              arrivalTime = 'Scheduled';
             } else {
               arrivalTime = `${diffMinutes} min`;
             }
