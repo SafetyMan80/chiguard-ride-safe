@@ -90,25 +90,30 @@ export const ProfileView = ({ userId, isOpen, onClose }: ProfileViewProps) => {
   };
 
   const getVerificationBadge = () => {
-    if (!profile?.student_status) return null;
-
-    if (profile.verification_status === 'verified') {
-      if (profile.verification_method === 'email_domain') {
+    if (profile?.verification_status === 'verified') {
+      if (profile.verification_method === 'email_domain' && profile.student_status) {
         return (
           <Badge variant="default" className="bg-green-600">
             <Shield className="w-3 h-3 mr-1" />
             Email Verified Student
           </Badge>
         );
-      } else {
+      } else if (profile.student_status) {
         return (
           <Badge variant="default" className="bg-blue-600">
             <Shield className="w-3 h-3 mr-1" />
             Verified Student
           </Badge>
         );
+      } else {
+        return (
+          <Badge variant="default" className="bg-blue-600">
+            <Shield className="w-3 h-3 mr-1" />
+            Verified User
+          </Badge>
+        );
       }
-    } else if (profile.verification_status === 'pending') {
+    } else if (profile?.verification_status === 'pending' && profile?.student_status) {
       return (
         <Badge variant="outline" className="border-yellow-500 text-yellow-700">
           <Shield className="w-3 h-3 mr-1" />

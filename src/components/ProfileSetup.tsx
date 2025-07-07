@@ -45,20 +45,12 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
   useEffect(() => {
     fetchUniversities();
     checkExistingProfile();
-    // Only check email verification when student status changes
+    checkEmailVerification();
   }, []);
 
   const checkEmailVerification = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email || !formData.student_status) {
-      // Reset verification if not a student
-      setEmailVerification({
-        isValidated: false,
-        universityName: null,
-        message: ""
-      });
-      return;
-    }
+    if (!user?.email) return;
 
     // Check if user's email domain matches a university
     const { data, error } = await supabase
@@ -76,18 +68,21 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
         message: `Your email is verified with ${data[0].university_name}!`
       });
       
-      // Auto-set university if not already set
-      if (!formData.university_name) {
+      // Auto-set university and student status if verified
+      if (!formData.university_name || !formData.student_status) {
         setFormData(prev => ({ 
           ...prev, 
-          university_name: data[0].university_name
+          university_name: data[0].university_name,
+          student_status: true
         }));
       }
     } else {
       setEmailVerification({
         isValidated: false,
         universityName: null,
-        message: "Your email domain doesn't match a supported university. You can still mark yourself as a student and provide verification later."
+        message: formData.student_status 
+          ? "Your email domain doesn't match a supported university. You can still mark yourself as a student and provide verification later."
+          : "Email domain verified for general use. University verification available if you select student status."
       });
     }
   };
@@ -316,7 +311,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
                 checked={formData.student_status}
                 onCheckedChange={(checked) => {
                   setFormData(prev => ({ ...prev, student_status: checked as boolean }));
-                  // Trigger email verification check when student status changes
+                  // Update email verification message when student status changes
                   setTimeout(() => checkEmailVerification(), 100);
                 }}
               />
