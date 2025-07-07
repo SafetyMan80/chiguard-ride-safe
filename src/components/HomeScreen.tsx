@@ -193,7 +193,7 @@ export const HomeScreen = () => {
         />
         
       <SystemHealthIndicator />
-      <HeaderSection />
+      <HeaderSection user={user} />
 
         <ErrorBoundary>
           <MainContent 

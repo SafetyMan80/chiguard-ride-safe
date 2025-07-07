@@ -1,14 +1,58 @@
+import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "lucide-react";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-export const HeaderSection = () => {
+interface HeaderSectionProps {
+  user?: SupabaseUser | null;
+}
+
+export const HeaderSection = ({ user }: HeaderSectionProps) => {
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfilePhoto = async () => {
+      if (!user) return;
+
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("profile_photo_url")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profile?.profile_photo_url) {
+          setProfilePhotoUrl(profile.profile_photo_url);
+        }
+      } catch (error) {
+        console.error("Error fetching profile photo:", error);
+      }
+    };
+
+    fetchProfilePhoto();
+  }, [user]);
   return (
     <header className="p-6 safe-area-top bg-gradient-to-b from-background via-background/95 to-background/90 -mx-6 px-6 backdrop-blur-md">
       <OfflineIndicator />
-      <div className="flex justify-center items-center mb-6">
+      <div className="flex justify-between items-center mb-6">
+        <div className="w-10 h-10"> {/* Spacer for balance */}
+          {user && profilePhotoUrl && (
+            <Avatar className="w-10 h-10 border-2 border-chicago-blue/20 shadow-lg">
+              <AvatarImage src={profilePhotoUrl} alt="Profile" />
+              <AvatarFallback className="bg-chicago-blue/10">
+                <User className="w-5 h-5 text-chicago-blue" />
+              </AvatarFallback>
+            </Avatar>
+          )}
+        </div>
         <ThemeToggle />
+        <div className="w-10 h-10"> {/* Spacer for balance */}
+        </div>
       </div>
       <Card className="glass-card shadow-[var(--shadow-elevated)] border-chicago-blue/10">
         <CardHeader className="text-center pb-4">
