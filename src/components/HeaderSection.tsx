@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const HeaderSection = () => {
   return (
-    <header className="p-6 safe-area-top bg-white dark:bg-black">
+    <header className="p-6 safe-area-top bg-white dark:bg-black -mx-6 px-6">
       <OfflineIndicator />
       <div className="flex justify-end items-center mb-4">
         <ThemeToggle />
