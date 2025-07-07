@@ -45,12 +45,20 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
   useEffect(() => {
     fetchUniversities();
     checkExistingProfile();
-    checkEmailVerification();
+    // Only check email verification when student status changes
   }, []);
 
   const checkEmailVerification = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) return;
+    if (!user?.email || !formData.student_status) {
+      // Reset verification if not a student
+      setEmailVerification({
+        isValidated: false,
+        universityName: null,
+        message: ""
+      });
+      return;
+    }
 
     // Check if user's email domain matches a university
     const { data, error } = await supabase
@@ -72,8 +80,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
       if (!formData.university_name) {
         setFormData(prev => ({ 
           ...prev, 
-          university_name: data[0].university_name,
-          student_status: true
+          university_name: data[0].university_name
         }));
       }
     } else {
@@ -176,7 +183,10 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
 
       const { error } = await supabase
         .from("profiles")
-        .upsert(profileData);
+        .upsert(profileData, { 
+          onConflict: 'user_id',
+          ignoreDuplicates: false 
+        });
 
       if (error) throw error;
 
@@ -304,9 +314,11 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
               <Checkbox
                 id="student_status"
                 checked={formData.student_status}
-                onCheckedChange={(checked) => 
-                  setFormData(prev => ({ ...prev, student_status: checked as boolean }))
-                }
+                onCheckedChange={(checked) => {
+                  setFormData(prev => ({ ...prev, student_status: checked as boolean }));
+                  // Trigger email verification check when student status changes
+                  setTimeout(() => checkEmailVerification(), 100);
+                }}
               />
               <Label htmlFor="student_status">
                 I am a student {emailVerification.isValidated && '(automatically verified via email)'}
