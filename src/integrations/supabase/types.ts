@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       general_group_rides: {
         Row: {
           created_at: string
@@ -507,6 +537,15 @@ export type Database = {
           _event_data?: Json
           _ip_address?: unknown
           _user_agent?: string
+        }
+        Returns: string
+      }
+      track_event: {
+        Args: {
+          _event_type: string
+          _event_data?: Json
+          _user_agent?: string
+          _ip_address?: unknown
         }
         Returns: string
       }

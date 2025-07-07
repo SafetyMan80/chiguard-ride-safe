@@ -10,6 +10,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { Logo } from "@/components/Logo";
 import { useOffline } from "@/hooks/useOffline";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import QRCode from "qrcode";
 import type { User } from "@supabase/supabase-js";
 
@@ -22,6 +23,7 @@ export const HomeScreen = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const navigate = useNavigate();
   const { isOnline, saveUserProfile, saveEmergencyContacts } = useOffline();
+  const { trackAppLaunch, trackPageView } = useAnalytics();
 
   // Pull to refresh functionality
   const handleRefresh = async () => {
@@ -73,8 +75,10 @@ export const HomeScreen = () => {
   useEffect(() => {
     if (user) {
       checkUserSetup();
+      // Track app launch when user is authenticated
+      trackAppLaunch();
     }
-  }, [user]);
+  }, [user, trackAppLaunch]);
 
   useEffect(() => {
     // Generate QR code with current URL

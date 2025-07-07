@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAddToHomeScreen } from "@/hooks/useAddToHomeScreen";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { User } from "@supabase/supabase-js";
 
 interface MainContentProps {
@@ -22,8 +23,10 @@ interface MainContentProps {
 export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainContentProps) => {
   const { toast } = useToast();
   const { isInstallable, promptInstall } = useAddToHomeScreen();
+  const { trackUserAction, trackPageView } = useAnalytics();
 
   const handleEmergencyActivated = () => {
+    trackUserAction('emergency_button_clicked');
     toast({
       title: "🚨 EMERGENCY ALERT ACTIVATED! 🚨",
       description: "Your location has been shared and help is on the way!",
@@ -141,7 +144,11 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                 {navigationItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      trackPageView(item.id);
+                      trackUserAction('tab_navigation', { tab: item.id });
+                    }}
                     className={`
                       ${item.color} p-6 rounded-xl shadow-[var(--shadow-card)] 
                       hover:scale-105 hover:shadow-[var(--shadow-floating)] 

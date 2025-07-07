@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAnalytics } from './useAnalytics';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -8,6 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 export const useAddToHomeScreen = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const { trackPWAInstall } = useAnalytics();
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
@@ -57,6 +59,7 @@ export const useAddToHomeScreen = () => {
         console.log('Install prompt outcome:', outcome);
         
         if (outcome === 'accepted') {
+          trackPWAInstall();
           setDeferredPrompt(null);
           setIsInstallable(false);
         }
