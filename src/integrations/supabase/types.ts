@@ -333,7 +333,9 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          notification_city: string | null
           phone_number: string | null
+          push_token: string | null
           student_id_number: string | null
           student_status: boolean | null
           university_name: string | null
@@ -348,7 +350,9 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          notification_city?: string | null
           phone_number?: string | null
+          push_token?: string | null
           student_id_number?: string | null
           student_status?: boolean | null
           university_name?: string | null
@@ -363,7 +367,9 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          notification_city?: string | null
           phone_number?: string | null
+          push_token?: string | null
           student_id_number?: string | null
           student_status?: boolean | null
           university_name?: string | null

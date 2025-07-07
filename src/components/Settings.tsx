@@ -13,6 +13,7 @@ import { SafetyGuidelines } from "./SafetyGuidelines";
 import { ProfileSetup } from "./ProfileSetup";
 import { IDVerification } from "./IDVerification";
 import { SecurityAudit } from "./SecurityAudit";
+import { NotificationSettings } from "./NotificationSettings";
 import { ThemeToggle } from "./ThemeToggle";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -22,7 +23,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'verification' | 'security'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'verification' | 'security' | 'notifications'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -86,8 +87,8 @@ export const Settings = ({ user }: SettingsProps) => {
     return <IDVerification onVerificationComplete={() => setActiveView('settings')} onBack={() => setActiveView('settings')} />;
   }
 
-  if (activeView === 'security') {
-    return <SecurityAudit />;
+  if (activeView === 'notifications') {
+    return <NotificationSettings onBack={() => setActiveView('settings')} />;
   }
 
   return (
@@ -120,18 +121,21 @@ export const Settings = ({ user }: SettingsProps) => {
             />
           </div>
 
-          {/* Emergency Notifications */}
+          {/* Push Notifications */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <span className="font-medium">Emergency Notifications</span>
+              <span className="font-medium">Push Notifications</span>
               <p className="text-sm text-muted-foreground">
-                Receive alerts about incidents near your location
+                Location-based incident alerts and emergency notifications
               </p>
             </div>
-            <Switch
-              checked={notificationsEnabled}
-              onCheckedChange={setNotificationsEnabled}
-            />
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setActiveView('notifications')}
+            >
+              Configure
+            </Button>
           </div>
 
           {/* Emergency Contacts */}

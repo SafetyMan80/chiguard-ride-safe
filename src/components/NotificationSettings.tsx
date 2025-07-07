@@ -2,11 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Bell, BellOff, MapPin, TestTube, Smartphone } from 'lucide-react';
+import { Bell, BellOff, MapPin, TestTube, Smartphone, ArrowLeft } from 'lucide-react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useLocationService } from '@/hooks/useLocationService';
 
-export const NotificationSettings = () => {
+interface NotificationSettingsProps {
+  onBack?: () => void;
+}
+
+export const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
   const { 
     isRegistered, 
     notificationPermission, 
@@ -37,6 +41,17 @@ export const NotificationSettings = () => {
 
   return (
     <div className="space-y-6">
+      {onBack && (
+        <Button
+          variant="outline"
+          onClick={onBack}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Settings
+        </Button>
+      )}
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
