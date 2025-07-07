@@ -46,14 +46,15 @@ export const ProfilePhotoUpload = ({
         throw new Error("Image must be less than 5MB");
       }
 
-      // Create unique filename
+      // Create unique filename with timestamp to avoid caching issues
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/profile.${fileExt}`;
+      const timestamp = Date.now();
+      const fileName = `${user.id}/profile_${timestamp}.${fileExt}`;
 
       // Delete existing photo if it exists
       if (currentPhotoUrl) {
         const oldFileName = currentPhotoUrl.split('/').pop();
-        if (oldFileName) {
+        if (oldFileName && oldFileName.startsWith('profile_')) {
           await supabase.storage
             .from('profile-photos')
             .remove([`${user.id}/${oldFileName}`]);
@@ -64,25 +65,27 @@ export const ProfilePhotoUpload = ({
       const { data, error } = await supabase.storage
         .from('profile-photos')
         .upload(fileName, file, {
-          upsert: true
+          upsert: false // Don't overwrite, create new file
         });
 
       if (error) throw error;
 
-      // Get public URL
+      // Get public URL with cache-busting parameter
       const { data: { publicUrl } } = supabase.storage
         .from('profile-photos')
         .getPublicUrl(fileName);
+      
+      const cacheBustedUrl = `${publicUrl}?t=${timestamp}`;
 
       // Update profile with new photo URL
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ profile_photo_url: publicUrl })
+        .update({ profile_photo_url: cacheBustedUrl })
         .eq('user_id', user.id);
 
       if (updateError) throw updateError;
 
-      onPhotoUpdate(publicUrl);
+      onPhotoUpdate(cacheBustedUrl);
       toast({
         title: "Photo updated",
         description: "Your profile photo has been uploaded successfully.",
