@@ -144,9 +144,9 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                         ? 'bg-gradient-to-br from-chicago-red via-chicago-red to-red-600 text-white shadow-[var(--shadow-emergency)]' 
                         : 'card-modern card-interactive hover:bg-muted/30'
                       } 
-                      p-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] 
-                      transition-all duration-300 ease-out flex flex-col items-center space-y-3
-                      touch-target-large min-h-[128px] justify-center relative overflow-hidden
+                      p-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] 
+                      transition-all duration-300 ease-out flex flex-col items-center space-y-2
+                      touch-target min-h-[96px] justify-center relative overflow-hidden
                     `}
                   >
                     {item.id === 'emergency' && (
