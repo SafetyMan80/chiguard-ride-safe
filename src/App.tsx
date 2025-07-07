@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { EmergencySOSButton } from "@/components/EmergencySOSButton";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useLocationService } from "@/hooks/useLocationService";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -22,14 +24,29 @@ const queryClient = new QueryClient({
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Initialize push notifications and location services
+  const { isRegistered } = usePushNotifications();
+  const { getCurrentLocation } = useLocationService();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    const initializeApp = async () => {
+      // Initialize location on app start
+      try {
+        await getCurrentLocation();
+      } catch (error) {
+        console.log('Location initialization failed:', error);
+      }
+      
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    };
+
+    initializeApp();
+  }, [getCurrentLocation]);
 
   if (isLoading) {
     return <LoadingScreen />;
