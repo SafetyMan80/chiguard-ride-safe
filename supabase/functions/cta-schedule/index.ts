@@ -32,17 +32,38 @@ serve(async (req) => {
     
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
     console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
+    console.log('🔑 CTA_API_KEY length:', CTA_API_KEY?.length || 0);
     console.log('📥 Request params:', { stopId, routeId, method: req.method });
     
+    // ISSUE CHECK 3: Missing API Key
     if (!CTA_API_KEY) {
-      console.error('❌ CTA API key not configured');
+      console.error('❌ ERROR 3: CTA API key not configured');
       return new Response(
         JSON.stringify({
           success: false,
           data: [],
-          error: 'CTA API key not configured',
+          error: 'CTA API key not configured in Supabase secrets',
           timestamp: new Date().toISOString(),
-          source: 'CTA'
+          source: 'CTA',
+          debug: { hasKey: false }
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // ISSUE CHECK 4: Invalid API Key format
+    if (CTA_API_KEY.length < 10) {
+      console.error('❌ ERROR 4: CTA API key appears invalid (too short)');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: [],
+          error: 'CTA API key appears invalid',
+          timestamp: new Date().toISOString(),
+          source: 'CTA',
+          debug: { keyLength: CTA_API_KEY.length }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

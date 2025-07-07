@@ -13,18 +13,71 @@ serve(async (req) => {
   }
 
   try {
-    console.log('SEPTA Schedule function called');
-    const { action, station, route } = await req.json().catch(() => ({}));
+    console.log('🚇 SEPTA Schedule function called');
+    console.log('🚇 Request method:', req.method);
+    console.log('🚇 Request URL:', req.url);
+    console.log('🚇 Request headers:', Object.fromEntries(req.headers.entries()));
+    
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log('🚇 Request body received:', JSON.stringify(requestBody, null, 2));
+    } catch (jsonError) {
+      console.log('🚇 No JSON body or invalid JSON:', jsonError.message);
+      requestBody = {};
+    }
+    
+    const { action, station, route, line } = requestBody;
+    console.log('🚇 Extracted parameters:', { action, station, route, line });
+    
+    // ISSUE CHECK 1: Missing action parameter
+    if (!action) {
+      console.error('🚇 ERROR 1: No action parameter provided');
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Missing action parameter. Use: arrivals, routes, or stations',
+          debug: { received: requestBody }
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    // ISSUE CHECK 2: Invalid action
+    const validActions = ['arrivals', 'routes', 'stations'];
+    if (!validActions.includes(action)) {
+      console.error('🚇 ERROR 2: Invalid action:', action);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: `Invalid action: ${action}. Use: arrivals, routes, or stations`,
+          debug: { received: action, valid: validActions }
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    console.log('🚇 Action validation passed, routing to handler...');
     
     // Handle different action types
     switch (action) {
       case 'arrivals':
-        return await getArrivals(station);
+        console.log('🚇 Routing to arrivals handler');
+        return await getArrivals(station || line);
       case 'routes':
+        console.log('🚇 Routing to routes handler');
         return await getRoutes();
       case 'stations':
+        console.log('🚇 Routing to stations handler');
         return await getStations(route);
       default:
+        console.error('🚇 ERROR 3: Unhandled action after validation:', action);
         return new Response(
           JSON.stringify({ error: 'Invalid action. Use: arrivals, routes, or stations' }),
           { 
