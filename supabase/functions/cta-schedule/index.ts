@@ -153,95 +153,120 @@ serve(async (req) => {
       console.log('🚆 ===== RAW API DATA ANALYSIS =====');
       console.log('🚆 Total arrivals in API response:', data.ctatt.eta.length);
       
-      // 1. CHECK RAW API DATA OUTPUT - Log ALL timestamps before filtering
+      // Check if ALL data is stale
+      let hasAnyCurrentData = false;
+      const now = new Date();
+      
       data.ctatt.eta.forEach((arrival: any, index: number) => {
-        console.log(`🚆 RAW ARRIVAL #${index + 1}:`, {
-          arrT: arrival.arrT,
-          prdt: arrival.prdt,
-          isApp: arrival.isApp,
-          isSch: arrival.isSch,
-          isDly: arrival.isDly,
-          rt: arrival.rt,
-          destNm: arrival.destNm,
-          staNm: arrival.staNm
-        });
-      });
-      
-      console.log('🚆 ===== PROCESSING WITH DISABLED FILTERING =====');
-      
-      // 2. TEMPORARILY DISABLE FILTERING - Process ALL data to see what comes through
-      const allProcessedData = data.ctatt.eta.map((arrival: any, index: number) => {
-        console.log(`🚆 Processing arrival #${index + 1} (NO FILTERING):`);
-        
-        let arrivalTime = 'Due';
-        
-        // Simple datetime parser without strict validation
-        function parseCTADateTime(dateTimeStr: string): Date | null {
-          if (!dateTimeStr || dateTimeStr === '') return null;
-          
+        if (arrival.arrT) {
           try {
-            const year = parseInt(dateTimeStr.substring(0, 4));
-            const month = parseInt(dateTimeStr.substring(4, 6));
-            const day = parseInt(dateTimeStr.substring(6, 8));
-            const hour = parseInt(dateTimeStr.substring(9, 11));
-            const minute = parseInt(dateTimeStr.substring(12, 14));
-            const second = parseInt(dateTimeStr.substring(15, 17));
+            const year = parseInt(arrival.arrT.substring(0, 4));
+            const month = parseInt(arrival.arrT.substring(4, 6));
+            const day = parseInt(arrival.arrT.substring(6, 8));
+            const hour = parseInt(arrival.arrT.substring(9, 11));
+            const minute = parseInt(arrival.arrT.substring(12, 14));
+            const second = parseInt(arrival.arrT.substring(15, 17));
             
-            const date = new Date(year, month - 1, day, hour, minute, second);
-            return isNaN(date.getTime()) ? null : date;
-          } catch (error) {
-            return null;
-          }
-        }
-        
-        // Process without any filtering
-        if (arrival.isApp === '1' || arrival.isApp === 1) {
-          arrivalTime = 'Approaching';
-        } else if (arrival.arrT && arrival.arrT !== '') {
-          const arrivalDate = parseCTADateTime(arrival.arrT);
-          const currentTime = new Date();
-          
-          if (arrivalDate) {
-            const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
-            const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+            const arrivalDate = new Date(year, month - 1, day, hour, minute, second);
+            const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
             
-            console.log(`🚆 Unfiltered calculation - Minutes: ${timeDiffMinutes}`);
+            console.log(`🚆 RAW ARRIVAL #${index + 1}: ${arrival.arrT} = ${diffMinutes} minutes from now`);
             
-            // Show ALL calculations without filtering
-            if (isNaN(timeDiffMinutes)) {
-              arrivalTime = 'NaN';
-            } else if (timeDiffMinutes <= 0) {
-              arrivalTime = `Past (${Math.abs(timeDiffMinutes)} min ago)`;
-            } else if (timeDiffMinutes === 1) {
-              arrivalTime = '1 min';
-            } else {
-              arrivalTime = `${timeDiffMinutes} min`;
+            // Consider data current if it's within reasonable bounds
+            if (Math.abs(diffMinutes) < 1440) { // Within 1 day
+              hasAnyCurrentData = true;
             }
+          } catch (e) {
+            console.log(`🚆 RAW ARRIVAL #${index + 1}: ${arrival.arrT} = PARSE ERROR`);
           }
-        } else if (arrival.isSch === '1') {
-          arrivalTime = 'Scheduled';
         }
+      });
+      
+      console.log('🚆 Has any current data:', hasAnyCurrentData);
+      
+      if (!hasAnyCurrentData) {
+        console.log('🚆 ⚠️  ALL DATA IS STALE - CTA API returning old data');
+        console.log('🚆 Returning fallback message for stale data');
         
-        return {
-          line: arrival.rt || 'Unknown',
-          station: arrival.staNm || 'Unknown',
-          destination: arrival.destNm || 'Unknown',
-          direction: arrival.trDr || 'Unknown',
-          arrivalTime: arrivalTime,
-          trainId: arrival.rn || 'Unknown',
-          status: arrival.isApp === '1' ? 'Approaching' : 
-                 arrival.isDly === '1' ? 'Delayed' : 'On Time'
-        };
-      });
-      
-      console.log('🚆 ===== ALL PROCESSED DATA (NO FILTERING) =====');
-      console.log(`🚆 Total processed without filtering: ${allProcessedData.length}`);
-      allProcessedData.forEach((item, index) => {
-        console.log(`🚆 Unfiltered result #${index + 1}:`, item);
-      });
-      
-      // For now, return the unfiltered data to see what shows up in UI
-      transformedData = allProcessedData;
+        transformedData = [{
+          line: 'CTA',
+          station: 'All Stations', 
+          destination: 'Service Information',
+          direction: '',
+          arrivalTime: 'Unavailable',
+          trainId: '',
+          status: 'Real-time data temporarily unavailable'
+        }];
+      } else {
+        // Process normally with filtering
+        transformedData = data.ctatt.eta
+          .map((arrival: any, index: number) => {
+            let arrivalTime = 'Due';
+            
+            function parseCTADateTime(dateTimeStr: string): Date | null {
+              if (!dateTimeStr || dateTimeStr === '') return null;
+              
+              try {
+                const year = parseInt(dateTimeStr.substring(0, 4));
+                const month = parseInt(dateTimeStr.substring(4, 6));
+                const day = parseInt(dateTimeStr.substring(6, 8));
+                const hour = parseInt(dateTimeStr.substring(9, 11));
+                const minute = parseInt(dateTimeStr.substring(12, 14));
+                const second = parseInt(dateTimeStr.substring(15, 17));
+                
+                const date = new Date(year, month - 1, day, hour, minute, second);
+                return isNaN(date.getTime()) ? null : date;
+              } catch (error) {
+                return null;
+              }
+            }
+            
+            if (arrival.isApp === '1' || arrival.isApp === 1) {
+              arrivalTime = 'Approaching';
+            } else if (arrival.arrT && arrival.arrT !== '') {
+              const arrivalDate = parseCTADateTime(arrival.arrT);
+              const currentTime = new Date();
+              
+              if (arrivalDate) {
+                const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
+                const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+                
+                // Filter out stale data
+                if (Math.abs(timeDiffMinutes) > 180) { // More than 3 hours
+                  return null;
+                }
+                
+                if (timeDiffMinutes <= 0) {
+                  arrivalTime = 'Arriving';
+                } else if (timeDiffMinutes === 1) {
+                  arrivalTime = '1 min';
+                } else if (timeDiffMinutes > 60) {
+                  arrivalTime = 'Scheduled';
+                } else {
+                  arrivalTime = `${timeDiffMinutes} min`;
+                }
+              } else {
+                return null;
+              }
+            } else if (arrival.isSch === '1') {
+              arrivalTime = 'Scheduled';
+            } else {
+              return null;
+            }
+            
+            return {
+              line: arrival.rt || 'Unknown',
+              station: arrival.staNm || 'Unknown',
+              destination: arrival.destNm || 'Unknown',
+              direction: arrival.trDr || 'Unknown',
+              arrivalTime: arrivalTime,
+              trainId: arrival.rn || 'Unknown',
+              status: arrival.isApp === '1' ? 'Approaching' : 
+                     arrival.isDly === '1' ? 'Delayed' : 'On Time'
+            };
+          })
+          .filter(result => result !== null);
+      }
     } else if (routeId && data.ctatt?.vehicle) {
       transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
         line: vehicle.rt || 'Unknown',
