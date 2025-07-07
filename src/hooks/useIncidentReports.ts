@@ -62,7 +62,8 @@ export const useIncidentReports = (city?: string) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      // Handle async cleanup properly
+      supabase.removeChannel(channel).catch(console.error);
     };
   }, [queryClient, toast]);
 

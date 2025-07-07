@@ -50,7 +50,8 @@ export const useGroupRides = (city?: string) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      // Handle async cleanup properly
+      supabase.removeChannel(channel).catch(console.error);
     };
   }, [queryClient]);
 
@@ -183,7 +184,10 @@ export const useGeneralGroupRides = (searchLocation?: string) => {
       )
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    return () => {
+      // Handle async cleanup properly
+      supabase.removeChannel(channel).catch(console.error);
+    };
   }, [queryClient]);
 
   return { rides, isLoading, error, refetch };
