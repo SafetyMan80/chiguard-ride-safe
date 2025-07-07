@@ -110,6 +110,7 @@ export const HomeScreen = () => {
         // Continue with false value if error
       }
 
+      console.log('Profile check:', { profile, hasProfile: !!profile });
       setHasProfile(!!profile);
 
       // Check if user has ID verification
@@ -124,6 +125,7 @@ export const HomeScreen = () => {
         // Continue with false value if error
       }
 
+      console.log('ID verification check:', { verification, hasIDVerification: !!verification });
       setHasIDVerification(!!verification);
     } catch (error) {
       console.error("Error checking user setup:", error);
