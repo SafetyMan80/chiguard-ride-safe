@@ -140,26 +140,40 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                       trackUserAction('tab_navigation', { tab: item.id });
                     }}
                     className={`
-                      ${item.color} p-6 rounded-xl shadow-[var(--shadow-card)] 
-                      hover:scale-105 hover:shadow-[var(--shadow-floating)] 
-                      active:scale-95 transition-all duration-300 flex flex-col items-center space-y-3
-                      border touch-target-large min-h-[120px] justify-center
+                      ${item.id === 'emergency' 
+                        ? 'bg-gradient-to-br from-chicago-red via-chicago-red to-red-600 text-white shadow-[var(--shadow-emergency)]' 
+                        : 'card-modern card-interactive hover:bg-muted/30'
+                      } 
+                      p-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] 
+                      transition-all duration-300 ease-out flex flex-col items-center space-y-3
+                      touch-target-large min-h-[128px] justify-center relative overflow-hidden
                     `}
                   >
-                    <div className="text-3xl">{item.icon}</div>
-                    <div>
-                      <h3 className="font-bold text-lg">{item.title}</h3>
-                      <p className="text-sm opacity-90">{item.description}</p>
+                    {item.id === 'emergency' && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-red-600/20 animate-pulse"></div>
+                    )}
+                    <div className={`text-3xl relative z-10 ${item.id === 'emergency' ? 'animate-pulse' : ''}`}>
+                      {item.icon}
+                    </div>
+                    <div className="relative z-10 text-center">
+                      <h3 className={`font-bold text-lg ${item.id === 'emergency' ? 'text-white' : ''}`}>
+                        {item.title}
+                      </h3>
+                      <p className={`text-sm ${item.id === 'emergency' ? 'text-white/90' : 'text-muted-foreground'}`}>
+                        {item.description}
+                      </p>
                     </div>
                   </button>
                 ))}
               </div>
               
               {/* Share Section */}
-              <Card className="mt-8 bg-chicago-accent border-chicago-blue/20">
-                <CardHeader className="text-center pb-3">
-                   <CardTitle className="text-lg text-chicago-blue flex items-center justify-center gap-2">
-                     <Share className="w-5 h-5" />
+              <Card className="mt-8 glass-card shadow-[var(--shadow-elevated)] border-chicago-blue/10">
+                <CardHeader className="text-center pb-4">
+                   <CardTitle className="text-lg text-chicago-blue flex items-center justify-center gap-2 font-semibold">
+                     <div className="p-2 bg-chicago-blue/10 rounded-full">
+                       <Share className="w-4 h-4" />
+                     </div>
                      Share RAILSAVIOR
                    </CardTitle>
                 </CardHeader>

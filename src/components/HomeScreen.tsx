@@ -172,7 +172,7 @@ export const HomeScreen = () => {
       />
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border/30 shadow-[var(--shadow-floating)] z-50">
         <div className="max-w-md mx-auto safe-area-bottom">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
