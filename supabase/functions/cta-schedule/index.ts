@@ -160,19 +160,37 @@ serve(async (req) => {
           if (!dateTimeStr || dateTimeStr === '') return null;
           
           try {
-            // CTA format: "20250107 17:45:30" -> need to add dashes and T
-            // Convert to ISO format: "2025-01-07T17:45:30"
+            console.log('🚆 Input datetime string:', dateTimeStr);
+            
+            // CTA format: "20250107 17:45:30"
+            if (dateTimeStr.length < 17) {
+              console.error('❌ CTA datetime string too short:', dateTimeStr);
+              return null;
+            }
+            
             const year = dateTimeStr.substring(0, 4);
             const month = dateTimeStr.substring(4, 6);
             const day = dateTimeStr.substring(6, 8);
-            const time = dateTimeStr.substring(9); // "17:45:30"
+            const hour = dateTimeStr.substring(9, 11);
+            const minute = dateTimeStr.substring(12, 14);
+            const second = dateTimeStr.substring(15, 17);
             
-            const isoString = `${year}-${month}-${day}T${time}`;
-            console.log('🚆 Converting CTA datetime:', dateTimeStr, '-> ISO:', isoString);
+            console.log('🚆 Parsed components:', { year, month, day, hour, minute, second });
             
-            const date = new Date(isoString);
-            console.log('🚆 Parsed date object:', date);
-            return date;
+            // Create date object manually to avoid timezone issues
+            const date = new Date(
+              parseInt(year),
+              parseInt(month) - 1, // Month is 0-indexed
+              parseInt(day),
+              parseInt(hour),
+              parseInt(minute),
+              parseInt(second)
+            );
+            
+            console.log('🚆 Created date object:', date);
+            console.log('🚆 Date is valid:', !isNaN(date.getTime()));
+            
+            return isNaN(date.getTime()) ? null : date;
           } catch (error) {
             console.error('❌ Error parsing CTA datetime:', dateTimeStr, error);
             return null;
@@ -186,20 +204,24 @@ serve(async (req) => {
           console.log('🚆 Parsing arrT:', arrival.arrT);
           const arrivalDate = parseCTADateTime(arrival.arrT);
           
-          // Get Chicago time (UTC-6 or UTC-5 depending on DST)
+          // Use simple current time in local timezone 
           const now = new Date();
-          const chicagoTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Chicago"}));
           
           console.log('🚆 Parsed arrival date:', arrivalDate);
-          console.log('🚆 Current Chicago time:', chicagoTime);
-          console.log('🚆 Current UTC time:', now);
+          console.log('🚆 Current time:', now);
           
-          if (arrivalDate) {
-            const diffMinutes = Math.round((arrivalDate.getTime() - chicagoTime.getTime()) / (1000 * 60));
-            console.log('🚆 Calculated diff minutes:', diffMinutes);
+          if (arrivalDate && !isNaN(arrivalDate.getTime())) {
+            const diffMs = arrivalDate.getTime() - now.getTime();
+            const diffMinutes = Math.round(diffMs / (1000 * 60));
             
-            // Handle stale data - if more than 1 day old, it's probably stale
-            if (Math.abs(diffMinutes) > 1440) { // 1440 minutes = 1 day
+            console.log('🚆 Time difference in ms:', diffMs);
+            console.log('🚆 Calculated diff minutes:', diffMinutes);
+            console.log('🚆 diffMinutes type:', typeof diffMinutes, 'isNaN:', isNaN(diffMinutes));
+            
+            if (isNaN(diffMinutes)) {
+              console.log('🚆 NaN detected in calculation, using Due');
+              arrivalTime = 'Due';
+            } else if (Math.abs(diffMinutes) > 1440) { // 1440 minutes = 1 day
               console.log('🚆 Data appears stale (>1 day difference), using Due');
               arrivalTime = 'Due';
             } else if (diffMinutes <= 0) {
@@ -207,13 +229,12 @@ serve(async (req) => {
             } else if (diffMinutes === 1) {
               arrivalTime = '1 min';
             } else if (diffMinutes > 60) {
-              // If more than 60 minutes, show as schedule
               arrivalTime = 'Scheduled';
             } else {
               arrivalTime = `${diffMinutes} min`;
             }
           } else {
-            console.log('🚆 Failed to parse arrT, using Due');
+            console.log('🚆 Failed to parse arrT or invalid date, using Due');
             arrivalTime = 'Due';
           }
         } else {
