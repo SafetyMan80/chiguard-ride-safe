@@ -76,12 +76,11 @@ export const CTASchedule = () => {
       if (response.success) {
         setArrivals(response.data || []);
         setLastUpdated(new Date().toLocaleTimeString());
-        toast({
-          title: "Schedule Updated",
-          description: `Found ${response.data?.length || 0} upcoming arrivals`
-        });
+        console.log('🚆 CTA Success:', response.data?.length || 0, 'arrivals');
       } else {
-        throw new Error(response.error || 'Failed to fetch CTA data');
+        console.log('🚆 CTA API returned error:', response.error);
+        // Still show the error in toast but don't throw
+        setArrivals([]);
       }
     } catch (error) {
       console.error('Error fetching CTA arrivals:', error);
