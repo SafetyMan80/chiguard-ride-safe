@@ -36,7 +36,8 @@ export const CTASchedule = () => {
   }, []);
 
   const fetchArrivals = async () => {
-    console.log('CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
+    console.log('🚆 CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
+    console.log('🚆 CTA starting fetch process...');
     
     if (!isOnline) {
       toast({
@@ -59,14 +60,15 @@ export const CTASchedule = () => {
         requestBody.stopId = selectedStation; // The edge function expects 'stopId', not 'station'
       }
       
-      console.log('CTA API call with correct body:', requestBody);
+      console.log('🚆 CTA API call with correct body:', requestBody);
+      console.log('🚆 CTA invoking edge function...');
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         method: 'POST',
         body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
 
-      console.log('CTA API response:', { data, error });
+      console.log('🚆 CTA API response:', { data, error });
 
       if (error) throw error;
 

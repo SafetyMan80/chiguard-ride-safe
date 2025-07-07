@@ -7,10 +7,10 @@ import { ScheduleLoadingSkeleton } from "./LoadingStates";
 export const MultiCitySchedule = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
-  console.log('MultiCitySchedule rendered with selectedCity:', selectedCity);
+  console.log('🏙️ MultiCitySchedule rendered with selectedCity:', selectedCity);
 
   const handleCitySelect = (cityId: string, available: boolean) => {
-    console.log('City selected:', cityId, 'available:', available);
+    console.log('🏙️ City selected:', cityId, 'available:', available);
     if (available) {
       setSelectedCity(cityId);
     }
