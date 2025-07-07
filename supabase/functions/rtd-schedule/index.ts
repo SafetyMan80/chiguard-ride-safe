@@ -40,7 +40,8 @@ serve(async (req) => {
         // Use default station if none provided
         const targetStation = station || 'Union Station';
 
-        console.log(`Fetching RTD arrivals for station: ${targetStation}`);
+        console.log(`🚆 RTD: Fetching arrivals for station: ${targetStation}`);
+        console.log(`🚆 RTD: Available env vars:`, Object.keys(Deno.env.toObject()).filter(k => k.includes('API') || k.includes('KEY')));
         
         // RTD uses GTFS-RT feeds which require different handling than simple REST APIs
         // For now, return sample data structure

@@ -61,39 +61,23 @@ serve(async (req) => {
     const wmataApiKey = Deno.env.get('WMATA_API_KEY');
     
     console.log('🔑 WMATA_API_KEY exists:', !!wmataApiKey);
+    console.log('🔑 All env vars:', Object.keys(Deno.env.toObject()));
     
     if (!wmataApiKey) {
-      console.error('WMATA_API_KEY not found in environment variables');
-      
-      // Return sample data instead of error
+      console.error('❌ WMATA_API_KEY not found in environment variables');
       return new Response(
         JSON.stringify({ 
-          success: true,
-          data: [
-            {
-              line: 'RD',
-              station: 'Union Station',
-              destination: 'Silver Spring',
-              direction: 'Platform 1',
-              arrivalTime: '4 min',
-              trainId: '6 cars',
-              status: 'On Time'
-            },
-            {
-              line: 'BL',
-              station: 'Union Station',
-              destination: 'Franconia-Springfield',
-              direction: 'Platform 2',
-              arrivalTime: '8 min',
-              trainId: '8 cars',
-              status: 'On Time'
-            }
-          ],
+          success: false,
+          data: [],
+          error: 'WMATA API key not configured - check Supabase secrets',
           timestamp: new Date().toISOString(),
           source: 'WMATA',
-          note: 'Sample data - WMATA API key needed for real-time data'
+          debug: {
+            availableEnvVars: Object.keys(Deno.env.toObject()).filter(k => k.includes('API') || k.includes('KEY'))
+          }
         }), 
         { 
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
@@ -263,7 +247,8 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in WMATA function:', error);
+    console.error('❌ Error in WMATA function:', error);
+    console.error('❌ Error stack:', error.stack);
     
     return new Response(
       JSON.stringify({ 
@@ -271,10 +256,15 @@ serve(async (req) => {
         data: [],
         error: error.message || 'Failed to fetch WMATA data',
         timestamp: new Date().toISOString(),
-        source: 'WMATA'
+        source: 'WMATA',
+        debug: {
+          errorType: error.constructor.name,
+          errorMessage: error.message,
+          availableEnvVars: Object.keys(Deno.env.toObject()).filter(k => k.includes('API') || k.includes('KEY'))
+        }
       }),
       { 
-        status: 200, // Return 200 to prevent client errors
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );

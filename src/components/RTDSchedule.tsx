@@ -72,19 +72,13 @@ export const RTDSchedule = () => {
         throw new Error(response.error || 'Failed to fetch RTD data');
       }
     } catch (error) {
-      console.error('Error fetching RTD arrivals:', error);
-      
-      const errorMessage = error.message || 'Unknown error';
-      let userMessage = "Failed to fetch RTD schedule. Please try again.";
-      
-      if (errorMessage.includes('502') || errorMessage.includes('gateway')) {
-        userMessage = "RTD's servers are currently experiencing issues. Please try again later.";
-      }
+      console.error('❌ Error fetching RTD arrivals:', error);
+      console.error('❌ RTD Error details:', JSON.stringify(error, null, 2));
       
       toast({
-        title: "Hold tight! We're working to get real-time data",
-        description: "RTD schedule information will be available soon.",
-        variant: "default"
+        title: "RTD API Error", 
+        description: `Failed to fetch Denver transit data: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
       });
     } finally {
       setLoading(false);

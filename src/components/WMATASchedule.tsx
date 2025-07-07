@@ -70,12 +70,13 @@ export const WMATASchedule = () => {
         throw new Error(response.error || 'Failed to fetch WMATA data');
       }
     } catch (error) {
-      console.error('Error fetching WMATA arrivals:', error);
+      console.error('❌ Error fetching WMATA arrivals:', error);
+      console.error('❌ Error details:', JSON.stringify(error, null, 2));
       
       toast({
-        title: "Hold tight! We're working to get real-time data",
-        description: "DC Metro information will be available soon.",
-        variant: "default"
+        title: "WMATA API Error",
+        description: `Failed to fetch DC Metro data: ${error.message || 'Unknown error'}`,
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
