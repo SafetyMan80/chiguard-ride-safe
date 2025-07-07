@@ -70,9 +70,10 @@ serve(async (req) => {
       apiUrl = `http://lapi.transitchicago.com/api/1.0/getroutes.aspx?key=${CTA_API_KEY}&outputType=JSON`;
     }
 
-    console.log(`🚆 Fetching CTA data from API...`);
+    console.log(`🚆 Fetching CTA data from: ${apiUrl}`);
 
     const response = await fetch(apiUrl);
+    console.log(`🚆 CTA API HTTP Status: ${response.status} ${response.statusText}`);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -100,8 +101,18 @@ serve(async (req) => {
     let data;
     try {
       data = JSON.parse(responseText);
+      console.log('🚆 CTA API Response Structure:', JSON.stringify(data, null, 2));
+      
+      // Log the specific data we're looking for
+      if (data.ctatt?.eta) {
+        console.log('🚆 Found ETA data, first arrival:', JSON.stringify(data.ctatt.eta[0], null, 2));
+      } else {
+        console.log('🚆 No ETA data found in response. Available keys:', Object.keys(data.ctatt || {}));
+      }
     } catch (parseError) {
       console.error('❌ Failed to parse CTA API response as JSON');
+      console.error('❌ Parse error:', parseError.message);
+      console.error('❌ Response text:', responseText.substring(0, 500));
       
       return new Response(
         JSON.stringify({
