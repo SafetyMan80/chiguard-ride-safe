@@ -50,42 +50,11 @@ serve(async (req) => {
       );
     }
 
-    // If no specific parameters, return sample data for now
+    // If no specific parameters, get general arrivals from a major hub
     if (!stopId && !routeId) {
-      console.log('🚆 No specific parameters, returning sample data');
-      const sampleData = [
-        {
-          line: 'Red',
-          station: 'Howard',
-          destination: '95th/Dan Ryan',
-          direction: 'Southbound',
-          arrivalTime: '3 min',
-          trainId: '123',
-          status: 'On Time'
-        },
-        {
-          line: 'Blue',
-          station: 'O\'Hare',
-          destination: 'Forest Park',
-          direction: 'Westbound', 
-          arrivalTime: '7 min',
-          trainId: '456',
-          status: 'On Time'
-        }
-      ];
-      
-      return new Response(
-        JSON.stringify({
-          success: true,
-          data: sampleData,
-          timestamp: new Date().toISOString(),
-          source: 'CTA',
-          note: 'Sample data - select specific line/station for real-time data'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      console.log('🚆 No specific parameters, getting general CTA arrivals');
+      // Use a major CTA stop ID for general arrivals (Howard Station - Red/Yellow lines)
+      stopId = '30173'; // Howard station - major hub
     }
 
     let apiUrl: string;
