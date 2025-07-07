@@ -150,19 +150,46 @@ serve(async (req) => {
     let transformedData = [];
     
     if (stopId && data.ctatt?.eta) {
-      transformedData = data.ctatt.eta.map((arrival: any) => ({
-        line: arrival.rt || 'Unknown',
-        station: arrival.staNm || 'Unknown',
-        destination: arrival.destNm || 'Unknown',
-        direction: arrival.trDr || 'Unknown',
-        arrivalTime: arrival.isApp === '1' ? 'Approaching' : 
-                    arrival.isSch === '1' ? 'Scheduled' :
-                    arrival.isDly === '1' ? 'Delayed' :
-                    arrival.min || arrival.prdtm || 'Due',
-        trainId: arrival.rn || 'Unknown',
-        status: arrival.isApp === '1' ? 'Approaching' : 
-               arrival.isDly === '1' ? 'Delayed' : 'On Time'
-      }));
+      transformedData = data.ctatt.eta.map((arrival: any) => {
+        console.log('🚆 Processing arrival:', JSON.stringify(arrival, null, 2));
+        
+        let arrivalTime = 'Due';
+        
+        // Calculate minutes from predicted time
+        if (arrival.arrT) {
+          const arrivalDate = new Date(arrival.arrT);
+          const now = new Date();
+          const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
+          
+          if (diffMinutes <= 0) {
+            arrivalTime = 'Arriving';
+          } else if (diffMinutes === 1) {
+            arrivalTime = '1 min';
+          } else {
+            arrivalTime = `${diffMinutes} min`;
+          }
+        } else if (arrival.min && arrival.min !== '' && !isNaN(parseInt(arrival.min))) {
+          const minutes = parseInt(arrival.min);
+          if (minutes <= 1) {
+            arrivalTime = 'Arriving';
+          } else {
+            arrivalTime = `${minutes} min`;
+          }
+        } else if (arrival.isApp === '1') {
+          arrivalTime = 'Approaching';
+        }
+        
+        return {
+          line: arrival.rt || 'Unknown',
+          station: arrival.staNm || 'Unknown',
+          destination: arrival.destNm || 'Unknown',
+          direction: arrival.trDr || 'Unknown',
+          arrivalTime: arrivalTime,
+          trainId: arrival.rn || 'Unknown',
+          status: arrival.isApp === '1' ? 'Approaching' : 
+                 arrival.isDly === '1' ? 'Delayed' : 'On Time'
+        };
+      });
     } else if (routeId && data.ctatt?.vehicle) {
       transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
         line: vehicle.rt || 'Unknown',
