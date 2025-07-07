@@ -59,15 +59,30 @@ serve(async (req) => {
 
     let apiUrl: string;
 
-    if (stopId) {
-      // Get arrivals for a specific stop
+    // ALWAYS use the arrivals API - this is the correct one for real-time arrival predictions
+    if (stopId && routeId) {
+      // Both stop and route specified
+      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stopId}&rt=${routeId}&outputType=JSON`;
+    } else if (stopId) {
+      // Only stop specified
       apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`;
     } else if (routeId) {
-      // Get vehicles for a specific route
-      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${CTA_API_KEY}&rt=${routeId}&outputType=JSON`;
+      // Only route specified - use a major station for that route
+      const majorStationForRoute = {
+        'Red': '30173', // Howard
+        'Blue': '30171', // O'Hare  
+        'Brown': '30057', // Fullerton
+        'Green': '30131', // Clark/Lake
+        'Orange': '30063', // Midway
+        'Pink': '30131', // Clark/Lake
+        'Purple': '30173', // Howard
+        'Yellow': '30173' // Howard
+      };
+      const stationId = majorStationForRoute[routeId] || '30173'; // Default to Howard
+      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`;
     } else {
-      // Get all routes
-      apiUrl = `http://lapi.transitchicago.com/api/1.0/getroutes.aspx?key=${CTA_API_KEY}&outputType=JSON`;
+      // No specific parameters - get arrivals from Howard station (major hub)
+      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=30173&outputType=JSON`;
     }
 
     console.log(`🚆 Fetching CTA data from: ${apiUrl}`);
