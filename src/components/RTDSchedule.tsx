@@ -40,7 +40,8 @@ export const RTDSchedule = () => {
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
       return;
     }
@@ -66,7 +67,8 @@ export const RTDSchedule = () => {
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
           title: "Schedule Updated", 
-          description: `Found ${response.data?.length || 0} upcoming arrivals`
+          description: `Found ${response.data?.length || 0} upcoming arrivals`,
+          duration: 2000
         });
       } else {
         throw new Error(response.error || 'Failed to fetch RTD data');
@@ -78,7 +80,8 @@ export const RTDSchedule = () => {
       toast({
         title: "RTD API Error", 
         description: `Failed to fetch Denver transit data: ${error.message || 'Unknown error'}`,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
     } finally {
       setLoading(false);

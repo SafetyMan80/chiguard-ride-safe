@@ -43,7 +43,8 @@ export const CTASchedule = () => {
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
       return;
     }
@@ -88,7 +89,8 @@ export const CTASchedule = () => {
       toast({
         title: "Hold tight! We're working to get real-time data",
         description: "CTA train information will be available soon.",
-        variant: "default"
+        variant: "default",
+        duration: 2000
       });
     } finally {
       setLoading(false);

@@ -42,7 +42,8 @@ export const MTASchedule = () => {
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
       return;
     }
@@ -72,7 +73,8 @@ export const MTASchedule = () => {
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
           title: "Schedule Updated",
-          description: `Found ${response.data?.length || 0} upcoming arrivals`
+          description: `Found ${response.data?.length || 0} upcoming arrivals`,
+          duration: 2000
         });
       } else {
         throw new Error(response.error || 'Failed to fetch MTA data');
@@ -83,7 +85,8 @@ export const MTASchedule = () => {
       toast({
         title: "Hold tight! We're working to get real-time data",
         description: "NYC subway information will be available soon.",
-        variant: "default"
+        variant: "default",
+        duration: 2000
       });
     } finally {
       setLoading(false);

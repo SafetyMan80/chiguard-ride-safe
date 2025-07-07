@@ -40,7 +40,8 @@ export const MARTASchedule = () => {
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
       return;
     }
@@ -64,7 +65,8 @@ export const MARTASchedule = () => {
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
           title: "Schedule Updated",
-          description: `Found ${response.data?.length || 0} upcoming arrivals`
+          description: `Found ${response.data?.length || 0} upcoming arrivals`,
+          duration: 2000
         });
       } else {
         throw new Error(response.error || 'Failed to fetch MARTA data');
@@ -84,7 +86,8 @@ export const MARTASchedule = () => {
       toast({
         title: "MARTA Schedule Unavailable",
         description: userMessage,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
     } finally {
       setLoading(false);

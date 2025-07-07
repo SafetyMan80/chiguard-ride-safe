@@ -40,7 +40,8 @@ export const WMATASchedule = () => {
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
       return;
     }
@@ -64,7 +65,8 @@ export const WMATASchedule = () => {
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
           title: "Schedule Updated",
-          description: `Found ${response.data?.length || 0} upcoming arrivals`
+          description: `Found ${response.data?.length || 0} upcoming arrivals`,
+          duration: 2000
         });
       } else {
         throw new Error(response.error || 'Failed to fetch WMATA data');
@@ -76,7 +78,8 @@ export const WMATASchedule = () => {
       toast({
         title: "WMATA API Error",
         description: `Failed to fetch DC Metro data: ${error.message || 'Unknown error'}`,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
     } finally {
       setLoading(false);
