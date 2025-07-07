@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { HeaderSection } from "@/components/HeaderSection";
+import { SystemHealthIndicator } from "@/components/SystemHealthIndicator";
 import { MainContent } from "@/components/MainContent";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ProfileSetup } from "@/components/ProfileSetup";
@@ -175,7 +176,8 @@ export const HomeScreen = () => {
           threshold={threshold}
         />
         
-        <HeaderSection />
+      <SystemHealthIndicator />
+      <HeaderSection />
 
         <ErrorBoundary>
           <MainContent 

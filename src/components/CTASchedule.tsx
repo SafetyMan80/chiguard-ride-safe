@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
+import { useRobustScheduleFetch } from "@/hooks/useRobustScheduleFetch";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
 
@@ -35,6 +36,8 @@ export const CTASchedule = () => {
     };
   }, []);
 
+  const { fetchWithRetry } = useRobustScheduleFetch('cta');
+
   const fetchArrivals = async () => {
     if (!isOnline) {
       toast({
@@ -45,20 +48,16 @@ export const CTASchedule = () => {
       return;
     }
 
-    setLoading(true);
     try {
       const requestBody: any = {};
       if (selectedLine !== "all") requestBody.line = selectedLine;
       if (selectedStation !== "all") requestBody.station = selectedStation;
       
-      const { data, error } = await supabase.functions.invoke('cta-schedule', {
+      const response = await fetchWithRetry('cta-schedule', {
         method: 'POST',
         body: Object.keys(requestBody).length > 0 ? requestBody : undefined
       });
 
-      if (error) throw error;
-
-      const response: CTAResponse = data;
       if (response.success) {
         setArrivals(response.data || []);
         setLastUpdated(new Date().toLocaleTimeString());
@@ -77,8 +76,6 @@ export const CTASchedule = () => {
         description: "CTA train information will be available soon.",
         variant: "default"
       });
-    } finally {
-      setLoading(false);
     }
   };
 

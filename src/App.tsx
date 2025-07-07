@@ -9,6 +9,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { EmergencySOSButton } from "@/components/EmergencySOSButton";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useLocationService } from "@/hooks/useLocationService";
+import { useAppMonitoring } from "@/hooks/useAppMonitoring";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -22,6 +23,7 @@ const App = () => {
   // Initialize push notifications and location services
   const { isRegistered } = usePushNotifications();
   const { getCurrentLocation } = useLocationService();
+  const { logUserAction } = useAppMonitoring();
 
   useEffect(() => {
     const initializeApp = async () => {
