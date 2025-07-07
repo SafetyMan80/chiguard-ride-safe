@@ -47,13 +47,17 @@ export const LAMetroSchedule = () => {
 
     setLoading(true);
     try {
-      const requestBody: any = {};
-      if (selectedLine !== "all") requestBody.line = selectedLine;
-      if (selectedStation !== "all") requestBody.station = selectedStation;
+      // LA Metro edge function expects different parameters - location-based rather than line/station
+      const requestBody = {
+        action: 'alerts', // Default to alerts since the current edge function is set up for location-based queries
+        latitude: 34.0522, // Default LA coordinates 
+        longitude: -118.2437,
+        radius: 5000 // 5km radius
+      };
       
       const { data, error } = await supabase.functions.invoke('lametro-schedule', {
         method: 'POST',
-        body: Object.keys(requestBody).length > 0 ? requestBody : undefined
+        body: requestBody
       });
 
       if (error) throw error;

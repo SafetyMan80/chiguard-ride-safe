@@ -50,8 +50,14 @@ export const MTASchedule = () => {
     setLoading(true);
     try {
       const requestBody: any = {};
-      if (selectedLine !== "all") requestBody.line = selectedLine;
-      if (selectedStation !== "all") requestBody.station = selectedStation;
+      
+      // Convert our component parameters to what the MTA edge function expects
+      if (selectedLine !== "all") {
+        requestBody.lineId = selectedLine; // MTA edge function expects 'lineId'
+      }
+      if (selectedStation !== "all") {
+        requestBody.stationId = selectedStation; // MTA edge function expects 'stationId'
+      }
       
       const { data, error } = await supabase.functions.invoke('mta-schedule', {
         method: 'POST',
