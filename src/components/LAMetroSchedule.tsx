@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
 
@@ -97,10 +98,11 @@ export const LAMetroSchedule = () => {
     return arrivalTime;
   };
 
+  // Use visibility-aware interval for better performance
+  useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
+
   useEffect(() => {
     fetchArrivals();
-    const interval = setInterval(fetchArrivals, 30000);
-    return () => clearInterval(interval);
   }, [selectedLine, selectedStation]);
 
   return (

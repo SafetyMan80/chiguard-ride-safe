@@ -4,12 +4,13 @@ import './index.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-// Create a client with optimized settings for mobile performance
+// Create a client with optimized settings for performance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30 * 1000, // 30 seconds
-      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes instead of 30 seconds
+      gcTime: 10 * 60 * 1000, // 10 minutes (gcTime is the new name for cacheTime)
+      retry: 1, // Reduce retries
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
     },
@@ -26,10 +27,10 @@ if ('serviceWorker' in navigator) {
       .then((registration) => {
         console.log('SW registered: ', registration);
         
-        // Check for updates every 60 seconds
+        // Check for updates every 30 minutes instead of every minute
         setInterval(() => {
           registration.update();
-        }, 60000);
+        }, 30 * 60 * 1000); // 30 minutes
         
         // Listen for updates
         registration.addEventListener('updatefound', () => {

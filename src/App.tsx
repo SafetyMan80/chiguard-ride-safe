@@ -14,14 +14,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import "./utils/manualIncidentTest"; // Make manual test available in console
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+// Remove duplicate QueryClient - it's already created in main.tsx
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,11 +32,8 @@ const App = () => {
         console.log('Location initialization failed:', error);
       }
       
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 2000);
-
-      return () => clearTimeout(timer);
+      // Remove artificial delay - set loading to false immediately
+      setIsLoading(false);
     };
 
     initializeApp();
@@ -55,8 +45,8 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
+      {/* QueryClient already provided in main.tsx */}
+      <TooltipProvider>
           <Toaster />
           <Sonner />
           <EmergencySOSButton />
@@ -69,7 +59,6 @@ const App = () => {
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
-      </QueryClientProvider>
     </ErrorBoundary>
   );
 };
