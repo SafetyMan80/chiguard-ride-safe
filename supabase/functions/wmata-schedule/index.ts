@@ -58,22 +58,28 @@ serve(async (req) => {
     // Get API key from Supabase secrets
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const wmataApiKey = Deno.env.get('WMATA_API_KEY');
+    // Try multiple possible secret names
+    const wmataApiKey = Deno.env.get('WMATA_API_KEY') || 
+                       Deno.env.get('WMATA_KEY') || 
+                       Deno.env.get('wmata_api_key') ||
+                       Deno.env.get('WMATA_API_TOKEN');
     
     console.log('🔑 WMATA_API_KEY exists:', !!wmataApiKey);
-    console.log('🔑 All env vars:', Object.keys(Deno.env.toObject()));
+    console.log('🔑 All available env vars:', Object.keys(Deno.env.toObject()).sort());
+    console.log('🔑 API-related env vars:', Object.keys(Deno.env.toObject()).filter(k => k.toLowerCase().includes('api') || k.toLowerCase().includes('key') || k.toLowerCase().includes('wmata')));
     
     if (!wmataApiKey) {
-      console.error('❌ WMATA_API_KEY not found in environment variables');
+      console.error('❌ WMATA API key not found with any name variant');
       return new Response(
         JSON.stringify({ 
           success: false,
           data: [],
-          error: 'WMATA API key not configured - check Supabase secrets',
+          error: 'WMATA API key not found in environment',
           timestamp: new Date().toISOString(),
           source: 'WMATA',
           debug: {
-            availableEnvVars: Object.keys(Deno.env.toObject()).filter(k => k.includes('API') || k.includes('KEY'))
+            availableEnvVars: Object.keys(Deno.env.toObject()).sort(),
+            apiRelatedVars: Object.keys(Deno.env.toObject()).filter(k => k.toLowerCase().includes('api') || k.toLowerCase().includes('key') || k.toLowerCase().includes('wmata'))
           }
         }), 
         { 
