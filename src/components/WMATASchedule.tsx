@@ -86,9 +86,9 @@ export const WMATASchedule = () => {
     } catch (error) {
       console.error('Error fetching WMATA data:', error);
       toast({
-        title: "Failed to load WMATA data",
-        description: "Please check if the WMATA API key is configured correctly.",
-        variant: "destructive"
+        title: "Hold tight! We're working to get real-time data",
+        description: "DC Metro information will be available soon.",
+        variant: "default"
       });
     }
   };
@@ -119,9 +119,9 @@ export const WMATASchedule = () => {
     } catch (error) {
       console.error('Error fetching arrivals:', error);
       toast({
-        title: "Failed to fetch arrivals",
-        description: "Please try again later.",
-        variant: "destructive"
+        title: "Hold tight! We're working to get real-time data",
+        description: "Metro arrivals will be available soon.",
+        variant: "default"
       });
       setArrivals([]);
     } finally {

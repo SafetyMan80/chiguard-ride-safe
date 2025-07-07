@@ -76,9 +76,9 @@ export const MTASchedule = () => {
     } catch (error: any) {
       console.error('❌ Error fetching lines:', error);
       toast({
-        title: "Failed to load MTA lines",
-        description: "Could not load subway line information.",
-        variant: "destructive",
+        title: "Hold tight! We're working to get real-time data",
+        description: "NYC subway information will be available soon.",
+        variant: "default",
       });
       setLines([]);
     } finally {
@@ -184,9 +184,9 @@ export const MTASchedule = () => {
       console.error('❌ Error fetching arrivals:', error);
       
       toast({
-        title: "MTA Schedule Error",
-        description: "Unable to fetch live data at this time. Please try again.",
-        variant: "destructive",
+        title: "Hold tight! We're working to get real-time data",
+        description: "NYC subway arrivals will be available soon.",
+        variant: "default",
       });
       setArrivals([]);
     } finally {

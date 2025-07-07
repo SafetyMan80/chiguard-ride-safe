@@ -105,8 +105,8 @@ export const CTASchedule = () => {
       console.error('❌ Error fetching routes:', error);
       // Show user-friendly message instead of technical errors
       toast({
-        title: "Real-time CTA schedule not guaranteed",
-        description: "Live data may be temporarily unavailable. You can still search stations and use stop IDs.",
+        title: "Hold tight! We're working to get real-time data",
+        description: "CTA train information will be available soon. You can still search stations.",
         variant: "default",
       });
       setRoutes([]);
@@ -234,9 +234,9 @@ export const CTASchedule = () => {
       const errorCode = error?.code || error?.details?.code || 'NO_CODE';
       
       toast({
-        title: `CTA Schedule Error (${errorCode})`,
-        description: `${errorMessage}. Stop ID: ${selectedStopId}`,
-        variant: "destructive",
+        title: "Hold tight! We're working to get real-time data",
+        description: `CTA arrivals for stop ${selectedStopId} will be available soon.`,
+        variant: "default",
       });
       setArrivals([]);
     } finally {
