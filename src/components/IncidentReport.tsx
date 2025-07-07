@@ -34,7 +34,9 @@ interface City {
   name: string;
   agency: string;
   railLines: string[];
-  majorStations: string[];
+  lineStations?: {
+    [key: string]: string[];
+  };
 }
 
 interface IncidentReportProps {
