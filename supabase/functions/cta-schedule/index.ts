@@ -151,35 +151,62 @@ serve(async (req) => {
     
     if (stopId && data.ctatt?.eta) {
       transformedData = data.ctatt.eta.map((arrival: any) => {
-        console.log('🚆 Processing arrival:', JSON.stringify(arrival, null, 2));
+        console.log('🚆 Raw arrival data:', JSON.stringify(arrival, null, 2));
         
         let arrivalTime = 'Due';
         
-        // Calculate minutes from predicted time
-        if (arrival.arrT) {
-          const arrivalDate = new Date(arrival.arrT);
-          const now = new Date();
-          const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
+        // Helper function to parse CTA datetime format: "yyyyMMdd HH:mm:ss"
+        function parseCTADateTime(dateTimeStr: string): Date | null {
+          if (!dateTimeStr || dateTimeStr === '') return null;
           
-          if (diffMinutes <= 0) {
-            arrivalTime = 'Arriving';
-          } else if (diffMinutes === 1) {
-            arrivalTime = '1 min';
-          } else {
-            arrivalTime = `${diffMinutes} min`;
+          try {
+            // Format: "20250107 17:45:30"
+            const year = parseInt(dateTimeStr.substring(0, 4));
+            const month = parseInt(dateTimeStr.substring(4, 6)) - 1; // Month is 0-indexed
+            const day = parseInt(dateTimeStr.substring(6, 8));
+            const hour = parseInt(dateTimeStr.substring(9, 11));
+            const minute = parseInt(dateTimeStr.substring(12, 14));
+            const second = parseInt(dateTimeStr.substring(15, 17));
+            
+            return new Date(year, month, day, hour, minute, second);
+          } catch (error) {
+            console.error('❌ Error parsing CTA datetime:', dateTimeStr, error);
+            return null;
           }
-        } else if (arrival.min && arrival.min !== '' && !isNaN(parseInt(arrival.min))) {
-          const minutes = parseInt(arrival.min);
-          if (minutes <= 1) {
-            arrivalTime = 'Arriving';
-          } else {
-            arrivalTime = `${minutes} min`;
-          }
-        } else if (arrival.isApp === '1') {
-          arrivalTime = 'Approaching';
         }
         
-        return {
+        // Check if train is approaching/due first
+        if (arrival.isApp === '1' || arrival.isApp === 1) {
+          arrivalTime = 'Approaching';
+        } else if (arrival.arrT && arrival.arrT !== '') {
+          console.log('🚆 Parsing arrT:', arrival.arrT);
+          const arrivalDate = parseCTADateTime(arrival.arrT);
+          const now = new Date();
+          
+          console.log('🚆 Parsed arrival date:', arrivalDate);
+          console.log('🚆 Current time:', now);
+          
+          if (arrivalDate) {
+            const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
+            console.log('🚆 Calculated diff minutes:', diffMinutes);
+            
+            if (diffMinutes <= 0) {
+              arrivalTime = 'Arriving';
+            } else if (diffMinutes === 1) {
+              arrivalTime = '1 min';
+            } else {
+              arrivalTime = `${diffMinutes} min`;
+            }
+          } else {
+            console.log('🚆 Failed to parse arrT, using Due');
+            arrivalTime = 'Due';
+          }
+        } else {
+          console.log('🚆 No arrT field, checking other fields');
+          console.log('🚆 Available fields:', Object.keys(arrival));
+        }
+        
+        const result = {
           line: arrival.rt || 'Unknown',
           station: arrival.staNm || 'Unknown',
           destination: arrival.destNm || 'Unknown',
@@ -189,6 +216,9 @@ serve(async (req) => {
           status: arrival.isApp === '1' ? 'Approaching' : 
                  arrival.isDly === '1' ? 'Delayed' : 'On Time'
         };
+        
+        console.log('🚆 Final transformed result:', JSON.stringify(result, null, 2));
+        return result;
       });
     } else if (routeId && data.ctatt?.vehicle) {
       transformedData = data.ctatt.vehicle.map((vehicle: any) => ({
