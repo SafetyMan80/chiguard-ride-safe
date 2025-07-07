@@ -40,10 +40,14 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
     <header className="p-6 safe-area-top bg-gradient-to-b from-background via-background/95 to-background/90 -mx-6 px-6 backdrop-blur-md">
       <OfflineIndicator />
       <div className="flex justify-between items-center mb-6">
-        <div className="w-10 h-10"> {/* Spacer for balance */}
+        <div className="w-10 h-10 flex items-center justify-start">
           {user && profilePhotoUrl && (
             <Avatar className="w-10 h-10 border-2 border-chicago-blue/20 shadow-lg">
-              <AvatarImage src={profilePhotoUrl} alt="Profile" />
+              <AvatarImage 
+                src={profilePhotoUrl} 
+                alt="Profile" 
+                className="object-cover w-full h-full"
+              />
               <AvatarFallback className="bg-chicago-blue/10">
                 <User className="w-5 h-5 text-chicago-blue" />
               </AvatarFallback>
