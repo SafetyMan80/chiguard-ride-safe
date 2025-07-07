@@ -142,6 +142,22 @@ export const GeneralGroupRides = () => {
         return;
       }
 
+      // Check if user has public profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_public_profile')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!profile?.is_public_profile) {
+        toast({
+          title: "Public profile required",
+          description: "You must have a public profile to create rides. Update your profile settings.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('general_group_rides')
         .insert({
@@ -190,6 +206,22 @@ export const GeneralGroupRides = () => {
         toast({
           title: "Authentication required",
           description: "Please log in to join a ride.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check if user has public profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_public_profile')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!profile?.is_public_profile) {
+        toast({
+          title: "Public profile required",
+          description: "You must have a public profile to join rides. Update your profile settings.",
           variant: "destructive"
         });
         return;

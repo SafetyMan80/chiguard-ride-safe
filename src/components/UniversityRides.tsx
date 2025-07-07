@@ -276,6 +276,22 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
       return;
     }
 
+    // Check if user has public profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_public_profile')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
+    if (!profile?.is_public_profile) {
+      toast({
+        title: "Public profile required",
+        description: "You must have a public profile to create rides. Update your profile settings.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setShowCreateForm(true);
   };
 
@@ -284,6 +300,22 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
       toast({
         title: "Authentication required", 
         description: "Please log in to create a group ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if user has public profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_public_profile')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
+    if (!profile?.is_public_profile) {
+      toast({
+        title: "Public profile required",
+        description: "You must have a public profile to create rides. Update your profile settings.",
         variant: "destructive"
       });
       return;
@@ -305,6 +337,22 @@ export const UniversityRides = ({ cityData, selectedUniversityId }: UniversityRi
       toast({
         title: "Authentication required",
         description: "Please log in to join a group ride.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if user has public profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_public_profile')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+
+    if (!profile?.is_public_profile) {
+      toast({
+        title: "Public profile required",
+        description: "You must have a public profile to join rides. Update your profile settings.",
         variant: "destructive"
       });
       return;

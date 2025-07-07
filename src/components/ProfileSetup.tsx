@@ -31,6 +31,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
     student_status: false,
     university_name: "",
     student_id_number: "",
+    is_public_profile: true,
   });
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
@@ -122,6 +123,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
         student_status: data.student_status || false,
         university_name: data.university_name || "",
         student_id_number: data.student_id_number || "",
+        is_public_profile: data.is_public_profile ?? true,
       });
     }
   };
@@ -163,6 +165,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
         student_status: formData.student_status,
         university_name: formData.student_status ? sanitizeInput(formData.university_name) : null,
         student_id_number: formData.student_status ? sanitizeInput(formData.student_id_number) : null,
+        is_public_profile: formData.is_public_profile,
       };
 
       const profileData = {
@@ -351,6 +354,30 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
                 </div>
               </>
             )}
+          </div>
+
+          {/* Profile Visibility */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_public_profile"
+                checked={formData.is_public_profile}
+                onCheckedChange={(checked) => 
+                  setFormData(prev => ({ ...prev, is_public_profile: checked as boolean }))
+                }
+              />
+              <Label htmlFor="is_public_profile">
+                Make my profile public
+              </Label>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-700">
+                <strong>Note:</strong> {formData.is_public_profile 
+                  ? 'Your profile will be visible to other users when creating or joining rides.'
+                  : 'You must have a public profile to create or join group rides. You can change this setting later.'
+                }
+              </p>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" variant="chicago" disabled={loading}>

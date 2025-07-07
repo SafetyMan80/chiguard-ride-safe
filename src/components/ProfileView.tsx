@@ -58,6 +58,17 @@ export const ProfileView = ({ userId, isOpen, onClose }: ProfileViewProps) => {
         return;
       }
 
+      // Check if profile is public
+      if (data && !data.is_public_profile) {
+        setProfile(null);
+        toast({
+          title: "Private Profile",
+          description: "This user has chosen to keep their profile private.",
+          variant: "default"
+        });
+        return;
+      }
+
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);

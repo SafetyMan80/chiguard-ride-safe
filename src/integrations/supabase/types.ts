@@ -340,6 +340,7 @@ export type Database = {
           email_verified_university: string | null
           full_name: string | null
           id: string
+          is_public_profile: boolean
           notification_city: string | null
           phone_number: string | null
           push_token: string | null
@@ -360,6 +361,7 @@ export type Database = {
           email_verified_university?: string | null
           full_name?: string | null
           id?: string
+          is_public_profile?: boolean
           notification_city?: string | null
           phone_number?: string | null
           push_token?: string | null
@@ -380,6 +382,7 @@ export type Database = {
           email_verified_university?: string | null
           full_name?: string | null
           id?: string
+          is_public_profile?: boolean
           notification_city?: string | null
           phone_number?: string | null
           push_token?: string | null
