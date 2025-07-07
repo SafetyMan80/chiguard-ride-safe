@@ -396,6 +396,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_logs: {
+        Row: {
+          action_type: string
+          additional_data: Json | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          additional_data?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          additional_data?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_logs: {
         Row: {
           created_at: string | null
@@ -520,9 +556,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_next_recurring_ride: {
         Args: { ride_id_param: string }
         Returns: string
+      }
+      delete_user_data: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      export_user_data: {
+        Args: { _user_id: string }
+        Returns: Json
       }
       get_available_spots: {
         Args: { ride_id_param: string }
@@ -553,6 +601,15 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      log_security_audit: {
+        Args: {
+          _action_type: string
+          _resource_type: string
+          _resource_id?: string
+          _additional_data?: Json
+        }
+        Returns: string
       }
       log_security_event: {
         Args: {
