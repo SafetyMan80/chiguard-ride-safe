@@ -38,6 +38,7 @@ export const CTASchedule = () => {
   const fetchArrivals = async () => {
     console.log('🚆 CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
     console.log('🚆 CTA starting fetch process...');
+    console.log('🚆 CTA config lines:', config.lines);
     
     if (!isOnline) {
       toast({
