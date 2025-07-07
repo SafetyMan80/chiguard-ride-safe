@@ -241,11 +241,22 @@ export const IncidentReportForm = ({ selectedCity, onSubmitSuccess }: IncidentRe
       });
 
       onSubmitSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting report:', error);
+      
+      // Show detailed error information
+      const errorMessage = error?.message || error?.details || error?.hint || JSON.stringify(error);
+      console.error('Detailed error info:', {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code,
+        fullError: error
+      });
+      
       toast({
         title: "Failed to submit report",
-        description: "Please try again later.",
+        description: `Error: ${errorMessage}`,
         variant: "destructive"
       });
     } finally {
