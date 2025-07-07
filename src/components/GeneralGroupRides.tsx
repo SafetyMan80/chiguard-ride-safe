@@ -482,9 +482,9 @@ export const GeneralGroupRides = () => {
                 
                 {/* Creator Info */}
                 <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="cursor-pointer w-8 h-8" onClick={() => handleViewProfile(ride.creator_id)}>
-                    <AvatarImage src={ride.creator_profile_photo} />
-                    <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue text-sm">
+                  <Avatar className="cursor-pointer w-12 h-12" onClick={() => handleViewProfile(ride.creator_id)}>
+                    <AvatarImage src={ride.creator_profile_photo} className="object-cover" />
+                    <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue">
                       {ride.creator_name?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
