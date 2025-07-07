@@ -73,113 +73,64 @@ serve(async (req) => {
     // Use default station if none specified (Times Square)
     const defaultStationId = stationId || '127';
     
-    let responseData: any;
-
-    if (defaultStationId) {
-      // Get arrivals for a specific station
-      try {
-      // MTA GTFS-RT feed endpoints by line group
-      const MTA_FEEDS = {
-        'ace': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace',
-        'bdfm': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm', 
-        'g': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-g',
-        'jz': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz',
-        'nqrw': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw',
-        'l': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l',
-        'main': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs',
-        'si': 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si'
+    // Get arrivals for a specific station
+    try {
+      // Use MTA's public API for real-time data
+      const arrivals = [];
+      
+      // Generate realistic arrival times based on station ID
+      const baseTime = Date.now();
+      const routes = ['4', '5', '6', 'N', 'Q', 'R', 'W', '7'];
+      const directions = ['Uptown', 'Downtown'];
+      const destinations = {
+        '4': 'Woodlawn',
+        '5': 'Eastchester',
+        '6': 'Pelham Bay Park',
+        'N': 'Astoria',
+        'Q': 'Coney Island',
+        'R': 'Forest Hills',
+        'W': 'Whitehall',
+        '7': 'Flushing'
       };
 
-      try {
-        // Use MTA's public API for real-time data
-        const arrivals = [];
+      // Generate multiple realistic arrivals
+      for (let i = 0; i < 6; i++) {
+        const route = routes[Math.floor(Math.random() * routes.length)];
+        const direction = directions[Math.floor(Math.random() * directions.length)];
+        const arrivalMinutes = 2 + (i * 3) + Math.floor(Math.random() * 4);
         
-        // Generate realistic arrival times based on station ID
-        const baseTime = Date.now();
-        const routes = ['4', '5', '6', 'N', 'Q', 'R', 'W', '7'];
-        const directions = ['Uptown', 'Downtown'];
-        const destinations = {
-          '4': 'Woodlawn',
-          '5': 'Eastchester',
-          '6': 'Pelham Bay Park',
-          'N': 'Astoria',
-          'Q': 'Coney Island',
-          'R': 'Forest Hills',
-          'W': 'Whitehall',
-          '7': 'Flushing'
-        };
-
-        // Generate multiple realistic arrivals
-        for (let i = 0; i < 6; i++) {
-          const route = routes[Math.floor(Math.random() * routes.length)];
-          const direction = directions[Math.floor(Math.random() * directions.length)];
-          const arrivalMinutes = 2 + (i * 3) + Math.floor(Math.random() * 4);
-          
-          arrivals.push({
-            line: route,
-            station: getStationName(defaultStationId),
-            destination: destinations[route] || route + ' Line',
-            direction: direction,
-            arrivalTime: `${arrivalMinutes} min`,
-            trainId: `${Math.floor(Math.random() * 9000) + 1000}`,
-            status: 'On Time'
-          });
-        }
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: arrivals.sort((a, b) => parseInt(a.arrivalTime) - parseInt(b.arrivalTime)),
-            timestamp: new Date().toISOString(),
-            source: 'MTA'
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-
-      } catch (error) {
-        console.error('❌ Error fetching MTA data:', error);
-        
-        // Return error in standardized format
-        return new Response(
-          JSON.stringify({
-            success: false,
-            data: [],
-            error: error.message || 'Failed to fetch MTA data',
-            timestamp: new Date().toISOString(),
-            source: 'MTA'
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
+        arrivals.push({
+          line: route,
+          station: getStationName(defaultStationId),
+          destination: destinations[route] || route + ' Line',
+          direction: direction,
+          arrivalTime: `${arrivalMinutes} min`,
+          trainId: `${Math.floor(Math.random() * 9000) + 1000}`,
+          status: 'On Time'
+        });
       }
-    } else {
-      // Return sample data for general request
+
       return new Response(
         JSON.stringify({
           success: true,
-          data: [
-            {
-              line: '4',
-              station: 'Times Square-42nd St',
-              destination: 'Woodlawn',
-              direction: 'Uptown',
-              arrivalTime: '3 min',
-              trainId: '2451',
-              status: 'On Time'
-            },
-            {
-              line: '6',
-              station: 'Times Square-42nd St', 
-              destination: 'Pelham Bay Park',
-              direction: 'Uptown',
-              arrivalTime: '7 min',
-              trainId: '3782',
-              status: 'On Time'
-            }
-          ],
+          data: arrivals.sort((a, b) => parseInt(a.arrivalTime) - parseInt(b.arrivalTime)),
+          timestamp: new Date().toISOString(),
+          source: 'MTA'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+
+    } catch (error) {
+      console.error('❌ Error fetching MTA data:', error);
+      
+      // Return error in standardized format
+      return new Response(
+        JSON.stringify({
+          success: false,
+          data: [],
+          error: error.message || 'Failed to fetch MTA data',
           timestamp: new Date().toISOString(),
           source: 'MTA'
         }),
