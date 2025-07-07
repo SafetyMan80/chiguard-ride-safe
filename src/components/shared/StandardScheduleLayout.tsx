@@ -66,7 +66,13 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                 <SelectValue placeholder="Select Line" />
               </SelectTrigger>
               <SelectContent>
-                {config.lines.map((line) => (
+                <SelectItem key="all" value="all">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gray-500" />
+                    All Lines
+                  </div>
+                </SelectItem>
+                {config.lines.filter(line => line.id !== "all").map((line) => (
                   <SelectItem key={line.id} value={line.id}>
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${line.color}`} />
@@ -82,12 +88,13 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                 <SelectValue placeholder="Select Station" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem key="all" value="all">All Stations</SelectItem>
                 {selectedLine === "all" ? (
                   <>
                     <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
                       Popular Stations
                     </div>
-                    {config.stations.filter(s => s.popular).map((station) => (
+                    {config.stations.filter(s => s.popular && s.id !== "all").map((station) => (
                       <SelectItem key={station.id} value={station.id}>
                         {station.name}
                       </SelectItem>
@@ -99,7 +106,7 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                       {config.lines.find(l => l.id === selectedLine)?.name} Stations
                     </div>
                     {config.stations
-                      .filter(s => s.lines?.includes(selectedLine) || s.id === "all")
+                      .filter(s => s.lines?.includes(selectedLine) && s.id !== "all")
                       .map((station) => (
                         <SelectItem key={station.id} value={station.id}>
                           {station.name}
