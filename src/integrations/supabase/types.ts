@@ -343,6 +343,7 @@ export type Database = {
           is_public_profile: boolean
           notification_city: string | null
           phone_number: string | null
+          profile_photo_url: string | null
           push_token: string | null
           student_id_number: string | null
           student_status: boolean | null
@@ -364,6 +365,7 @@ export type Database = {
           is_public_profile?: boolean
           notification_city?: string | null
           phone_number?: string | null
+          profile_photo_url?: string | null
           push_token?: string | null
           student_id_number?: string | null
           student_status?: boolean | null
@@ -385,6 +387,7 @@ export type Database = {
           is_public_profile?: boolean
           notification_city?: string | null
           phone_number?: string | null
+          profile_photo_url?: string | null
           push_token?: string | null
           student_id_number?: string | null
           student_status?: boolean | null

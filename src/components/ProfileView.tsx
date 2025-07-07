@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Shield } from "lucide-react";
@@ -19,6 +19,7 @@ interface Profile {
   verification_status: string;
   verification_method: string;
   email_verified_university: string;
+  profile_photo_url: string;
   created_at: string;
 }
 
@@ -144,6 +145,7 @@ export const ProfileView = ({ userId, isOpen, onClose }: ProfileViewProps) => {
             {/* Header with Avatar and Name */}
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
+                <AvatarImage src={profile.profile_photo_url} />
                 <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue text-lg">
                   {profile.full_name?.[0]?.toUpperCase() || 'U'}
                 </AvatarFallback>

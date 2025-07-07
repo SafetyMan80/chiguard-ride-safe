@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { sanitizeInput, validateLocation } from "@/lib/security";
+import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 
 interface University {
   id: string;
@@ -32,6 +33,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
     university_name: "",
     student_id_number: "",
     is_public_profile: true,
+    profile_photo_url: "",
   });
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
@@ -126,6 +128,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
         university_name: data.university_name || "",
         student_id_number: data.student_id_number || "",
         is_public_profile: data.is_public_profile ?? true,
+        profile_photo_url: data.profile_photo_url || "",
       });
     }
   };
@@ -221,6 +224,13 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Profile Photo */}
+          <ProfilePhotoUpload
+            currentPhotoUrl={formData.profile_photo_url}
+            onPhotoUpdate={(url) => setFormData(prev => ({ ...prev, profile_photo_url: url || "" }))}
+            userName={formData.full_name}
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="full_name">Full Name *</Label>

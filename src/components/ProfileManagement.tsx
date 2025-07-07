@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Shield, ArrowLeft, Edit, Download, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 
 interface Profile {
   id: string;
@@ -21,6 +22,7 @@ interface Profile {
   verification_method: string;
   email_verified_university: string;
   is_public_profile: boolean;
+  profile_photo_url: string;
   created_at: string;
 }
 
@@ -242,13 +244,23 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {/* Profile Photo */}
+        <ProfilePhotoUpload
+          currentPhotoUrl={profile.profile_photo_url}
+          onPhotoUpdate={(url) => {
+            setProfile(prev => prev ? { ...prev, profile_photo_url: url || "" } : null);
+          }}
+          userName={profile.full_name}
+        />
+
         {/* Header with Avatar and Name */}
         <div className="flex items-center gap-4">
-          <Avatar className="w-16 h-16">
-            <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue text-lg">
-              {profile.full_name?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <ProfilePhotoUpload
+            currentPhotoUrl={profile.profile_photo_url}
+            onPhotoUpdate={() => {}} // Read-only in this context
+            size="md"
+            userName={profile.full_name}
+          />
           <div className="flex-1">
             <h3 className="text-lg font-semibold">{profile.full_name}</h3>
             <div className="flex flex-wrap gap-2 mt-1">

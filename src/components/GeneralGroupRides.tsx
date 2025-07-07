@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Plus, Users, MapPin, Clock, Search, X, Trash2, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,7 @@ interface GeneralRide {
   status: string;
   is_member?: boolean;
   creator_name?: string;
+  creator_profile_photo?: string;
 }
 
 export const GeneralGroupRides = () => {
@@ -77,10 +78,10 @@ export const GeneralGroupRides = () => {
       // Get creator names and member counts for each ride
       const ridesWithCounts = await Promise.all(
         (ridesData || []).map(async (ride) => {
-          // Get creator profile
+          // Get creator profile with photo
           const { data: creatorData } = await supabase
             .from('profiles')
-            .select('full_name')
+            .select('full_name, profile_photo_url')
             .eq('user_id', ride.creator_id)
             .maybeSingle();
 
@@ -109,7 +110,8 @@ export const GeneralGroupRides = () => {
             ...ride,
             current_members: count || 0,
             is_member,
-            creator_name: creatorData?.full_name || 'Unknown User'
+            creator_name: creatorData?.full_name || 'Unknown User',
+            creator_profile_photo: creatorData?.profile_photo_url
           };
         })
       );
@@ -481,6 +483,7 @@ export const GeneralGroupRides = () => {
                 {/* Creator Info */}
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar className="cursor-pointer w-8 h-8" onClick={() => handleViewProfile(ride.creator_id)}>
+                    <AvatarImage src={ride.creator_profile_photo} />
                     <AvatarFallback className="bg-chicago-light-blue text-chicago-dark-blue text-sm">
                       {ride.creator_name?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
