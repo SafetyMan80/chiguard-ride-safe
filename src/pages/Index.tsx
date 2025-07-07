@@ -253,8 +253,8 @@ const Index = () => {
                     className={`
                       ${item.color} p-6 rounded-xl shadow-[var(--shadow-card)] 
                       hover:scale-105 hover:shadow-[var(--shadow-floating)] 
-                      transition-all duration-300 flex flex-col items-center space-y-3
-                      border
+                      active:scale-95 transition-all duration-300 flex flex-col items-center space-y-3
+                      border touch-target-large min-h-[120px] justify-center
                     `}
                   >
                     <div className="text-3xl">{item.icon}</div>
@@ -296,7 +296,7 @@ const Index = () => {
                       <Button 
                         onClick={handleShare}
                         variant="chicago"
-                        className="w-full"
+                        className="w-full touch-target"
                       >
                         <Share className="w-4 h-4 mr-2" />
                         Share with Other Riders
@@ -306,7 +306,7 @@ const Index = () => {
                         <Button 
                           onClick={promptInstall}
                           variant="chicago-outline"
-                          className="w-full"
+                          className="w-full touch-target"
                         >
                           <Smartphone className="w-4 h-4 mr-2" />
                           Add to Home Screen

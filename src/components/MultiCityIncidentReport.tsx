@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { MapPin, AlertTriangle, ArrowLeft } from "lucide-react";
 import { IncidentReport } from "./IncidentReport";
+import { CitySelectionSkeleton } from "./LoadingSkeleton";
 
 interface City {
   id: string;
@@ -144,9 +145,9 @@ export const MultiCityIncidentReport = () => {
             {CITIES_WITH_RAIL.map((city) => (
               <Card
                 key={city.id}
-                className={`cursor-pointer transition-all duration-200 ${
+                className={`cursor-pointer transition-all duration-200 touch-target-large ${
                   city.available
-                    ? "hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/20"
+                    ? "hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/20 active:scale-100"
                     : "opacity-60 cursor-not-allowed"
                 }`}
                 onClick={() => handleCitySelect(city.id, city.available)}

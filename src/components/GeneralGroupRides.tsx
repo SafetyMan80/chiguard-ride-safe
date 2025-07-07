@@ -10,6 +10,7 @@ import { Plus, Users, MapPin, Clock, Search, X, Trash2, MessageSquare } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { GroupRideMessenger } from "./GroupRideMessenger";
+import { RideCardSkeleton } from "./LoadingSkeleton";
 
 interface GeneralRide {
   id: string;
@@ -385,11 +386,11 @@ export const GeneralGroupRides = () => {
       {/* Rides List */}
       <div className="space-y-4">
         {loading ? (
-          <Card>
-            <CardContent className="py-8">
-              <div className="text-center text-muted-foreground">Loading rides...</div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <RideCardSkeleton key={i} />
+            ))}
+          </div>
         ) : filteredRides.length === 0 ? (
           <Card>
             <CardContent className="py-8">
@@ -465,6 +466,7 @@ export const GeneralGroupRides = () => {
                       onClick={() => joinRide(ride.id)}
                       disabled={ride.current_members >= ride.max_spots || ride.is_member}
                       size="sm"
+                      className="touch-target"
                     >
                       {ride.is_member 
                         ? "Already Joined" 

@@ -34,16 +34,18 @@ export const usePullToRefresh = ({
       startY.current = e.touches[0].clientY;
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = (e: TouchEvent) => {
       if (!isScrolledToTop || isRefreshing) return;
 
       currentY.current = e.touches[0].clientY;
       const deltaY = currentY.current - startY.current;
 
-      // Make pull-to-refresh less sensitive by requiring more pull distance
-      if (deltaY > 20) { // Require at least 20px before starting
+      // Optimized pull-to-refresh sensitivity
+      if (deltaY > 30) { // Increased threshold to 30px for better mobile UX
         e.preventDefault();
-        const distance = Math.min(deltaY * 0.3, threshold * 1.2); // Reduced sensitivity from 0.5 to 0.3
+        // More natural pull resistance curve
+        const resistance = deltaY < 60 ? 0.4 : 0.2;
+        const distance = Math.min(deltaY * resistance, threshold * 1.5);
         setPullDistance(distance);
         setIsPulling(true);
       }

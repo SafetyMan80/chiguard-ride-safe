@@ -152,10 +152,26 @@ All colors MUST be HSL.
     @apply max-w-md mx-auto;
   }
 
-  /* Enhanced touch targets for mobile */
+  /* Enhanced touch targets for mobile - 44px minimum, 48px recommended */
   .touch-target {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improved button touch feedback */
+  .touch-target:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease-in-out;
+  }
+
+  /* Large touch targets for critical actions */
+  .touch-target-large {
+    min-height: 56px;
+    min-width: 56px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Mobile gesture support */

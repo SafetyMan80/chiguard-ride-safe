@@ -28,10 +28,11 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
             size="sm"
             onClick={() => onTabChange(tab.id)}
             className={`
-              flex flex-col items-center gap-1 h-auto py-2 px-2 min-h-[60px] justify-center
+              flex flex-col items-center gap-1 h-auto py-3 px-3 min-h-[64px] min-w-[48px] justify-center
+              touch-target rounded-lg transition-all duration-200
               ${isActive 
-                ? 'text-chicago-blue bg-chicago-light-blue/20 dark:bg-chicago-blue/20' 
-                : 'text-muted-foreground hover:text-chicago-blue hover:bg-muted/50'
+                ? 'text-chicago-blue bg-chicago-light-blue/20 dark:bg-chicago-blue/20 scale-105' 
+                : 'text-muted-foreground hover:text-chicago-blue hover:bg-muted/50 active:scale-95'
               }
             `}
           >

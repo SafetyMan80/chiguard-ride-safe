@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Users, University, ArrowLeft } from "lucide-react";
 import { UniversityRides } from "./UniversityRides";
+import { UniversityListSkeleton } from "./LoadingSkeleton";
 
 interface University {
   id: string;

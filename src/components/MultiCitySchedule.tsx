@@ -218,14 +218,14 @@ export const MultiCitySchedule = () => {
             {CITIES_WITH_RAIL.map((city) => (
               <Card
                 key={city.id}
-                className={`cursor-pointer transition-all duration-200 ${
+                className={`cursor-pointer transition-all duration-200 touch-target-large ${
                   city.available
-                    ? "hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/20"
+                    ? "hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/20 active:scale-100"
                     : "opacity-60 cursor-not-allowed"
                 }`}
                 onClick={() => handleCitySelect(city.id, city.available)}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-6 min-h-[120px] flex flex-col justify-between">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-4 h-4 rounded-full ${city.color}`} />

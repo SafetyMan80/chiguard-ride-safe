@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Clock, MapPin, Train, RefreshCw, ExternalLink, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ScheduleCardSkeleton } from "./LoadingSkeleton";
 import ctaSystemMap from "@/assets/cta-system-map-readable.jpg";
 
 interface CTAArrival {
