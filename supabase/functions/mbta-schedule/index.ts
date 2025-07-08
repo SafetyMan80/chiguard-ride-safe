@@ -174,9 +174,19 @@ serve(async (req) => {
       let minutesAway = 'Arriving';
       if (arrivalTime) {
         const arrivalDate = new Date(arrivalTime);
+        // Get current time in Eastern timezone to match MBTA API times
         const now = new Date();
-        const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
-        minutesAway = diffMinutes <= 0 ? 'Arriving' : `${diffMinutes} min`;
+        const easternTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+        
+        const diffMinutes = Math.round((arrivalDate.getTime() - easternTime.getTime()) / (1000 * 60));
+        
+        if (diffMinutes <= 0) {
+          minutesAway = 'Arriving';
+        } else if (diffMinutes === 1) {
+          minutesAway = '1 min';
+        } else {
+          minutesAway = `${diffMinutes} min`;
+        }
       }
 
       return {
