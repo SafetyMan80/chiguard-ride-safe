@@ -65,7 +65,7 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
               <div className="absolute inset-0 bg-chicago-blue/20 rounded-full blur-xl"></div>
               <Logo className="relative w-24 h-24 md:w-28 md:h-28 drop-shadow-2xl" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-proxima text-chicago-blue tracking-tight text-center">
+            <h1 className="text-3xl md:text-4xl font-proxima text-white tracking-tight text-center">
               <span className="font-black">RAIL</span><span className="font-normal">SAVIOR</span>
             </h1>
           </div>
