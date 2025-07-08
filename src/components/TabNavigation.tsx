@@ -63,9 +63,10 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               className={`
                 flex flex-col items-center gap-1.5 h-auto py-2 px-2 min-h-[60px] min-w-[48px] justify-center
                 touch-target-large rounded-2xl transition-all duration-300 ease-out relative group
+                bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent
                 ${isActive 
                   ? 'text-chicago-blue shadow-[var(--shadow-interactive)] scale-105 border-2 border-white' 
-                  : 'text-muted-foreground hover:text-chicago-blue hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)] hover:border-2 hover:border-white'
+                  : 'text-muted-foreground hover:text-chicago-blue hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)] hover:border-2 hover:border-white border-2 border-transparent'
                 }
                 ${tab.priority ? 'hover:shadow-[var(--shadow-emergency)]' : ''}
               `}
