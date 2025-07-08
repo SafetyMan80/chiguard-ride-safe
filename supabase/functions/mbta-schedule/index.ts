@@ -147,7 +147,7 @@ serve(async (req) => {
     }
 
     // Fetch predictions from MBTA API
-    const predictionsUrl = `https://api-v3.mbta.com/predictions?api_key=${MBTA_API_KEY}${routeFilter}${stopFilter}&include=stop,route,trip&sort=arrival_time`;
+    const predictionsUrl = `https://api-v3.mbta.com/predictions?api_key=${MBTA_API_KEY}${routeFilter}${stopFilter}&include=stop,route,trip,vehicle&sort=arrival_time`;
     console.log('🚇 MBTA Predictions URL:', predictionsUrl);
 
     const predictionsResponse = await fetch(predictionsUrl);
@@ -157,9 +157,9 @@ serve(async (req) => {
     }
 
     const predictionsData = await predictionsResponse.json();
-    console.log('🚇 MBTA Predictions Data:', JSON.stringify(predictionsData, null, 2));
+    console.log('🚇 MBTA Predictions Data Count:', predictionsData.data?.length || 0);
 
-    // Process the predictions data
+    // Process the predictions using MBTA best practices
     const arrivals = predictionsData.data?.map((prediction: MBTAPrediction) => {
       const route = predictionsData.included?.find((item: any) => 
         item.type === 'route' && item.id === prediction.relationships.route.data.id
@@ -169,27 +169,59 @@ serve(async (req) => {
         item.type === 'stop' && item.id === prediction.relationships.stop.data.id
       );
 
-      const arrivalTime = prediction.attributes.arrival_time || prediction.attributes.departure_time;
+      const vehicle = predictionsData.included?.find((item: any) => 
+        item.type === 'vehicle' && 
+        item.id === prediction.relationships.vehicle?.data?.id
+      );
+
+      const trip = predictionsData.included?.find((item: any) => 
+        item.type === 'trip' && item.id === prediction.relationships.trip.data.id
+      );
+
+      const currentTime = new Date();
+      const arrivalTime = prediction.attributes.arrival_time ? new Date(prediction.attributes.arrival_time) : null;
+      const departureTime = prediction.attributes.departure_time ? new Date(prediction.attributes.departure_time) : null;
       
-      let minutesAway = 'Arriving';
-      if (arrivalTime) {
-        const arrivalDate = new Date(arrivalTime);
-        const now = new Date();
+      let displayText = 'No Data';
+      
+      // Follow MBTA's official display rules
+      if (prediction.attributes.status) {
+        // Rule 1: If status exists, display it as-is
+        displayText = prediction.attributes.status;
+      } else if (!departureTime) {
+        // Rule 2: If no departure_time, riders can't board
+        return null; // Filter this out
+      } else {
+        // Rule 3: Calculate seconds until arrival/departure
+        const targetTime = arrivalTime || departureTime;
+        const seconds = Math.floor((targetTime.getTime() - currentTime.getTime()) / 1000);
         
-        const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
+        // Rule 4: If already passed, don't display
+        if (seconds < 0) {
+          return null; // Filter this out
+        }
         
-        // If the predicted time is more than 60 minutes in the past, treat as stale data
-        if (diffMinutes < -60) {
-          minutesAway = 'No Data';
-        } else if (diffMinutes <= 0) {
-          minutesAway = 'Arriving';
-        } else if (diffMinutes === 1) {
-          minutesAway = '1 min';
-        } else if (diffMinutes > 120) {
-          // If more than 2 hours away, likely stale data
-          minutesAway = 'No Data';
+        // Rule 5: Special cases for very soon arrivals
+        if (seconds <= 90) {
+          // Check if vehicle is stopped at this stop
+          if (vehicle?.attributes?.current_status === 'STOPPED_AT' && 
+              vehicle?.relationships?.stop?.data?.id === prediction.relationships.stop.data.id) {
+            displayText = 'Boarding';
+          } else if (seconds <= 30) {
+            displayText = 'Arriving';
+          } else if (seconds <= 60) {
+            displayText = 'Approaching';
+          } else {
+            displayText = '1 min';
+          }
         } else {
-          minutesAway = `${diffMinutes} min`;
+          // Rule 6: Convert to minutes
+          const minutes = Math.round(seconds / 60);
+          if (minutes > 20) {
+            displayText = '20+ min';
+          } else {
+            displayText = `${minutes} min`;
+          }
         }
       }
 
@@ -197,10 +229,10 @@ serve(async (req) => {
         id: prediction.id,
         line: route?.attributes?.short_name || route?.id || 'Unknown',
         station: stop?.attributes?.name || 'Unknown Station',
-        destination: route?.attributes?.direction_destinations?.[prediction.attributes.direction_id] || 'Unknown',
+        destination: trip?.attributes?.headsign || route?.attributes?.direction_destinations?.[prediction.attributes.direction_id] || 'Unknown',
         direction: prediction.attributes.direction_id === 0 ? 'Inbound' : 'Outbound',
-        arrivalTime: minutesAway, // Map minutes_away to arrivalTime for StandardArrival interface
-        eventTime: arrivalTime,
+        arrivalTime: displayText,
+        eventTime: prediction.attributes.arrival_time || prediction.attributes.departure_time,
         delay: null,
         trainId: prediction.relationships.vehicle?.data?.id || null,
         status: prediction.attributes.status || 'On Time',
@@ -209,13 +241,13 @@ serve(async (req) => {
         route_name: route?.attributes?.long_name || route?.attributes?.short_name || 'Unknown Line',
         stop_name: stop?.attributes?.name || 'Unknown Station',
         stop_id: stop?.id || '',
-        predicted_arrival: arrivalTime,
-        minutes_away: minutesAway,
+        predicted_arrival: prediction.attributes.arrival_time || prediction.attributes.departure_time,
+        minutes_away: displayText,
         vehicle_id: prediction.relationships.vehicle?.data?.id || null,
         track: stop?.attributes?.platform_name || stop?.attributes?.platform_code || null,
         timestamp: new Date().toISOString()
       };
-    }) || [];
+    }).filter((arrival: any) => arrival !== null) || []; // Remove filtered out predictions
 
     // Sort by arrival time
     arrivals.sort((a: any, b: any) => {
@@ -231,7 +263,7 @@ serve(async (req) => {
         success: true,
         data: arrivals,
         timestamp: new Date().toISOString(),
-        source: 'MBTA_API_V3'
+        source: 'MBTA_API_V3_IMPROVED'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -247,7 +279,7 @@ serve(async (req) => {
         error: error.message,
         data: [],
         timestamp: new Date().toISOString(),
-        source: 'MBTA_API_V3'
+        source: 'MBTA_API_V3_IMPROVED'
       }),
       {
         status: 500,
