@@ -49,7 +49,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
   ];
 
   return (
-    <div className="flex justify-between py-3 px-4 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)] overflow-x-hidden">
+    <div className="flex justify-evenly py-3 px-1 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)]">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;
