@@ -171,7 +171,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
         // Cancel any existing speech first
         speechSynthesis.cancel();
         
-        const utterance = new SpeechSynthesisUtterance("Police are on their way. Police are on their way.");
+        const utterance = new SpeechSynthesisUtterance("POLICE HAVE BEEN NOTIFIED. POLICE HAVE BEEN NOTIFIED.");
         
         // Try to find a male voice with better detection
         const maleVoice = voices.find(voice => {
