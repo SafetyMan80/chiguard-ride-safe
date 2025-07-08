@@ -135,8 +135,14 @@ export const MBTASchedule = () => {
   };
 
   const formatArrivalTime = (arrivalTime: string) => {
-    if (arrivalTime === "No Data") return "No Data";
-    if (arrivalTime === "Boarding" || arrivalTime === "Arrived") return arrivalTime;
+    // If the time is already properly formatted from the API, return as-is
+    if (arrivalTime === "No Data" || arrivalTime === "Arriving" || 
+        arrivalTime === "Boarding" || arrivalTime === "Arrived" ||
+        arrivalTime.includes("min")) {
+      return arrivalTime;
+    }
+    
+    // For any other numeric values, parse and format
     const minutes = parseInt(arrivalTime);
     if (!isNaN(minutes)) {
       return minutes <= 1 ? "Arriving" : `${minutes} min`;
