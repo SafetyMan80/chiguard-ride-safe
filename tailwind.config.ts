@@ -21,6 +21,7 @@ export default {
 			fontFamily: {
 				'playfair': ['Playfair Display', 'serif'],
 				'urbanist': ['Urbanist', 'sans-serif'],
+				'proxima': ['Nunito Sans', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
