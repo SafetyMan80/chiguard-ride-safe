@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useOffline } from "@/hooks/useOffline";
 import { useToast } from "@/hooks/use-toast";
+import { useEmergencyFailsafe } from "@/hooks/useEmergencyFailsafe";
 import { rateLimiter } from "@/lib/security";
 
 interface EmergencyButtonProps {
@@ -25,6 +26,7 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
   const cleanupRef = useRef<boolean>(false);
   const { isOnline, saveOfflineReport } = useOffline();
   const { toast } = useToast();
+  const { triggerSOS } = useEmergencyFailsafe();
   
   const { 
     latitude, 
@@ -348,27 +350,12 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       setIsActive(true);
       getCurrentLocation();
       
-      // Prepare emergency data
-      const emergencyData = {
-        timestamp: new Date().toISOString(),
-        location: { latitude, longitude, accuracy },
-        type: 'emergency_alert'
-      };
-
-      // Handle offline saving
-      if (!isOnline) {
-        try {
-          const saved = await saveOfflineReport('emergency', emergencyData);
-          if (saved) {
-            toast({
-              title: "🚨 EMERGENCY SAVED OFFLINE!",
-              description: "Alert will be sent when connection returns",
-              variant: "destructive"
-            });
-          }
-        } catch (error) {
-          console.error("Offline save error:", error);
-        }
+      // Use the emergency failsafe hook to trigger SOS and auto-create incident
+      try {
+        await triggerSOS("SOS button deployed - emergency assistance needed");
+        console.log("✅ SOS triggered successfully");
+      } catch (error) {
+        console.error("❌ SOS trigger failed:", error);
       }
       
       // Notify parent component
