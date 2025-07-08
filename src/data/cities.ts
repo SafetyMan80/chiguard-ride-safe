@@ -15,7 +15,7 @@ export const CITIES_WITH_RAIL: City[] = [
     agency: "CTA (Chicago Transit Authority)",
     description: "L Train System - 8 color-coded lines",
     railLines: ["Red", "Blue", "Brown", "Green", "Orange", "Pink", "Purple", "Yellow"],
-    color: "bg-chicago-blue",
+    color: "bg-blue-600",
     available: true
   },
   {

@@ -2,22 +2,6 @@ import { City } from "@/types/incident";
 
 export const CITIES_WITH_RAIL: City[] = [
   {
-    id: "chicago",
-    name: "Chicago", 
-    agency: "CTA (Chicago Transit Authority)",
-    railLines: ["Red Line", "Blue Line", "Brown Line", "Green Line", "Orange Line", "Pink Line", "Purple Line", "Yellow Line"],
-    lineStations: {
-      "Red Line": ["Howard", "Jarvis", "Morse", "Loyola", "Granville", "Thorndale", "Bryn Mawr", "Berwyn", "Argyle", "Lawrence", "Wilson", "Sheridan", "Addison", "Belmont", "Fullerton", "North/Clybourn", "Clark/Division", "Chicago/State", "Grand/State", "Lake/State", "Monroe/State", "Jackson/State", "Harrison", "Roosevelt", "Cermak-Chinatown", "Sox-35th", "47th", "Garfield", "63rd", "69th", "79th", "87th", "95th/Dan Ryan"],
-      "Blue Line": ["O'Hare", "Rosemont", "Cumberland", "Harlem (O'Hare)", "Jefferson Park", "Montrose", "Irving Park", "Addison", "Belmont", "Logan Square", "California", "Western", "Damen", "Division", "Chicago", "Grand", "Clark/Lake", "Washington", "Monroe", "Jackson", "LaSalle", "Clinton", "UIC-Halsted", "Racine", "Illinois Medical District", "Western (Forest Park)", "Kedzie-Homan", "Pulaski", "Cicero", "Austin", "Oak Park", "Harlem (Forest Park)", "Forest Park"],
-      "Brown Line": ["Kimball", "Kedzie", "Francisco", "Rockwell", "Western", "Damen", "Montrose", "Irving Park", "Addison", "Paulina", "Southport", "Belmont", "Wellington", "Diversey", "Fullerton", "Armitage", "Sedgwick", "Chicago", "Merchandise Mart", "Clark/Lake", "State/Lake", "Washington/Wells", "Quincy/Wells", "LaSalle/Van Buren", "Harold Washington Library"],
-      "Green Line": ["Harlem/Lake", "Oak Park", "Ridgeland", "Austin", "Central", "Laramie", "Cicero", "Pulaski", "Conservatory", "Kedzie", "California", "Ashland/63rd", "Halsted", "Indiana", "35th-Bronzeville-IIT", "Roosevelt", "Cermak-McCormick Place", "Clark/Lake"],
-      "Orange Line": ["Midway", "Pulaski", "Kedzie", "Western", "35th/Archer", "Ashland", "Halsted", "Roosevelt", "Harold Washington Library", "LaSalle/Van Buren", "Quincy/Wells", "Washington/Wells", "Clark/Lake"],
-      "Pink Line": ["54th/Cermak", "Cicero", "Kostner", "Pulaski", "Central Park", "Kedzie", "California", "Western", "Damen", "18th", "Polk", "Ashland", "Morgan", "Clinton", "Clark/Lake"],
-      "Purple Line": ["Linden", "Central", "Noyes", "Foster", "Davis", "Dempster", "Main", "South Blvd", "Howard", "Wilson", "Belmont", "Fullerton", "Armitage", "Sedgwick", "Chicago", "Merchandise Mart", "Clark/Lake"],
-      "Yellow Line": ["Howard", "Oakton-Skokie", "Dempster-Skokie"]
-    }
-  },
-  {
     id: "nyc",
     name: "New York City",
     agency: "MTA (Metropolitan Transportation Authority)", 

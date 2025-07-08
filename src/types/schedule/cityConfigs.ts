@@ -20,55 +20,34 @@ export const CITY_CONFIGS: Record<string, CityConfig> = {
     ],
     stations: [
       { id: "all", name: "All Stations", popular: true },
-      // Red Line Stations
+      // Major Transfer Stations
+      { id: "clark-lake", name: "Clark/Lake", lines: ["blue", "brown", "green", "orange", "pink", "purple"], popular: true },
       { id: "fullerton", name: "Fullerton", lines: ["red", "brown", "purple"], popular: true },
-      { id: "belmont-red", name: "Belmont", lines: ["red", "brown", "purple"], popular: true },
-      { id: "addison", name: "Addison", lines: ["red"], popular: true },
-      { id: "wilson", name: "Wilson", lines: ["red", "purple"], popular: true },
-      { id: "95th-dan-ryan", name: "95th/Dan Ryan", lines: ["red"], popular: true },
+      { id: "belmont", name: "Belmont", lines: ["red", "brown", "purple"], popular: true },
+      // Red Line Stations
       { id: "howard", name: "Howard", lines: ["red", "purple", "yellow"], popular: true },
-      { id: "chicago-state", name: "Chicago/State", lines: ["red"], popular: true },
-      { id: "north-clybourn", name: "North/Clybourn", lines: ["red"], popular: true },
+      { id: "95th-dan-ryan", name: "95th/Dan Ryan", lines: ["red"], popular: true },
+      { id: "roosevelt", name: "Roosevelt", lines: ["red", "orange", "green"], popular: true },
       // Blue Line Stations
       { id: "ohare", name: "O'Hare Airport", lines: ["blue"], popular: true },
-      { id: "rosemont", name: "Rosemont", lines: ["blue"], popular: true },
+      { id: "forest-park", name: "Forest Park", lines: ["blue"], popular: true },
       { id: "jefferson-park", name: "Jefferson Park", lines: ["blue"], popular: true },
       { id: "logan-square", name: "Logan Square", lines: ["blue"], popular: true },
-      { id: "western-blue", name: "Western", lines: ["blue"], popular: true },
-      { id: "division", name: "Division", lines: ["blue"], popular: true },
-      { id: "chicago-blue", name: "Chicago", lines: ["blue"], popular: true },
-      { id: "jackson-blue", name: "Jackson", lines: ["blue"], popular: true },
-      { id: "uic-halsted", name: "UIC-Halsted", lines: ["blue"], popular: true },
-      { id: "forest-park", name: "Forest Park", lines: ["blue"], popular: true },
-      // Brown Line Stations
-      { id: "kimball", name: "Kimball", lines: ["brown"], popular: true },
-      { id: "western-brown", name: "Western", lines: ["brown"], popular: true },
-      { id: "montrose", name: "Montrose", lines: ["brown"], popular: true },
-      { id: "sedgwick", name: "Sedgwick", lines: ["brown"], popular: true },
-      { id: "merchandise-mart", name: "Merchandise Mart", lines: ["brown", "purple"], popular: true },
-      // Green Line Stations
-      { id: "harlem-lake", name: "Harlem/Lake", lines: ["green"], popular: true },
-      { id: "oak-park", name: "Oak Park", lines: ["green"], popular: true },
-      { id: "garfield", name: "Garfield", lines: ["green"], popular: true },
-      { id: "63rd-cottage-grove", name: "63rd/Cottage Grove", lines: ["green"], popular: true },
       // Orange Line Stations
       { id: "midway", name: "Midway Airport", lines: ["orange"], popular: true },
-      { id: "pulaski-orange", name: "Pulaski", lines: ["orange"], popular: true },
-      { id: "halsted-orange", name: "Halsted", lines: ["orange"], popular: true },
-      { id: "roosevelt-orange", name: "Roosevelt", lines: ["orange", "red", "green"], popular: true },
+      { id: "roosevelt-orange", name: "Roosevelt", lines: ["orange"], popular: true },
+      // Green Line Stations
+      { id: "harlem-lake", name: "Harlem/Lake", lines: ["green"], popular: true },
+      { id: "garfield", name: "Garfield", lines: ["green"], popular: true },
+      // Brown Line Stations
+      { id: "kimball", name: "Kimball", lines: ["brown"], popular: true },
+      { id: "merchandise-mart", name: "Merchandise Mart", lines: ["brown", "purple"], popular: true },
       // Pink Line Stations
       { id: "54th-cermak", name: "54th/Cermak", lines: ["pink"], popular: true },
-      { id: "california-pink", name: "California", lines: ["pink"], popular: true },
-      { id: "damen-pink", name: "Damen", lines: ["pink"], popular: true },
       // Purple Line Stations
       { id: "linden", name: "Linden", lines: ["purple"], popular: true },
-      { id: "davis", name: "Davis", lines: ["purple"], popular: true },
-      { id: "foster", name: "Foster", lines: ["purple"], popular: true },
-      // Multi-line Transfer Stations
-      { id: "clark-lake", name: "Clark/Lake", lines: ["blue", "brown", "green", "orange", "pink", "purple"], popular: true },
-      { id: "roosevelt", name: "Roosevelt", lines: ["red", "orange", "green"], popular: true },
-      { id: "jackson", name: "Jackson", lines: ["blue", "red"], popular: true },
-      { id: "lasalle-van-buren", name: "LaSalle/Van Buren", lines: ["blue", "orange", "brown", "purple", "pink"], popular: true }
+      // Yellow Line Stations  
+      { id: "dempster-skokie", name: "Dempster-Skokie", lines: ["yellow"], popular: true }
     ],
     tips: [
       "Ventra Card or mobile app for CTA rides",
@@ -311,34 +290,35 @@ export const CITY_CONFIGS: Record<string, CityConfig> = {
       { id: "north-springs", name: "North Springs", lines: ["red"], popular: true },
       { id: "doraville", name: "Doraville", lines: ["gold"], popular: true },
       // Blue/Green Lines
-      { id: "hamilton-holmes", name: "Hamilton E Holmes", lines: ["blue"], popular: true },
-      { id: "west-lake", name: "West Lake", lines: ["blue"], popular: true },
-      { id: "ashby", name: "Ashby", lines: ["green"], popular: true },
-      { id: "vine-city", name: "Vine City", lines: ["green"], popular: true },
+      { id: "hamilton-holmes", name: "Hamilton E. Holmes", lines: ["blue"], popular: true },
+      { id: "ashby", name: "Ashby", lines: ["blue", "green"], popular: true },
+      { id: "vine-city", name: "Vine City", lines: ["blue", "green"], popular: true },
       { id: "omni-dome", name: "Omni Dome", lines: ["blue", "green"], popular: true },
       { id: "georgia-state", name: "Georgia State", lines: ["blue", "green"], popular: true },
       { id: "king-memorial", name: "King Memorial", lines: ["blue", "green"], popular: true },
-      { id: "inman-park", name: "Inman Park", lines: ["blue", "green"], popular: true },
-      { id: "edgewood", name: "Edgewood", lines: ["blue", "green"], popular: true },
-      { id: "east-lake", name: "East Lake", lines: ["blue"], popular: true },
-      { id: "decatur", name: "Decatur", lines: ["blue"], popular: true },
-      { id: "indian-creek", name: "Indian Creek", lines: ["blue"], popular: true },
+      { id: "inman-park", name: "Inman Park/Reynoldstown", lines: ["blue", "green"], popular: true },
+      { id: "edgewood", name: "Edgewood/Candler Park", lines: ["blue", "green"], popular: true },
+      { id: "east-lake", name: "East Lake", lines: ["blue", "green"], popular: true },
+      { id: "decatur", name: "Decatur", lines: ["blue", "green"], popular: true },
+      { id: "avondale", name: "Avondale", lines: ["blue", "green"], popular: true },
+      { id: "kensington", name: "Kensington", lines: ["blue", "green"], popular: true },
+      { id: "indian-creek", name: "Indian Creek", lines: ["blue", "green"], popular: true },
       { id: "bankhead", name: "Bankhead", lines: ["green"], popular: true }
     ],
     tips: [
       "Breeze Card or mobile app for MARTA rides",
-      "Red/Gold Lines serve Hartsfield-Jackson Airport",
-      "Five Points is the main downtown transfer station",
-      "Free parking at most suburban rail stations",
-      "Last trains run around midnight on weekdays",
-      "MARTA app provides real-time arrival info"
+      "Red and Gold Lines serve Hartsfield Airport",
+      "Five Points is the main downtown transfer hub",
+      "Free parking available at most rail stations",
+      "Service runs until 1 AM on weekends",
+      "MARTA app provides real-time train tracking"
     ]
   },
   
   los_angeles: {
-    name: "LA Metro Rail",
+    name: "Los Angeles Metro",
     agency: "Los Angeles County Metropolitan Transportation Authority",
-    description: "Metro Rail System - Light rail and subway lines", 
+    description: "Metro Rail System - Light rail and subway lines",
     icon: "🌴",
     lines: [
       { id: "all", name: "All Lines", color: "bg-gray-500" },
@@ -351,51 +331,50 @@ export const CITY_CONFIGS: Record<string, CityConfig> = {
     ],
     stations: [
       { id: "all", name: "All Stations", popular: true },
-      // Red/Purple Lines (Heavy Rail)
-      { id: "union-station", name: "Union Station", lines: ["red", "purple"], popular: true },
-      { id: "civic-center", name: "Civic Center", lines: ["red", "purple"], popular: true },
+      // Red/Purple Lines (subway)
+      { id: "union-station", name: "Union Station", lines: ["red", "purple", "gold"], popular: true },
+      { id: "civic-center", name: "Civic Center/Grand Park", lines: ["red", "purple"], popular: true },
       { id: "pershing-square", name: "Pershing Square", lines: ["red", "purple"], popular: true },
-      { id: "7th-metro", name: "7th St/Metro Center", lines: ["red", "purple"], popular: true },
-      { id: "westlake", name: "Westlake/MacArthur Park", lines: ["red"], popular: true },
-      { id: "wilshire-vermont", name: "Wilshire/Vermont", lines: ["red"], popular: true },
+      { id: "7th-metro", name: "7th St/Metro Center", lines: ["red", "purple", "blue", "expo"], popular: true },
+      { id: "westlake", name: "Westlake/MacArthur Park", lines: ["red", "purple"], popular: true },
       { id: "hollywood-vine", name: "Hollywood/Vine", lines: ["red"], popular: true },
       { id: "hollywood-highland", name: "Hollywood/Highland", lines: ["red"], popular: true },
-      { id: "universal-city", name: "Universal City", lines: ["red"], popular: true },
+      { id: "universal-city", name: "Universal City/Studio City", lines: ["red"], popular: true },
       { id: "north-hollywood", name: "North Hollywood", lines: ["red"], popular: true },
+      { id: "wilshire-vermont", name: "Wilshire/Vermont", lines: ["purple"], popular: true },
       { id: "wilshire-normandie", name: "Wilshire/Normandie", lines: ["purple"], popular: true },
       { id: "wilshire-western", name: "Wilshire/Western", lines: ["purple"], popular: true },
-      // Blue Line
+      // Blue Line (light rail)
       { id: "downtown-long-beach", name: "Downtown Long Beach", lines: ["blue"], popular: true },
-      { id: "long-beach-blvd", name: "Long Beach Blvd", lines: ["blue"], popular: true },
-      { id: "willowbrook", name: "Willowbrook", lines: ["blue", "green"], popular: true },
-      { id: "rosa-parks", name: "Rosa Parks", lines: ["blue"], popular: true },
-      { id: "grand", name: "Grand", lines: ["blue"], popular: true },
-      // Green Line
+      { id: "transit-mall", name: "Transit Mall", lines: ["blue"], popular: true },
+      { id: "pacific-avenue", name: "Pacific Avenue", lines: ["blue"], popular: true },
+      { id: "anaheim-street", name: "Anaheim Street", lines: ["blue"], popular: true },
+      // Green Line (light rail)
       { id: "redondo-beach", name: "Redondo Beach", lines: ["green"], popular: true },
-      { id: "el-segundo", name: "El Segundo", lines: ["green"], popular: true },
-      { id: "hawthorne", name: "Hawthorne", lines: ["green"], popular: true },
-      { id: "crenshaw", name: "Crenshaw", lines: ["green"], popular: true },
-      { id: "norwalk", name: "Norwalk", lines: ["green"], popular: true },
-      // Gold Line
-      { id: "east-la", name: "East LA", lines: ["gold"], popular: true },
-      { id: "little-tokyo", name: "Little Tokyo", lines: ["gold"], popular: true },
-      { id: "pasadena", name: "Pasadena", lines: ["gold"], popular: true },
-      { id: "sierra-madre", name: "Sierra Madre Villa", lines: ["gold"], popular: true },
-      // Expo Line
-      { id: "santa-monica", name: "Santa Monica", lines: ["expo"], popular: true },
-      { id: "expo-bundy", name: "Expo/Bundy", lines: ["expo"], popular: true },
+      { id: "lax-transit-center", name: "LAX Transit Center", lines: ["green"], popular: true },
+      { id: "aviation-lax", name: "Aviation/LAX", lines: ["green"], popular: true },
+      { id: "hawthorne", name: "Hawthorne/Lennox", lines: ["green"], popular: true },
+      // Gold Line (light rail)
+      { id: "east-la", name: "East LA Civic Center", lines: ["gold"], popular: true },
+      { id: "little-tokyo", name: "Little Tokyo/Arts District", lines: ["gold"], popular: true },
+      { id: "chinatown", name: "Chinatown", lines: ["gold"], popular: true },
+      { id: "highland-park", name: "Highland Park", lines: ["gold"], popular: true },
+      { id: "south-pasadena", name: "South Pasadena", lines: ["gold"], popular: true },
+      { id: "pasadena", name: "Memorial Park", lines: ["gold"], popular: true },
+      // Expo Line (light rail)
+      { id: "downtown-santa-monica", name: "Downtown Santa Monica", lines: ["expo"], popular: true },
+      { id: "26th-street", name: "26th Street/Bergamot", lines: ["expo"], popular: true },
+      { id: "expo-sepulveda", name: "Expo/Sepulveda", lines: ["expo"], popular: true },
       { id: "culver-city", name: "Culver City", lines: ["expo"], popular: true },
-      { id: "expo-vermont", name: "Expo/Vermont", lines: ["expo"], popular: true },
-      // LAX Connection
-      { id: "lax", name: "LAX Airport", lines: ["green"], popular: true }
+      { id: "expo-vermont", name: "Expo/Vermont", lines: ["expo"], popular: true }
     ],
     tips: [
-      "TAP card or mobile wallet for Metro rides",
-      "Metro Connector shuttle serves LAX Airport",
-      "7th St/Metro Center is the main transfer hub",
-      "Expo Line connects to Santa Monica Beach",
-      "Red/Purple Lines are subway (underground)",
-      "Metro app shows real-time arrival predictions"
+      "TAP card or mobile app for Metro rides",
+      "Green Line connects to LAX via shuttle",
+      "Union Station is the main transit hub",
+      "Red/Purple Lines are the subway system",
+      "Gold, Blue, Green, Expo are light rail",
+      "Metro app provides real-time arrival info"
     ]
   }
 };

@@ -3,6 +3,34 @@ export const campusSecurityNumbers = {
   // Chicago Universities
   "University of Chicago": {
     emergency: "773-702-8181",
+    security: "773-702-8181", 
+    escort: "773-702-3131"
+  },
+  "Northwestern University": {
+    emergency: "847-491-3254",
+    security: "847-491-3254",
+    escort: "847-491-7777"
+  },
+  "DePaul University": {
+    emergency: "773-325-7777",
+    security: "773-325-7777",
+    escort: "773-325-1234"
+  },
+  "Loyola University Chicago": {
+    emergency: "773-508-6039",
+    security: "773-508-6039", 
+    escort: "773-508-8888"
+  },
+  "University of Illinois Chicago": {
+    emergency: "312-355-5555",
+    security: "312-355-5555",
+    escort: "312-996-2100"
+  },
+  
+  // Atlanta Universities
+  // Chicago Universities
+  "University of Chicago": {
+    emergency: "773-702-8181",
     security: "773-702-8181",
     escort: "773-702-3131"
   },

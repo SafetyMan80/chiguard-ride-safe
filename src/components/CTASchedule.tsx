@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
-import { useRobustScheduleFetch } from "@/hooks/useRobustScheduleFetch";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CTAResponse {
   success: boolean;
@@ -18,25 +17,11 @@ export const CTASchedule = () => {
   const [selectedLine, setSelectedLine] = useState<string>("all");
   const [selectedStation, setSelectedStation] = useState<string>("all");
   const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
-  
-  // Use robust fetch hook with CTA-specific config
-  const { fetchWithRetry, loading, error, clearError } = useRobustScheduleFetch('CTA', {
-    maxRetries: 4, // Extra retry for CTA
-    retryDelay: 2000, // Longer delay for CTA API
-    timeout: 20000, // Longer timeout
-    rateLimit: {
-      maxRequests: 8, // Conservative rate limiting
-      timeWindow: 60000
-    }
-  });
 
   const config = CITY_CONFIGS.chicago;
-
-  // Component mount debugging
-  console.log('🚆 CTASchedule component mounted!');
-  console.log('🚆 CTASchedule config:', config);
 
   useEffect(() => {
     const handleOnlineStatus = () => setIsOnline(navigator.onLine);
@@ -50,10 +35,7 @@ export const CTASchedule = () => {
   }, []);
 
   const fetchArrivals = async () => {
-    console.log('🚆 CTA fetchArrivals called with:', { selectedLine, selectedStation, isOnline });
-    
     if (!isOnline) {
-      console.log('🚆 CTA offline, showing toast');
       toast({
         title: "No Internet Connection",
         description: "Please check your connection and try again.",
@@ -63,14 +45,12 @@ export const CTASchedule = () => {
       return;
     }
 
-    clearError(); // Clear any previous errors
-
+    setLoading(true);
     try {
       const requestBody: any = {};
       
-      // Only send parameters if they're actually selected (not "all")
+      // Map UI line names to CTA API route identifiers
       if (selectedLine !== "all") {
-        // Map UI line names to CTA API route identifiers
         const routeMapping: { [key: string]: string } = {
           'red': 'Red',
           'blue': 'Blue', 
@@ -83,68 +63,43 @@ export const CTASchedule = () => {
         };
         requestBody.routeId = routeMapping[selectedLine.toLowerCase()] || selectedLine;
       }
+      
+      // Map UI station IDs to CTA stop IDs
       if (selectedStation !== "all") {
-        // Map UI station IDs to CTA stop IDs
         const stationMapping: { [key: string]: string } = {
-          // Popular stations from city config
+          "clark-lake": "30131",
           "fullerton": "30057",
-          "belmont-red": "30254", 
-          "addison": "30278",
-          "wilson": "30256",
-          "95th-dan-ryan": "30089",
+          "belmont": "30254",
           "howard": "30173",
-          "chicago-state": "30013",
-          "north-clybourn": "30017",
+          "95th-dan-ryan": "30089",
+          "roosevelt": "30001",
           "ohare": "30171",
-          "rosemont": "30044", // Fixed ID
+          "forest-park": "30044",
           "jefferson-park": "30081",
           "logan-square": "30077",
-          "western-blue": "30220",
-          "division": "30068",
-          "chicago-blue": "30067", 
-          "jackson-blue": "30212",
-          "uic-halsted": "30034",
-          "forest-park": "30044",
-          "kimball": "30297",
-          "western-brown": "30293",
-          "montrose": "30291",
-          "sedgwick": "30282",
-          "merchandise-mart": "30768",
-          "harlem-lake": "30047",
-          "oak-park": "30048",
-          "garfield": "30099",
-          "63rd-cottage-grove": "30063",
           "midway": "30063",
-          "pulaski-orange": "30062",
-          "halsted-orange": "30031",
           "roosevelt-orange": "30001",
+          "harlem-lake": "30047",
+          "garfield": "30099",
+          "kimball": "30297",
+          "merchandise-mart": "30768",
           "54th-cermak": "30098",
-          "california-pink": "30092",
-          "damen-pink": "30090",
           "linden": "30307",
-          "davis": "30303",
-          "foster": "30304",
-          "clark-lake": "30131",
-          "roosevelt": "30001",
-          "jackson": "30212",
-          "lasalle-van-buren": "30031"
+          "dempster-skokie": "30308"
         };
         requestBody.stpid = stationMapping[selectedStation] || "30173"; // Default to Howard
       }
       
-      console.log('🚆 CTA calling robust fetch with body:', requestBody);
-      console.log('🚆 Selected line:', selectedLine, '-> mapped to routeId:', requestBody.routeId);
-      console.log('🚆 Selected station:', selectedStation, '-> mapped to stpid:', requestBody.stpid);
+      console.log('🚆 CTA calling function with payload:', requestBody);
       
-      // Use robust fetch instead of direct supabase call
-      const response: CTAResponse = await fetchWithRetry(
-        'cta-schedule',
-        Object.keys(requestBody).length > 0 ? requestBody : { stpid: '30173' }
-      );
+      const { data, error } = await supabase.functions.invoke('cta-schedule', {
+        body: Object.keys(requestBody).length > 0 ? requestBody : { stpid: '30173' }
+      });
 
-      console.log('🚆 CTA Robust fetch response:', response);
-      console.log('🚆 CTA Response success:', response.success);
-      console.log('🚆 CTA Response data length:', response.data?.length || 0);
+      if (error) throw error;
+
+      const response: CTAResponse = data;
+      console.log('🚆 CTA Response:', response);
       
       if (response.success) {
         setArrivals(response.data || []);
@@ -192,6 +147,8 @@ export const CTASchedule = () => {
         variant: "destructive",
         duration: 3000
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -201,7 +158,7 @@ export const CTASchedule = () => {
   };
 
   const formatArrivalTime = (arrivalTime: string) => {
-    if (arrivalTime === "Boarding" || arrivalTime === "Arrived") {
+    if (arrivalTime === "Boarding" || arrivalTime === "Arrived" || arrivalTime === "Approaching") {
       return arrivalTime;
     }
     const minutes = parseInt(arrivalTime);
@@ -211,30 +168,9 @@ export const CTASchedule = () => {
     return arrivalTime;
   };
 
-  // Use visibility-aware interval for better performance
-  useVisibilityAwareInterval(fetchArrivals, 120000); // Increased to 2 minutes to avoid rate limiting
-
   useEffect(() => {
-    console.log('🚆 CTA useEffect triggered with selectedLine/selectedStation change', { selectedLine, selectedStation });
-    console.log('🚆 CTA calling fetchArrivals now');
     fetchArrivals();
-  }, [selectedLine, selectedStation]); // Removed fetchWithRetry dependency to prevent infinite loops
-
-  // Initial load
-  useEffect(() => {
-    console.log('🚆 CTA component mounted, initial fetchArrivals call');
-    fetchArrivals();
-  }, []); // Empty dependency array for mount only
-
-  // Add debugging for component render
-  console.log('🚆 CTA Component rendering with state:', {
-    arrivals: arrivals.length,
-    loading,
-    selectedLine,
-    selectedStation,
-    lastUpdated,
-    isOnline
-  });
+  }, [selectedLine, selectedStation]);
 
   // Reset station when line changes
   const handleLineChange = (newLine: string) => {
