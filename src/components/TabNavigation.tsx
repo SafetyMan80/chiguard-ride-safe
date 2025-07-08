@@ -49,7 +49,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
   ];
 
   return (
-    <div className="flex justify-evenly py-3 px-1 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)]">
+    <div className="flex justify-around py-3 px-2 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)]">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;
@@ -61,7 +61,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               size="sm"
               onClick={() => onTabChange(tab.id)}
               className={`
-                flex flex-col items-center gap-1.5 h-auto py-3 px-4 min-h-[68px] min-w-[56px] justify-center
+                flex flex-col items-center gap-1.5 h-auto py-2 px-2 min-h-[60px] min-w-[48px] justify-center
                 touch-target-large rounded-2xl transition-all duration-300 ease-out relative group
                 ${isActive 
                   ? 'text-chicago-blue bg-chicago-blue/12 shadow-[var(--shadow-interactive)] scale-105 border border-chicago-blue/25' 
