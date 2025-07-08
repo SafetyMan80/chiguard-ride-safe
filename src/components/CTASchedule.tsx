@@ -91,6 +91,8 @@ export const CTASchedule = () => {
       }
       
       console.log('🚆 CTA calling function with payload:', requestBody);
+      console.log('🚆 Selected station:', selectedStation);
+      console.log('🚆 Selected line:', selectedLine);
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         body: Object.keys(requestBody).length > 0 ? requestBody : { stpid: '30173' }
@@ -102,6 +104,7 @@ export const CTASchedule = () => {
       console.log('🚆 CTA Response:', response);
       
       if (response.success) {
+        console.log('🚆 CTA Response data:', response.data);
         setArrivals(response.data || []);
         
         // Format timestamp with Central Time (CTA timezone)
@@ -158,6 +161,7 @@ export const CTASchedule = () => {
   };
 
   const formatArrivalTime = (arrivalTime: string) => {
+    console.log('🕒 Formatting arrival time:', arrivalTime);
     if (arrivalTime === "Boarding" || arrivalTime === "Arrived" || arrivalTime === "Approaching") {
       return arrivalTime;
     }
@@ -165,7 +169,9 @@ export const CTASchedule = () => {
     if (!isNaN(minutes)) {
       return minutes <= 1 ? "Arriving" : `${minutes} min`;
     }
-    return arrivalTime;
+    const result = arrivalTime;
+    console.log('🕒 Formatted result:', result);
+    return result;
   };
 
   useEffect(() => {

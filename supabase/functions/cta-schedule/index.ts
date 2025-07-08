@@ -16,6 +16,7 @@ serve(async (req) => {
   try {
     let stopId: string | null = null;
     let routeId: string | null = null;
+    let requestBody: any = {};
 
     // Handle both GET (query params) and POST (body) requests
     if (req.method === 'GET') {
@@ -24,9 +25,9 @@ serve(async (req) => {
       routeId = searchParams.get('routeId') || searchParams.get('rt');
     } else if (req.method === 'POST') {
       try {
-        const body = await req.json();
-        stopId = body.stpid || body.stopId;
-        routeId = body.routeId || body.rt;
+        requestBody = await req.json();
+        stopId = requestBody.stpid || requestBody.stopId;
+        routeId = requestBody.routeId || requestBody.rt;
       } catch (e) {
         console.log('No valid JSON body provided, using defaults');
       }
@@ -35,6 +36,7 @@ serve(async (req) => {
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
     console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
     console.log('📥 Request params:', { stopId, routeId, method: req.method });
+    console.log('📥 Request body:', requestBody);
     
     if (!CTA_API_KEY) {
       console.error('❌ ERROR: CTA API key not configured');
