@@ -33,45 +33,17 @@ export const EmergencySOSButton = () => {
       
       let beepCount = 0;
       const maxBeeps = 150; // 30 seconds / 0.2 seconds = 150 beeps
+      let intervalId: NodeJS.Timeout;
+      
+      console.log(`🚨 Starting beeping sequence: ${maxBeeps} beeps over 30 seconds`);
       
       // Function to create a single loud beep
       const createBeep = () => {
-        if (beepCount >= maxBeeps || !audioContextRef.current) {
-          console.log('⏰ STOPPING AFTER 30 SECONDS OR MANUAL STOP');
-          setIsSoundPlaying(false);
-          return;
-        }
+        console.log(`🚨 Creating beep ${beepCount + 1}/${maxBeeps}`);
         
-        const oscillator = audioContextRef.current.createOscillator();
-        const gainNode = audioContextRef.current.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContextRef.current.destination);
-        
-        // Very loud, harsh emergency tone
-        oscillator.frequency.setValueAtTime(1000, audioContextRef.current.currentTime);
-        oscillator.type = 'square'; // Very harsh, attention-grabbing sound
-        
-        // Maximum volume with sharp attack and quick decay
-        gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
-        gainNode.gain.linearRampToValueAtTime(1.0, audioContextRef.current.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.15);
-        
-        // Play for 150ms
-        oscillator.start(audioContextRef.current.currentTime);
-        oscillator.stop(audioContextRef.current.currentTime + 0.15);
-        
-        beepCount++;
-        console.log(`🚨 BEEP ${beepCount}/${maxBeeps}`);
-      };
-      
-      // Start the first beep immediately
-      createBeep();
-      
-      // Schedule beeps every 200ms
-      const beepInterval = setInterval(() => {
-        if (beepCount >= maxBeeps || !isSoundPlaying) {
-          clearInterval(beepInterval);
+        if (beepCount >= maxBeeps) {
+          console.log('⏰ Max beeps reached, stopping');
+          clearInterval(intervalId);
           setIsSoundPlaying(false);
           if (audioContextRef.current) {
             audioContextRef.current.close();
@@ -79,41 +51,85 @@ export const EmergencySOSButton = () => {
           }
           return;
         }
+        
+        if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+          console.log('❌ Audio context not available, stopping');
+          clearInterval(intervalId);
+          setIsSoundPlaying(false);
+          return;
+        }
+        
+        try {
+          const oscillator = audioContextRef.current.createOscillator();
+          const gainNode = audioContextRef.current.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContextRef.current.destination);
+          
+          // Very loud, harsh emergency tone
+          oscillator.frequency.setValueAtTime(1000, audioContextRef.current.currentTime);
+          oscillator.type = 'square'; // Very harsh, attention-grabbing sound
+          
+          // Maximum volume with sharp attack and quick decay
+          gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+          gainNode.gain.linearRampToValueAtTime(1.0, audioContextRef.current.currentTime + 0.01);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.15);
+          
+          // Play for 150ms
+          oscillator.start(audioContextRef.current.currentTime);
+          oscillator.stop(audioContextRef.current.currentTime + 0.15);
+          
+          beepCount++;
+          console.log(`✅ Beep ${beepCount}/${maxBeeps} played successfully`);
+        } catch (error) {
+          console.error('❌ Error creating beep:', error);
+        }
+      };
+      
+      // Start the first beep immediately
+      createBeep();
+      
+      // Schedule beeps every 200ms
+      intervalId = setInterval(() => {
         createBeep();
       }, 200);
       
       // Store interval for cleanup
-      soundTimeoutRef.current = beepInterval as any;
+      soundTimeoutRef.current = intervalId as any;
       
       // Auto-stop after 30 seconds as backup
-      setTimeout(() => {
-        clearInterval(beepInterval);
+      const backupTimeout = setTimeout(() => {
+        console.log('⏰ AUTO-STOPPING AFTER 30 SECONDS (BACKUP)');
+        clearInterval(intervalId);
         setIsSoundPlaying(false);
         if (audioContextRef.current) {
           audioContextRef.current.close();
           audioContextRef.current = null;
         }
-        console.log('⏰ AUTO-STOPPING AFTER 30 SECONDS (BACKUP)');
       }, 30000);
       
     } catch (error) {
-      console.error('❌ AUDIO FAILED:', error);
+      console.error('❌ AUDIO SETUP FAILED:', error);
       setIsSoundPlaying(false);
       
-      // Fallback using multiple overlapping beeps
+      // Fallback using HTML5 Audio with repeated creation
       try {
+        console.log('🔔 STARTING FALLBACK BEEPING');
         let fallbackBeeps = 0;
         const maxFallbackBeeps = 150;
         
         const fallbackBeep = () => {
           if (fallbackBeeps >= maxFallbackBeeps) {
+            console.log('⏰ Fallback beeping complete');
             setIsSoundPlaying(false);
             return;
           }
           
+          console.log(`🔔 Fallback beep ${fallbackBeeps + 1}/${maxFallbackBeeps}`);
+          
           const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFUo4O9yJQQmdcb1z4A7Chxxtujvpkl');
           audio.volume = 1.0;
-          audio.play().catch(console.error);
+          audio.play().catch(e => console.error('Fallback audio play failed:', e));
           
           fallbackBeeps++;
         };
@@ -127,9 +143,8 @@ export const EmergencySOSButton = () => {
         setTimeout(() => {
           clearInterval(fallbackInterval);
           setIsSoundPlaying(false);
+          console.log('⏰ Fallback auto-stop after 30 seconds');
         }, 30000);
-        
-        console.log('🔔 FALLBACK BEEPING STARTED - EVERY 200MS');
         
       } catch (fallbackError) {
         console.error('❌ FALLBACK FAILED:', fallbackError);
@@ -139,17 +154,19 @@ export const EmergencySOSButton = () => {
   };
 
   const stopEmergencySound = () => {
-    console.log('🔇 Stopping emergency sound...');
+    console.log('🔇 Stopping emergency sound manually...');
     setIsSoundPlaying(false);
     
     if (soundTimeoutRef.current) {
-      clearTimeout(soundTimeoutRef.current); // Clear timeout, not interval
+      clearInterval(soundTimeoutRef.current);
       soundTimeoutRef.current = null;
+      console.log('✅ Interval cleared');
     }
     
     if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
+      console.log('✅ Audio context closed');
     }
   };
 
