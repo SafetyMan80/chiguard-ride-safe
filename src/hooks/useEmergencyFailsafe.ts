@@ -178,7 +178,7 @@ export const useEmergencyFailsafe = () => {
         
         // Backup: Direct edge function call
         async () => {
-          const response = await fetch('/api/emergency-backup', {
+          const response = await fetch('https://jhvdfihloyjdfrvbegqh.supabase.co/functions/v1/emergency-backup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(report)

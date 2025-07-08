@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { EmergencySOSButton } from "@/components/EmergencySOSButton";
 import { MultiCitySchedule } from "@/components/MultiCitySchedule";
 import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
@@ -229,8 +230,11 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
   };
 
   return (
-    <main className="flex-1 p-6 pb-32 max-w-md mx-auto w-full">
-      {renderActiveTab()}
-    </main>
+    <>
+      <main className="flex-1 p-6 pb-32 max-w-md mx-auto w-full">
+        {renderActiveTab()}
+      </main>
+      <EmergencySOSButton />
+    </>
   );
 };

@@ -9,8 +9,36 @@ export const EmergencySOSButton = () => {
   const [countdown, setCountdown] = useState(0);
   const { triggerSOS, isOnline } = useEmergencyFailsafe();
 
+  const playAlertSound = () => {
+    // Create emergency alert sound
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // High-pitched alert sound
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  };
+
   const handleSOSPress = async () => {
     setSosActive(true);
+    
+    // Play immediate alert sound
+    try {
+      playAlertSound();
+    } catch (error) {
+      console.warn('Could not play alert sound:', error);
+    }
     
     // 3-second countdown before activation to prevent accidental triggers
     let count = 3;
@@ -20,8 +48,23 @@ export const EmergencySOSButton = () => {
       count--;
       setCountdown(count);
       
+      // Play sound on each countdown tick
+      if (count > 0) {
+        try {
+          playAlertSound();
+        } catch (error) {
+          console.warn('Could not play countdown sound:', error);
+        }
+      }
+      
       if (count <= 0) {
         clearInterval(countdownInterval);
+        // Play final activation sound
+        try {
+          playAlertSound();
+        } catch (error) {
+          console.warn('Could not play activation sound:', error);
+        }
         triggerSOS("Emergency SOS activated from RAILSAVIOR app");
         setSosActive(false);
         setCountdown(0);
