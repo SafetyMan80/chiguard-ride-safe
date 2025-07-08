@@ -599,6 +599,62 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         nearbyStations: ["Hynes Convention Center", "Kenmore", "Massachusetts Avenue"]
       }
     ]
+  },
+  {
+    id: "san_francisco",
+    name: "San Francisco",
+    agency: "BART/MUNI", 
+    color: "bg-purple-600",
+    universities: [
+      {
+        id: "ucsf",
+        name: "UC San Francisco",
+        shortName: "UCSF",
+        description: "Public health sciences university",
+        studentCount: "3,000+",
+        nearbyStations: ["16th St Mission", "24th St Mission", "Glen Park"]
+      },
+      {
+        id: "usf",
+        name: "University of San Francisco", 
+        shortName: "USF",
+        description: "Private Jesuit research university",
+        studentCount: "11,000+",
+        nearbyStations: ["N-Judah Line", "Golden Gate Park", "Inner Richmond"]
+      },
+      {
+        id: "sfsu", 
+        name: "San Francisco State University",
+        shortName: "SF State",
+        description: "Public university",
+        studentCount: "30,000+",
+        nearbyStations: ["Daly City", "Balboa Park", "19th Avenue"]
+      },
+      {
+        id: "stanford",
+        name: "Stanford University",
+        shortName: "Stanford", 
+        description: "Private research university",
+        studentCount: "17,000+",
+        nearbyStations: ["Palo Alto Caltrain", "California Ave", "Menlo Park"]
+      },
+      {
+        id: "berkeley",
+        name: "UC Berkeley",
+        shortName: "Cal Berkeley",
+        description: "Public research university", 
+        studentCount: "45,000+",
+        nearbyStations: ["Downtown Berkeley BART", "North Berkeley BART", "Ashby BART"]
+      },
+      {
+        id: "sjsu",
+        name: "San Jose State University",
+        shortName: "SJSU", 
+        description: "Public university",
+        studentCount: "35,000+",
+        nearbyStations: ["Diridon/Caltrain", "San Jose Diridon", "VTA Light Rail"]
+      }
+    ]
   }
 ];
 
