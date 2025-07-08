@@ -15,7 +15,7 @@ export const EmergencySOSButton = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const playEmergencySound = async () => {
-    console.log('🔊 EMERGENCY SOUND STARTING - MANUAL STOP REQUIRED');
+    console.log('🔊 EMERGENCY SOUND STARTING - 30 SECONDS CONTINUOUS');
     setIsSoundPlaying(true);
     
     try {
@@ -31,74 +31,67 @@ export const EmergencySOSButton = () => {
       
       audioContextRef.current = audioContext;
       
-      // Create very loud intermittent emergency siren
-      const createIntermittentSiren = () => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Very loud intermittent siren - alternating high/low frequencies
-        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
-        oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.2);
-        oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 0.4);
-        oscillator.type = 'sawtooth'; // Harsh, attention-grabbing sound
-        
-        // Maximum volume
-        gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
-        
-        console.log('🚨 INTERMITTENT SIREN TONE PLAYED');
-        return oscillator;
-      };
+      // Create continuous loud emergency siren for 30 seconds
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
       
-      // Start immediately
-      createIntermittentSiren();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
       
-      // Continue indefinitely until manually stopped - intermittent pattern
-      let toneCount = 1;
-      const sirenInterval = setInterval(() => {
-        if (!isSoundPlaying) {
-          console.log('⏹️ STOPPING EMERGENCY SOUND - MANUALLY STOPPED');
-          clearInterval(sirenInterval);
-          return;
+      // Continuous siren pattern - alternating frequencies
+      oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.5);
+      oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 1);
+      oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 1.5);
+      oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 2);
+      
+      // Repeat the pattern for 30 seconds
+      for (let i = 2; i < 30; i += 2) {
+        oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + i + 0.5);
+        oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + i + 1);
+        oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + i + 1.5);
+        oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + i + 2);
+      }
+      
+      oscillator.type = 'sawtooth'; // Harsh, attention-grabbing sound
+      
+      // Maximum volume
+      gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
+      
+      // Start the continuous 30-second sound
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 30);
+      
+      console.log('🚨 CONTINUOUS 30-SECOND SIREN STARTED');
+      
+      // Auto-stop after 30 seconds
+      soundTimeoutRef.current = setTimeout(() => {
+        console.log('⏰ AUTO-STOPPING AFTER 30 SECONDS');
+        setIsSoundPlaying(false);
+        if (audioContextRef.current) {
+          audioContextRef.current.close();
         }
-        createIntermittentSiren();
-        toneCount++;
-        console.log(`🔊 INTERMITTENT SIREN ${toneCount} - CONTINUES UNTIL STOPPED`);
-      }, 800); // 0.5 second tone + 0.3 second pause = intermittent pattern
-      
-      // Store interval reference for cleanup
-      soundTimeoutRef.current = sirenInterval as any;
+      }, 30000);
       
     } catch (error) {
       console.error('❌ AUDIO FAILED:', error);
       setIsSoundPlaying(false);
       
-      // Simple fallback intermittent beep
+      // Simple fallback continuous beep
       try {
-        const createBeep = () => {
-          const audio = document.createElement('audio');
-          audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFOo4O9yJQQmdcb1z4A7Chxxtujvpkl';
-          audio.volume = 1.0;
-          audio.play().catch(console.error);
-        };
+        const audio = document.createElement('audio');
+        audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFUo4O9yJQQmdcb1z4A7Chxxtujvpkl';
+        audio.volume = 1.0;
+        audio.loop = true;
+        audio.play().catch(console.error);
         
-        // Intermittent beeps until stopped
-        const beepInterval = setInterval(() => {
-          if (!isSoundPlaying) {
-            clearInterval(beepInterval);
-            return;
-          }
-          createBeep();
-        }, 800);
+        // Stop after 30 seconds
+        setTimeout(() => {
+          audio.pause();
+          setIsSoundPlaying(false);
+        }, 30000);
         
-        soundTimeoutRef.current = beepInterval as any;
-        console.log('🔔 FALLBACK INTERMITTENT BEEPS STARTED');
+        console.log('🔔 FALLBACK CONTINUOUS AUDIO STARTED');
         
       } catch (fallbackError) {
         console.error('❌ FALLBACK FAILED:', fallbackError);
@@ -111,7 +104,7 @@ export const EmergencySOSButton = () => {
     setIsSoundPlaying(false);
     
     if (soundTimeoutRef.current) {
-      clearInterval(soundTimeoutRef.current); // Clear interval instead of timeout
+      clearTimeout(soundTimeoutRef.current); // Clear timeout, not interval
       soundTimeoutRef.current = null;
     }
     
