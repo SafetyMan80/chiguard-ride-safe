@@ -64,8 +64,8 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
                 flex flex-col items-center gap-1.5 h-auto py-2 px-2 min-h-[60px] min-w-[48px] justify-center
                 touch-target-large rounded-2xl transition-all duration-300 ease-out relative group
                 ${isActive 
-                  ? 'text-chicago-blue bg-chicago-blue/12 shadow-[var(--shadow-interactive)] scale-105 border border-chicago-blue/25' 
-                  : 'text-muted-foreground hover:text-chicago-blue hover:bg-chicago-blue/8 hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)]'
+                  ? 'text-chicago-blue bg-chicago-blue/12 shadow-[var(--shadow-interactive)] scale-105 border-2 border-white' 
+                  : 'text-muted-foreground hover:text-chicago-blue hover:bg-chicago-blue/8 hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)] hover:border-2 hover:border-white'
                 }
                 ${tab.priority ? 'hover:shadow-[var(--shadow-emergency)]' : ''}
               `}
@@ -98,15 +98,6 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               )}
             </Button>
             
-            {/* Priority badge for SOS */}
-            {tab.badge && (
-              <Badge 
-                variant="secondary" 
-                className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-chicago-red text-white border-0 shadow-[var(--shadow-emergency)] animate-pulse-emergency"
-              >
-                {tab.badge}
-              </Badge>
-            )}
           </div>
         );
       })}
