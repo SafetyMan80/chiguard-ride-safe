@@ -352,8 +352,8 @@ export const EmergencyButton = ({ onEmergencyActivated }: EmergencyButtonProps) 
       
       // Use the emergency failsafe hook to trigger SOS and auto-create incident
       try {
-        await triggerSOS("SOS button deployed - emergency assistance needed");
-        console.log("✅ SOS triggered successfully");
+        await triggerSOS("SOS Emergency - immediate assistance needed");
+        console.log("✅ SOS triggered successfully - incident auto-filed");
       } catch (error) {
         console.error("❌ SOS trigger failed:", error);
       }
