@@ -132,6 +132,15 @@ export const useEmergencyFailsafe = () => {
         cityName: 'Atlanta'
       };
     }
+    // Boston area (roughly)
+    else if (location.latitude >= 42.2 && location.latitude <= 42.5 && 
+             location.longitude >= -71.3 && location.longitude <= -70.8) {
+      cityInfo = {
+        transitLine: 'MBTA',
+        locationName: 'SOS incident reported MBTA',
+        cityName: 'Boston'
+      };
+    }
 
     return cityInfo;
   };
