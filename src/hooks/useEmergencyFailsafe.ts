@@ -82,8 +82,8 @@ export const useEmergencyFailsafe = () => {
   const determineCityFromLocation = async (location: { latitude: number; longitude: number }) => {
     // Default fallback
     let cityInfo = {
-      transitLine: 'Red Line', // Default to Chicago Red Line
-      locationName: 'Emergency Location',
+      transitLine: 'Chicago CTA',
+      locationName: 'SOS incident reported Chicago CTA',
       cityName: 'Chicago'
     };
 
@@ -91,8 +91,8 @@ export const useEmergencyFailsafe = () => {
     if (location.latitude >= 41.6 && location.latitude <= 42.1 && 
         location.longitude >= -87.9 && location.longitude <= -87.5) {
       cityInfo = {
-        transitLine: 'Red Line',
-        locationName: 'Chicago CTA Emergency',
+        transitLine: 'Chicago CTA',
+        locationName: 'SOS incident reported Chicago CTA',
         cityName: 'Chicago'
       };
     }
@@ -100,8 +100,8 @@ export const useEmergencyFailsafe = () => {
     else if (location.latitude >= 40.4 && location.latitude <= 40.9 && 
              location.longitude >= -74.3 && location.longitude <= -73.7) {
       cityInfo = {
-        transitLine: '4', // NYC Subway line
-        locationName: 'NYC MTA Emergency', 
+        transitLine: 'NYC MTA',
+        locationName: 'SOS incident reported NYC MTA', 
         cityName: 'New York'
       };
     }
@@ -109,8 +109,8 @@ export const useEmergencyFailsafe = () => {
     else if (location.latitude >= 38.8 && location.latitude <= 39.0 && 
              location.longitude >= -77.2 && location.longitude <= -76.9) {
       cityInfo = {
-        transitLine: 'Red Line', // DC Metro
-        locationName: 'DC Metro Emergency',
+        transitLine: 'DC Metro',
+        locationName: 'SOS incident reported DC Metro',
         cityName: 'Washington DC'
       };
     }
@@ -118,8 +118,8 @@ export const useEmergencyFailsafe = () => {
     else if (location.latitude >= 39.8 && location.latitude <= 40.1 && 
              location.longitude >= -75.3 && location.longitude <= -74.9) {
       cityInfo = {
-        transitLine: 'Market-Frankford Line',
-        locationName: 'SEPTA Emergency',
+        transitLine: 'SEPTA',
+        locationName: 'SOS incident reported SEPTA',
         cityName: 'Philadelphia'
       };
     }
@@ -127,8 +127,8 @@ export const useEmergencyFailsafe = () => {
     else if (location.latitude >= 33.6 && location.latitude <= 33.9 && 
              location.longitude >= -84.6 && location.longitude <= -84.2) {
       cityInfo = {
-        transitLine: 'Red Line', // MARTA
-        locationName: 'MARTA Emergency',
+        transitLine: 'MARTA',
+        locationName: 'SOS incident reported MARTA',
         cityName: 'Atlanta'
       };
     }
@@ -162,7 +162,7 @@ export const useEmergencyFailsafe = () => {
             .from('incident_reports')
             .insert({
               reporter_id: user?.id || 'anonymous',
-              incident_type: 'Medical Emergency', // Valid incident type for SOS
+              incident_type: 'SOS Emergency', // SOS button triggered incident
               transit_line: cityInfo.transitLine,
               location_name: cityInfo.locationName,
               description: `🚨 SOS EMERGENCY: ${report.details}`,
