@@ -131,12 +131,12 @@ serve(async (req) => {
       const majorStationForRoute = {
         'Red': '30173', // Howard
         'Blue': '30171', // O'Hare  
-        'Brown': '30057', // Fullerton
-        'Green': '30131', // Clark/Lake
-        'Orange': '30063', // Midway
+        'Brn': '30057', // Fullerton (Brown line uses 'Brn')
+        'G': '30131', // Clark/Lake (Green line uses 'G')
+        'Org': '30063', // Midway (Orange line uses 'Org')
         'Pink': '30131', // Clark/Lake
-        'Purple': '30173', // Howard
-        'Yellow': '30173' // Howard
+        'P': '30173', // Howard (Purple line uses 'P')
+        'Y': '30173' // Howard (Yellow line uses 'Y')
       };
       const stationId = majorStationForRoute[routeId] || '30173'; // Default to Howard
       apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`;

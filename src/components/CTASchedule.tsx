@@ -70,8 +70,18 @@ export const CTASchedule = () => {
       
       // Only send parameters if they're actually selected (not "all")
       if (selectedLine !== "all") {
-        const routeName = selectedLine.charAt(0).toUpperCase() + selectedLine.slice(1);
-        requestBody.routeId = routeName;
+        // Map UI line names to CTA API route identifiers
+        const routeMapping: { [key: string]: string } = {
+          'red': 'Red',
+          'blue': 'Blue', 
+          'brown': 'Brn',
+          'green': 'G',
+          'orange': 'Org',
+          'purple': 'P',
+          'pink': 'Pink',
+          'yellow': 'Y'
+        };
+        requestBody.routeId = routeMapping[selectedLine.toLowerCase()] || selectedLine;
       }
       if (selectedStation !== "all") {
         const stationMapping: { [key: string]: string } = {
