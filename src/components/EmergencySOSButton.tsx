@@ -14,46 +14,61 @@ export const EmergencySOSButton = () => {
   const soundTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const playEmergencySound = () => {
+  const playEmergencySound = async () => {
     console.log('🔊 Playing 30-second emergency sound...');
     setIsSoundPlaying(true);
     
     try {
-      // Create Web Audio emergency tone that loops
+      // Request audio permissions first
+      console.log('🎵 Requesting audio context...');
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Resume audio context if it's suspended (required by browsers)
+      if (audioContext.state === 'suspended') {
+        console.log('▶️ Resuming suspended audio context...');
+        await audioContext.resume();
+      }
+      
+      console.log('🎵 Audio context state:', audioContext.state);
       audioContextRef.current = audioContext;
       
       const playTone = () => {
+        console.log('🎺 Creating tone oscillator...');
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        // Emergency siren sound pattern
+        // Emergency siren sound pattern - louder and more aggressive
         oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
         oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.3);
         oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.6);
         oscillator.type = 'square';
         
-        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+        // Much louder volume
+        gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 0.8);
         
+        console.log('🎯 Starting oscillator at frequency:', oscillator.frequency.value);
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.8);
         
         return oscillator;
       };
       
-      // Play initial tone
+      // Play initial tone immediately
+      console.log('🎵 Playing initial emergency tone...');
       playTone();
       
       // Set up repeating tones for 30 seconds
-      let toneCount = 0;
-      const maxTones = Math.floor(30 / 1); // 30 tones over 30 seconds
+      let toneCount = 1; // Start at 1 since we already played one
+      const maxTones = 30; // 30 tones over 30 seconds
       
       const toneInterval = setInterval(() => {
+        console.log(`🔊 Playing tone ${toneCount + 1}/${maxTones}`);
         if (toneCount >= maxTones || !isSoundPlaying) {
+          console.log('⏹️ Stopping tone interval');
           clearInterval(toneInterval);
           setIsSoundPlaying(false);
           return;
@@ -64,18 +79,38 @@ export const EmergencySOSButton = () => {
       
       // Auto-stop after 30 seconds
       soundTimeoutRef.current = setTimeout(() => {
+        console.log('⏰ Auto-stopping emergency sound after 30 seconds');
         clearInterval(toneInterval);
         setIsSoundPlaying(false);
         if (audioContextRef.current) {
           audioContextRef.current.close();
         }
-        console.log('⏰ Emergency sound auto-stopped after 30 seconds');
       }, 30000);
       
-      console.log('✅ Emergency sound sequence started');
+      console.log('✅ Emergency sound sequence started successfully');
     } catch (error) {
       console.error('❌ Audio playback failed:', error);
       setIsSoundPlaying(false);
+      
+      // Try fallback HTML5 audio
+      console.log('🔄 Trying fallback HTML5 audio...');
+      try {
+        const audio = new Audio();
+        audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFOo4O9yJQQmdcb1z4A7Chxxtujvpkl';
+        audio.volume = 1.0;
+        audio.loop = true;
+        await audio.play();
+        console.log('✅ Fallback audio playing');
+        
+        // Stop fallback after 30 seconds
+        setTimeout(() => {
+          audio.pause();
+          setIsSoundPlaying(false);
+        }, 30000);
+        
+      } catch (fallbackError) {
+        console.error('❌ Fallback audio also failed:', fallbackError);
+      }
     }
   };
 
@@ -95,7 +130,10 @@ export const EmergencySOSButton = () => {
   };
 
   const handleMouseDown = () => {
-    if (isActivating || isSoundPlaying) return;
+    if (isActivating || isSoundPlaying) {
+      console.log('⚠️ Button press ignored - already activating or sound playing');
+      return;
+    }
     
     console.log('👆 SOS button hold started...');
     setIsHolding(true);
@@ -108,7 +146,9 @@ export const EmergencySOSButton = () => {
 
       try {
         // Play emergency sound immediately
-        playEmergencySound();
+        console.log('🎵 About to play emergency sound...');
+        await playEmergencySound();
+        console.log('🎵 Emergency sound call completed');
 
         // Show immediate feedback
         toast({
