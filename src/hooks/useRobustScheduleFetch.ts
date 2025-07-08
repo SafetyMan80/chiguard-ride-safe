@@ -16,10 +16,10 @@ interface FetchConfig {
 const DEFAULT_CONFIG: FetchConfig = {
   maxRetries: 3,
   retryDelay: 1000,
-  timeout: 15000, // Increased timeout
+  timeout: 20000, // Increased timeout for CTA
   rateLimit: {
-    maxRequests: 10,
-    timeWindow: 60000 // 10 requests per minute
+    maxRequests: 5, // More conservative - only 5 requests per minute
+    timeWindow: 60000 // 5 requests per minute instead of 10
   }
 };
 

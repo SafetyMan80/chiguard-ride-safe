@@ -171,19 +171,19 @@ export const CTASchedule = () => {
   };
 
   // Use visibility-aware interval for better performance
-  useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
+  useVisibilityAwareInterval(fetchArrivals, 120000); // Increased to 2 minutes to avoid rate limiting
 
   useEffect(() => {
     console.log('🚆 CTA useEffect triggered with selectedLine/selectedStation change', { selectedLine, selectedStation });
     console.log('🚆 CTA calling fetchArrivals now');
     fetchArrivals();
-  }, [selectedLine, selectedStation, fetchWithRetry]);
+  }, [selectedLine, selectedStation]); // Removed fetchWithRetry dependency to prevent infinite loops
 
   // Initial load
   useEffect(() => {
     console.log('🚆 CTA component mounted, initial fetchArrivals call');
     fetchArrivals();
-  }, []);
+  }, []); // Empty dependency array for mount only
 
   // Add debugging for component render
   console.log('🚆 CTA Component rendering with state:', {
