@@ -3,7 +3,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
+import { MajorStationsDisplay } from "@/components/shared/MajorStationsDisplay";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MTAResponse {
   success: boolean;
@@ -20,6 +22,7 @@ export const MTASchedule = () => {
   const [selectedStation, setSelectedStation] = useState<string>("all");
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [activeTab, setActiveTab] = useState<string>("overview");
   const { toast } = useToast();
 
   const config = CITY_CONFIGS.nyc;
@@ -93,6 +96,30 @@ export const MTASchedule = () => {
     }
   };
 
+  // Fetch arrivals for a specific station (for MajorStationsDisplay)
+  const fetchStationArrivals = async (stationName: string): Promise<StandardArrival[]> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('mta-schedule', {
+        method: 'POST',
+        body: { 
+          stationName: stationName,
+          results: '5'
+        }
+      });
+
+      if (error) throw error;
+
+      const response: MTAResponse = data;
+      if (response.success && response.data) {
+        return Array.isArray(response.data) ? response.data : [];
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching station arrivals:', error);
+      return [];
+    }
+  };
+
   const getLineColor = (line: string) => {
     const lineData = config.lines.find(l => l.name.toLowerCase().includes(line.toLowerCase()));
     return lineData?.color || "bg-gray-500";
@@ -131,20 +158,47 @@ export const MTASchedule = () => {
     }
   };
 
+  const handleStationClick = (stationId: string) => {
+    setSelectedStation(stationId);
+    setActiveTab("detailed");
+    fetchArrivals();
+  };
+
   return (
-    <StandardScheduleLayout
-      config={config}
-      selectedLine={selectedLine}
-      selectedStation={selectedStation}
-      arrivals={arrivals}
-      loading={loading}
-      lastUpdated={lastUpdated}
-      isOnline={isOnline}
-      onLineChange={handleLineChange}
-      onStationChange={setSelectedStation}
-      onRefresh={fetchArrivals}
-      formatArrivalTime={formatArrivalTime}
-      getLineColor={getLineColor}
-    />
+    <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="overview">Station Overview</TabsTrigger>
+          <TabsTrigger value="detailed">Detailed Schedule</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-4">
+          <MajorStationsDisplay
+            config={config}
+            onStationClick={handleStationClick}
+            fetchArrivals={fetchStationArrivals}
+            formatArrivalTime={formatArrivalTime}
+            getLineColor={getLineColor}
+          />
+        </TabsContent>
+        
+        <TabsContent value="detailed" className="space-y-4">
+          <StandardScheduleLayout
+            config={config}
+            selectedLine={selectedLine}
+            selectedStation={selectedStation}
+            arrivals={arrivals}
+            loading={loading}
+            lastUpdated={lastUpdated}
+            isOnline={isOnline}
+            onLineChange={handleLineChange}
+            onStationChange={setSelectedStation}
+            onRefresh={fetchArrivals}
+            formatArrivalTime={formatArrivalTime}
+            getLineColor={getLineColor}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
