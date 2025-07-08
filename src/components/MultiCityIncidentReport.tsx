@@ -20,6 +20,7 @@ interface City {
 }
 
 const CITIES_WITH_RAIL: City[] = [
+  // Available Cities - Data Available
   {
     id: "chicago",
     name: "Chicago",
@@ -71,16 +72,6 @@ const CITIES_WITH_RAIL: City[] = [
     majorStations: ["30th Street Station", "Suburban Station", "Jefferson Station", "Temple University", "City Hall", "Broad St-Pattison"]
   },
   {
-    id: "los_angeles",
-    name: "Los Angeles",
-    agency: "LA Metro",
-    description: "Metro Rail System - Light rail and subway lines",
-    railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
-    color: "bg-red-600",
-    available: false,
-    majorStations: ["Union Station", "7th St/Metro Center", "Hollywood/Highland", "Westlake/MacArthur Park", "North Hollywood", "Long Beach"]
-  },
-  {
     id: "atlanta",
     name: "Atlanta",
     agency: "MARTA (Metropolitan Atlanta Rapid Transit Authority)",
@@ -99,6 +90,17 @@ const CITIES_WITH_RAIL: City[] = [
     color: "bg-blue-700",
     available: true,
     majorStations: ["South Station", "North Station", "Back Bay", "Downtown Crossing", "Park Street", "Government Center", "Harvard", "MIT/Kendall"]
+  },
+  // Coming Soon Cities
+  {
+    id: "los_angeles",
+    name: "Los Angeles",
+    agency: "LA Metro",
+    description: "Metro Rail System - Light rail and subway lines",
+    railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
+    color: "bg-red-600",
+    available: false,
+    majorStations: ["Union Station", "7th St/Metro Center", "Hollywood/Highland", "Westlake/MacArthur Park", "North Hollywood", "Long Beach"]
   }
 ];
 
