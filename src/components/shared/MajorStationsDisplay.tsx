@@ -103,6 +103,9 @@ export const MajorStationsDisplay: React.FC<MajorStationsDisplayProps> = ({
     const first = arrivals[0];
     const time = formatArrivalTime(first.arrivalTime);
     
+    // Add null check for time to prevent .includes() error
+    if (!time || typeof time !== 'string') return "Unknown";
+    
     // Determine status/prediction
     if (time === "Boarding" || time === "Arrived") return time;
     if (time === "Departing" || time === "Leaving") return "Departing";

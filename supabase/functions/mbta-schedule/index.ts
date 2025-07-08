@@ -181,18 +181,24 @@ serve(async (req) => {
 
       return {
         id: prediction.id,
+        line: route?.attributes?.short_name || route?.id || 'Unknown',
+        station: stop?.attributes?.name || 'Unknown Station',
+        destination: route?.attributes?.direction_destinations?.[prediction.attributes.direction_id] || 'Unknown',
+        direction: prediction.attributes.direction_id === 0 ? 'Inbound' : 'Outbound',
+        arrivalTime: minutesAway, // Map minutes_away to arrivalTime for StandardArrival interface
+        eventTime: arrivalTime,
+        delay: null,
+        trainId: prediction.relationships.vehicle?.data?.id || null,
+        status: prediction.attributes.status || 'On Time',
+        // Keep additional MBTA-specific fields for backward compatibility
         route_id: route?.attributes?.short_name || route?.id || 'Unknown',
         route_name: route?.attributes?.long_name || route?.attributes?.short_name || 'Unknown Line',
-        direction: prediction.attributes.direction_id === 0 ? 'Inbound' : 'Outbound',
-        destination: route?.attributes?.direction_destinations?.[prediction.attributes.direction_id] || 'Unknown',
         stop_name: stop?.attributes?.name || 'Unknown Station',
         stop_id: stop?.id || '',
         predicted_arrival: arrivalTime,
         minutes_away: minutesAway,
-        status: prediction.attributes.status || 'On Time',
         vehicle_id: prediction.relationships.vehicle?.data?.id || null,
         track: stop?.attributes?.platform_name || stop?.attributes?.platform_code || null,
-        delay: null,
         timestamp: new Date().toISOString()
       };
     }) || [];
