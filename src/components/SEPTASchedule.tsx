@@ -175,7 +175,10 @@ export const SEPTASchedule = () => {
         
         <TabsContent value="overview" className="space-y-4">
           <MajorStationsDisplay
-            config={config}
+            config={{
+              ...config,
+              name: config.name + " - Coming Soon!"
+            }}
             onStationClick={handleStationClick}
             fetchArrivals={fetchStationArrivals}
             formatArrivalTime={formatArrivalTime}
@@ -185,7 +188,10 @@ export const SEPTASchedule = () => {
         
         <TabsContent value="detailed" className="space-y-4">
           <StandardScheduleLayout
-            config={config}
+            config={{
+              ...config,
+              name: config.name + " - Coming Soon!"
+            }}
             selectedLine={selectedLine}
             selectedStation={selectedStation}
             arrivals={arrivals}
