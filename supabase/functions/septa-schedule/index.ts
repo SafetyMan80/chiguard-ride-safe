@@ -140,6 +140,10 @@ async function getArrivals(station: string) {
     // SEPTA Real-time arrival API
     const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}`;
     console.log(`🚇 SEPTA: Calling API: ${url}`);
+    console.log(`🚇 SEPTA: Request headers:`, {
+      'Accept': 'application/json',
+      'User-Agent': 'RAILSAVIOR App'
+    });
     
     const response = await fetch(url, {
       method: 'GET',
@@ -150,6 +154,7 @@ async function getArrivals(station: string) {
     });
 
     console.log(`🚇 SEPTA: API Response Status: ${response.status} ${response.statusText}`);
+    console.log(`🚇 SEPTA: Response Headers:`, Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       console.error(`🚇 SEPTA API error: ${response.status} ${response.statusText}`);
@@ -158,11 +163,26 @@ async function getArrivals(station: string) {
       throw new Error(`SEPTA API responded with status ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log('SEPTA API response received');
+    const responseText = await response.text();
+    console.log(`🚇 SEPTA: Raw response body (first 500 chars):`, responseText.substring(0, 500));
+    console.log(`🚇 SEPTA: Full response length:`, responseText.length);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log('🚇 SEPTA: Response parsed as JSON successfully');
+      console.log('🚇 SEPTA: Response keys:', Object.keys(data));
+      console.log('🚇 SEPTA: Full API response structure:', JSON.stringify(data, null, 2));
+    } catch (parseError) {
+      console.error('🚇 SEPTA: Failed to parse response as JSON:', parseError);
+      console.error('🚇 SEPTA: Raw response text:', responseText);
+      throw new Error(`Invalid JSON response: ${parseError.message}`);
+    }
 
     // Transform the data to a consistent format
+    console.log(`🚇 SEPTA: Processing ${Object.keys(data).length} potential line entries`);
     const arrivals = Object.entries(data).flatMap(([lineKey, lineData]: [string, any]) => {
+      console.log(`🚇 SEPTA: Processing line key "${lineKey}" with data type:`, typeof lineData, Array.isArray(lineData) ? `Array[${lineData.length}]` : 'Not Array');
       if (!Array.isArray(lineData)) return [];
       
       return lineData.map((arrival: any) => {
