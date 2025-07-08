@@ -1,152 +1,134 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, MapPin, Phone } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useEmergencyFailsafe } from '@/hooks/useEmergencyFailsafe';
-import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export const EmergencySOSButton = () => {
-  const [sosActive, setSosActive] = useState(false);
-  const [countdown, setCountdown] = useState(0);
+  const [isActivating, setIsActivating] = useState(false);
   const { triggerSOS, isOnline } = useEmergencyFailsafe();
+  const { toast } = useToast();
 
-  const playAlertSound = () => {
-    // Create emergency alert sound
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+  const playEmergencySound = () => {
+    console.log('🔊 Playing emergency sound...');
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // High-pitched alert sound
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
-  };
-
-  const handleSOSPress = async () => {
-    setSosActive(true);
-    
-    // Play immediate alert sound
     try {
-      playAlertSound();
+      // Create Web Audio emergency tone
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Emergency siren sound
+      oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.2);
+      oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 0.4);
+      oscillator.type = 'square';
+      
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.6);
+      
+      console.log('✅ Emergency sound played successfully');
     } catch (error) {
-      console.warn('Could not play alert sound:', error);
+      console.error('❌ Audio playback failed:', error);
+      
+      // Fallback: System beep
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFOo4O9yJQQmdcb1z4A7Chxxtujvpkl');
+        audio.volume = 0.5;
+        audio.play();
+        console.log('✅ Fallback sound played');
+      } catch (fallbackError) {
+        console.warn('⚠️ All audio methods failed:', fallbackError);
+      }
     }
-    
-    // 3-second countdown before activation to prevent accidental triggers
-    let count = 3;
-    setCountdown(count);
-    
-    const countdownInterval = setInterval(() => {
-      count--;
-      setCountdown(count);
-      
-      // Play sound on each countdown tick
-      if (count > 0) {
-        try {
-          playAlertSound();
-        } catch (error) {
-          console.warn('Could not play countdown sound:', error);
-        }
-      }
-      
-      if (count <= 0) {
-        clearInterval(countdownInterval);
-        // Play final activation sound
-        try {
-          playAlertSound();
-        } catch (error) {
-          console.warn('Could not play activation sound:', error);
-        }
-        triggerSOS("Emergency SOS activated from RAILSAVIOR app");
-        setSosActive(false);
-        setCountdown(0);
-      }
-    }, 1000);
-
-    // Allow cancellation during countdown
-    setTimeout(() => {
-      if (sosActive) {
-        setSosActive(false);
-        setCountdown(0);
-        clearInterval(countdownInterval);
-      }
-    }, 100); // Small delay to prevent immediate cancellation
   };
 
-  const cancelSOS = () => {
-    setSosActive(false);
-    setCountdown(0);
+  const handleSOSClick = async () => {
+    if (isActivating) {
+      console.log('⚠️ SOS already activating, ignoring click');
+      return;
+    }
+
+    console.log('🚨 SOS BUTTON CLICKED - Starting activation...');
+    setIsActivating(true);
+
+    try {
+      // Play emergency sound immediately
+      playEmergencySound();
+
+      // Show immediate feedback
+      toast({
+        title: "🚨 SOS ACTIVATED",
+        description: "Emergency services are being notified...",
+        variant: "destructive",
+      });
+
+      console.log('📍 Triggering SOS with GPS location detection...');
+      
+      // Use the emergency failsafe to file incident report
+      await triggerSOS("SOS Emergency - immediate assistance needed");
+      
+      console.log('✅ SOS successfully triggered and incident filed');
+      
+      // Success feedback
+      toast({
+        title: "✅ Emergency Report Filed",
+        description: "SOS incident has been logged and emergency services notified",
+      });
+
+    } catch (error) {
+      console.error('❌ SOS activation failed:', error);
+      
+      toast({
+        title: "❌ SOS Error",
+        description: "Failed to send emergency alert. Please call 911 directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsActivating(false);
+    }
   };
-
-  if (sosActive) {
-    return (
-      <div className="fixed inset-0 bg-red-500/90 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg p-8 text-center space-y-6 max-w-sm mx-4 shadow-2xl">
-          <div className="text-red-500">
-            <AlertTriangle className="w-16 h-16 mx-auto animate-pulse" />
-          </div>
-          
-          <div>
-            <h2 className="text-2xl font-bold text-red-600 mb-2">
-              SOS ACTIVATING
-            </h2>
-            <p className="text-lg font-mono text-red-500">
-              {countdown}
-            </p>
-            <p className="text-sm text-gray-600 mt-2">
-              Emergency services will be notified
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <Button 
-              onClick={cancelSOS}
-              variant="outline" 
-              className="w-full border-red-300 text-red-600 hover:bg-red-50"
-            >
-              CANCEL SOS
-            </Button>
-            
-            <div className="text-xs text-gray-500 space-y-1">
-              <div className="flex items-center justify-center gap-2">
-                <MapPin className="w-3 h-3" />
-                <span>Location: {isOnline ? 'Tracking' : 'Offline'}</span>
-              </div>
-              <div className="flex items-center justify-center gap-2">
-                <Phone className="w-3 h-3" />
-                <span>Call 911 for immediate help</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <Button
-      onClick={handleSOSPress}
-      className={cn(
-        "fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl z-40",
-        "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700",
-        "border-4 border-red-300 hover:border-red-200",
-        "transform hover:scale-105 active:scale-95 transition-all duration-200",
-        !isOnline && "animate-pulse border-orange-300 from-orange-500 to-orange-600"
-      )}
-      size="icon"
-    >
-      <div className="flex flex-col items-center">
-        <AlertTriangle className="w-6 h-6 text-white" />
-        <span className="text-xs font-bold text-white">SOS</span>
+    <div className="flex flex-col items-center space-y-4 p-6">
+      <div className="text-center space-y-2 mb-4">
+        <h2 className="text-2xl font-bold text-red-600">Emergency SOS</h2>
+        <p className="text-sm text-muted-foreground max-w-sm">
+          Click the button below to activate emergency alert with GPS location
+        </p>
       </div>
-    </Button>
+
+      <Button
+        onClick={handleSOSClick}
+        disabled={isActivating}
+        className="w-32 h-32 rounded-full bg-gradient-to-br from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white shadow-2xl border-4 border-red-300 hover:border-red-200 transform hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50"
+        size="lg"
+      >
+        <div className="flex flex-col items-center space-y-1">
+          <AlertTriangle className={`w-12 h-12 ${isActivating ? 'animate-pulse' : ''}`} />
+          <span className="text-lg font-bold">
+            {isActivating ? 'ACTIVATING...' : 'SOS'}
+          </span>
+        </div>
+      </Button>
+
+      <div className="text-center space-y-1">
+        <p className="text-xs text-muted-foreground">
+          Status: {isOnline ? '🟢 Online' : '🔴 Offline'}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Will automatically detect nearest transit system
+        </p>
+        <p className="text-xs font-semibold text-red-600">
+          For immediate help, always call 911
+        </p>
+      </div>
+    </div>
   );
 };

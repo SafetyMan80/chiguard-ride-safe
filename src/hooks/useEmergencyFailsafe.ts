@@ -137,7 +137,10 @@ export const useEmergencyFailsafe = () => {
   };
 
   const sendEmergencyReport = async (report: EmergencyReport, skipQueue = false): Promise<boolean> => {
+    console.log('📧 sendEmergencyReport called:', { report, skipQueue, isOnline });
+    
     if (!isOnline && !skipQueue) {
+      console.log('💾 Device offline, adding to queue');
       // Add to offline queue
       setOfflineQueue(prev => [...prev, { ...report, status: 'offline' }]);
       toast({
@@ -149,30 +152,48 @@ export const useEmergencyFailsafe = () => {
     }
 
     try {
+      console.log('👤 Getting current user...');
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('✅ User obtained:', user?.id || 'anonymous');
       
+      console.log('🗺️ Determining city from location...');
       // Determine city and transit line based on location or user profile
       let cityInfo = await determineCityFromLocation(report.location);
+      console.log('✅ City info:', cityInfo);
       
       // Multiple delivery attempts with different methods
       const deliveryMethods = [
         // Primary: Supabase database
         async () => {
-          const { error } = await supabase
-            .from('incident_reports')
-            .insert({
-              reporter_id: user?.id || 'anonymous',
-              incident_type: 'SOS Emergency', // SOS button triggered incident
-              transit_line: cityInfo.transitLine,
-              location_name: cityInfo.locationName,
-              description: `🚨 SOS EMERGENCY: ${report.details}`,
-              latitude: report.location.latitude,
-              longitude: report.location.longitude,
-              accuracy: report.location.accuracy,
-              status: 'active'
-            });
+          console.log('🗄️ Attempting Supabase database insertion...');
           
-          if (error) throw error;
+          const insertData = {
+            reporter_id: user?.id || 'anonymous',
+            incident_type: 'SOS Emergency', // SOS button triggered incident
+            transit_line: cityInfo.transitLine,
+            location_name: cityInfo.locationName,
+            description: `🚨 SOS EMERGENCY: ${report.details}`,
+            latitude: report.location.latitude,
+            longitude: report.location.longitude,
+            accuracy: report.location.accuracy,
+            status: 'active'
+          };
+          
+          console.log('📝 Insert data prepared:', insertData);
+          
+          const { error, data } = await supabase
+            .from('incident_reports')
+            .insert(insertData)
+            .select();
+            
+          console.log('📊 Supabase insert result:', { error, data });
+          
+          if (error) {
+            console.error('❌ Supabase insert error:', error);
+            throw error;
+          }
+          
+          console.log('✅ Supabase insert successful!');
           return true;
         },
         
@@ -254,9 +275,13 @@ export const useEmergencyFailsafe = () => {
   };
 
   const triggerSOS = useCallback(async (details: string = "Emergency assistance needed") => {
+    console.log('🚨 triggerSOS called with details:', details);
+    
     try {
+      console.log('📍 Getting current location...');
       // Get location immediately
       const position = await getCurrentLocation();
+      console.log('✅ Location obtained:', position.coords.latitude, position.coords.longitude);
       
       const sosReport: EmergencyReport = {
         id: `sos-${Date.now()}`,
@@ -271,6 +296,8 @@ export const useEmergencyFailsafe = () => {
         status: 'pending'
       };
 
+      console.log('📋 Created SOS report:', sosReport);
+
       // Immediate visual feedback
       toast({
         title: "🚨 SOS ACTIVATED",
@@ -278,10 +305,14 @@ export const useEmergencyFailsafe = () => {
         variant: "destructive"
       });
 
+      console.log('📤 Sending emergency report...');
       // Try to send immediately
-      await sendEmergencyReport(sosReport);
+      const success = await sendEmergencyReport(sosReport);
+      console.log('📧 Emergency report send result:', success);
       
     } catch (locationError) {
+      console.warn('⚠️ Location error, sending SOS without location:', locationError);
+      
       // Even without location, still send SOS
       const sosReport: EmergencyReport = {
         id: `sos-${Date.now()}`,
@@ -292,13 +323,17 @@ export const useEmergencyFailsafe = () => {
         status: 'pending'
       };
 
+      console.log('📋 Created fallback SOS report:', sosReport);
+
       toast({
         title: "🚨 SOS ACTIVATED (No Location)",
         description: "Emergency services are being notified without location",
         variant: "destructive"
       });
 
-      await sendEmergencyReport(sosReport);
+      console.log('📤 Sending fallback emergency report...');
+      const success = await sendEmergencyReport(sosReport);
+      console.log('📧 Fallback emergency report send result:', success);
     }
   }, []);
 

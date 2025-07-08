@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { EmergencySOSButton } from "@/components/EmergencySOSButton";
 import { MultiCitySchedule } from "@/components/MultiCitySchedule";
 import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
@@ -110,7 +111,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
         return (
           <div className="space-y-8">
             <div className="text-center">
-              <EmergencyButton onEmergencyActivated={handleEmergencyActivated} />
+              <EmergencySOSButton />
             </div>
             <div className="border-t pt-6">
               <h2 className="text-xl font-semibold mb-4">Quick Report</h2>
