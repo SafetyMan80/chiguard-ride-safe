@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
+import { useRobustScheduleFetch } from "@/hooks/useRobustScheduleFetch";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
 
@@ -15,12 +15,22 @@ interface CTAResponse {
 
 export const CTASchedule = () => {
   const [arrivals, setArrivals] = useState<StandardArrival[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedLine, setSelectedLine] = useState<string>("all");
   const [selectedStation, setSelectedStation] = useState<string>("all");
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
+  
+  // Use robust fetch hook with CTA-specific config
+  const { fetchWithRetry, loading, error, clearError } = useRobustScheduleFetch('CTA', {
+    maxRetries: 4, // Extra retry for CTA
+    retryDelay: 2000, // Longer delay for CTA API
+    timeout: 20000, // Longer timeout
+    rateLimit: {
+      maxRequests: 8, // Conservative rate limiting
+      timeWindow: 60000
+    }
+  });
 
   const config = CITY_CONFIGS.chicago;
 
@@ -53,7 +63,8 @@ export const CTASchedule = () => {
       return;
     }
 
-    setLoading(true);
+    clearError(); // Clear any previous errors
+
     try {
       const requestBody: any = {};
       
@@ -82,31 +93,35 @@ export const CTASchedule = () => {
         requestBody.stopId = stationMapping[selectedStation] || selectedStation;
       }
       
-      console.log('🚆 CTA calling edge function with body:', requestBody);
+      console.log('🚆 CTA calling robust fetch with body:', requestBody);
       
-      const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        body: Object.keys(requestBody).length > 0 ? requestBody : { stopId: '30173' }
-      });
+      // Use robust fetch instead of direct supabase call
+      const response: CTAResponse = await fetchWithRetry(
+        'cta-schedule',
+        Object.keys(requestBody).length > 0 ? requestBody : { stopId: '30173' }
+      );
 
-      console.log('🚆 CTA Edge function response:', { data, error });
-
-      if (error) {
-        console.error('🚆 CTA Edge function error:', error);
-        throw error;
-      }
-
-      const response: CTAResponse = data;
+      console.log('🚆 CTA Robust fetch response:', response);
       console.log('🚆 CTA Response success:', response.success);
       console.log('🚆 CTA Response data length:', response.data?.length || 0);
       
       if (response.success) {
         setArrivals(response.data || []);
-        setLastUpdated(new Date().toLocaleTimeString());
+        
+        // Format timestamp with Central Time (CTA timezone)
+        const now = new Date();
+        const centralTime = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Chicago',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        }).format(now);
+        setLastUpdated(centralTime);
         
         if (response.data && response.data.length > 0) {
           toast({
-            title: "Schedule Updated",
-            description: `Found ${response.data.length} upcoming arrivals`,
+            title: "CTA Schedule Updated",
+            description: `Found ${response.data.length} upcoming arrivals at ${centralTime} CT`,
             duration: 2000
           });
         } else {
@@ -136,8 +151,6 @@ export const CTASchedule = () => {
         variant: "destructive",
         duration: 3000
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -164,7 +177,7 @@ export const CTASchedule = () => {
     console.log('🚆 CTA useEffect triggered with selectedLine/selectedStation change', { selectedLine, selectedStation });
     console.log('🚆 CTA calling fetchArrivals now');
     fetchArrivals();
-  }, [selectedLine, selectedStation]);
+  }, [selectedLine, selectedStation, fetchWithRetry]);
 
   // Initial load
   useEffect(() => {

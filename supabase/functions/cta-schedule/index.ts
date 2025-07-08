@@ -2,7 +2,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-requested-with',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Max-Age': '86400', // 24 hours
 }
 
 serve(async (req) => {
@@ -34,6 +36,25 @@ serve(async (req) => {
     console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
     console.log('🔑 CTA_API_KEY length:', CTA_API_KEY?.length || 0);
     console.log('📥 Request params:', { stopId, routeId, method: req.method });
+    console.log('📥 Request headers:', Object.fromEntries(req.headers.entries()));
+    
+    // Enhanced API key validation
+    if (CTA_API_KEY) {
+      const trimmedKey = CTA_API_KEY.trim();
+      const hasHiddenChars = CTA_API_KEY !== trimmedKey;
+      const keyPattern = /^[a-zA-Z0-9]+$/; // Basic pattern for CTA keys
+      
+      console.log('🔑 API Key validation:', {
+        originalLength: CTA_API_KEY.length,
+        trimmedLength: trimmedKey.length,
+        hasHiddenChars,
+        matchesPattern: keyPattern.test(trimmedKey)
+      });
+      
+      if (hasHiddenChars) {
+        console.warn('⚠️  API key contains hidden characters (spaces/line breaks)');
+      }
+    }
     
     // ISSUE CHECK 3: Missing API Key
     if (!CTA_API_KEY) {
@@ -69,6 +90,22 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
+    }
+
+    // Stop ID validation function
+    const validateStopId = (id: string): boolean => {
+      if (!id) return false;
+      // CTA stop IDs are typically 5-digit numbers
+      const stopIdPattern = /^\d{5}$/;
+      const isValid = stopIdPattern.test(id);
+      console.log(`🚏 Stop ID validation for "${id}":`, isValid);
+      return isValid;
+    };
+
+    // Validate stop ID if provided
+    if (stopId && !validateStopId(stopId)) {
+      console.warn(`⚠️  Invalid stop ID format: "${stopId}". Expected 5-digit number.`);
+      // Don't fail, but log the issue
     }
 
     // If no specific parameters, try the busiest downtown stations first
@@ -108,10 +145,25 @@ serve(async (req) => {
 
     console.log(`🚆 Fetching CTA data from: ${apiUrl}`);
     console.log('🚆 About to make HTTP request to CTA API...');
+    
+    // Add request headers for better debugging
+    const requestHeaders = {
+      'User-Agent': 'ChiGuard-Transit-App/1.0',
+      'Accept': 'application/json, text/xml',
+      'Cache-Control': 'no-cache'
+    };
+    
+    console.log('🚆 Request headers:', requestHeaders);
+    console.log('🚆 Request timestamp:', new Date().toISOString());
 
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: requestHeaders
+    });
+    
     console.log(`🚆 CTA API HTTP Status: ${response.status} ${response.statusText}`);
     console.log('🚆 CTA API Response Headers:', Object.fromEntries(response.headers.entries()));
+    console.log('🚆 Response timestamp:', new Date().toISOString());
     
     if (!response.ok) {
       const errorText = await response.text();

@@ -7,13 +7,24 @@ interface FetchConfig {
   maxRetries: number;
   retryDelay: number;
   timeout: number;
+  rateLimit: {
+    maxRequests: number;
+    timeWindow: number; // in milliseconds
+  };
 }
 
 const DEFAULT_CONFIG: FetchConfig = {
   maxRetries: 3,
   retryDelay: 1000,
-  timeout: 10000
+  timeout: 15000, // Increased timeout
+  rateLimit: {
+    maxRequests: 10,
+    timeWindow: 60000 // 10 requests per minute
+  }
 };
+
+// Rate limiting store
+const rateLimitStore = new Map<string, { requests: number; resetTime: number }>();
 
 export const useRobustScheduleFetch = (serviceName: string, config: Partial<FetchConfig> = {}) => {
   const [loading, setLoading] = useState(false);
@@ -24,6 +35,24 @@ export const useRobustScheduleFetch = (serviceName: string, config: Partial<Fetc
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  // Rate limiting check
+  const isRateLimited = (key: string): boolean => {
+    const now = Date.now();
+    const stored = rateLimitStore.get(key);
+    
+    if (!stored || now > stored.resetTime) {
+      rateLimitStore.set(key, { requests: 1, resetTime: now + finalConfig.rateLimit.timeWindow });
+      return false;
+    }
+    
+    if (stored.requests >= finalConfig.rateLimit.maxRequests) {
+      return true;
+    }
+    
+    stored.requests++;
+    return false;
+  };
+
   const fetchWithRetry = useCallback(async (
     functionName: string,
     payload: any,
@@ -32,6 +61,12 @@ export const useRobustScheduleFetch = (serviceName: string, config: Partial<Fetc
     try {
       setLoading(true);
       setError(null);
+
+      // Check rate limiting
+      const rateLimitKey = `${serviceName}_${functionName}`;
+      if (isRateLimited(rateLimitKey)) {
+        throw new Error(`Rate limit exceeded for ${serviceName}. Please wait before trying again.`);
+      }
 
       // Add timeout to prevent hanging requests
       const timeoutPromise = new Promise((_, reject) =>

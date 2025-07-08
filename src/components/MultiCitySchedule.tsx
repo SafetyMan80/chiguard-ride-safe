@@ -3,6 +3,7 @@ import { CitySelector } from "./CitySelector";
 import { CityScheduleWrapper } from "./CityScheduleWrapper";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ScheduleLoadingSkeleton } from "./LoadingStates";
+import { CTAApiTester } from "./CTAApiTester";
 
 export const MultiCitySchedule = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -40,7 +41,10 @@ export const MultiCitySchedule = () => {
 
   return (
     <ErrorBoundary>
-      <CitySelector onCitySelect={handleCitySelect} />
+      <div className="space-y-6">
+        <CTAApiTester />
+        <CitySelector onCitySelect={handleCitySelect} />
+      </div>
     </ErrorBoundary>
   );
 };
