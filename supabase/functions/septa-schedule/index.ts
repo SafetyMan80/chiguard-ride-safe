@@ -154,8 +154,8 @@ async function getArrivals(stationParam: string) {
       console.log(`🚇 SEPTA: Station mapping - ${stationParam} -> ${septaStationName}`);
     }
 
-    // SEPTA Real-time arrival API
-    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}`;
+    // SEPTA Real-time arrival API with required parameters
+    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}&real=true`;
     console.log(`🚇 SEPTA: Calling API: ${url}`);
     console.log(`🚇 SEPTA: Request headers:`, {
       'Accept': 'application/json',
