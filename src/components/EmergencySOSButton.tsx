@@ -15,7 +15,7 @@ export const EmergencySOSButton = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const playEmergencySound = async () => {
-    console.log('🔊 EMERGENCY SOUND STARTING...');
+    console.log('🔊 EMERGENCY SOUND STARTING - MANUAL STOP REQUIRED');
     setIsSoundPlaying(true);
     
     try {
@@ -31,75 +31,74 @@ export const EmergencySOSButton = () => {
       
       audioContextRef.current = audioContext;
       
-      // Create loud emergency siren
-      const createSiren = () => {
+      // Create very loud intermittent emergency siren
+      const createIntermittentSiren = () => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        // Loud emergency siren pattern
-        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
-        oscillator.frequency.linearRampToValueAtTime(1500, audioContext.currentTime + 0.5);
-        oscillator.frequency.linearRampToValueAtTime(1000, audioContext.currentTime + 1);
-        oscillator.type = 'sawtooth';
+        // Very loud intermittent siren - alternating high/low frequencies
+        oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+        oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.2);
+        oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 0.4);
+        oscillator.type = 'sawtooth'; // Harsh, attention-grabbing sound
         
         // Maximum volume
         gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
         
         oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 1);
+        oscillator.stop(audioContext.currentTime + 0.5);
         
-        console.log('🚨 SIREN TONE PLAYED');
+        console.log('🚨 INTERMITTENT SIREN TONE PLAYED');
         return oscillator;
       };
       
       // Start immediately
-      createSiren();
+      createIntermittentSiren();
       
-      // Continue for 30 seconds
+      // Continue indefinitely until manually stopped - intermittent pattern
       let toneCount = 1;
-      const toneInterval = setInterval(() => {
-        if (toneCount >= 30 || !isSoundPlaying) {
-          console.log('⏹️ STOPPING EMERGENCY SOUND');
-          clearInterval(toneInterval);
-          setIsSoundPlaying(false);
+      const sirenInterval = setInterval(() => {
+        if (!isSoundPlaying) {
+          console.log('⏹️ STOPPING EMERGENCY SOUND - MANUALLY STOPPED');
+          clearInterval(sirenInterval);
           return;
         }
-        createSiren();
+        createIntermittentSiren();
         toneCount++;
-        console.log(`🔊 SIREN TONE ${toneCount}/30`);
-      }, 1000);
+        console.log(`🔊 INTERMITTENT SIREN ${toneCount} - CONTINUES UNTIL STOPPED`);
+      }, 800); // 0.5 second tone + 0.3 second pause = intermittent pattern
       
-      // Auto-stop after 30 seconds
-      soundTimeoutRef.current = setTimeout(() => {
-        console.log('⏰ AUTO-STOPPING AFTER 30 SECONDS');
-        clearInterval(toneInterval);
-        setIsSoundPlaying(false);
-        if (audioContextRef.current) {
-          audioContextRef.current.close();
-        }
-      }, 30000);
+      // Store interval reference for cleanup
+      soundTimeoutRef.current = sirenInterval as any;
       
     } catch (error) {
       console.error('❌ AUDIO FAILED:', error);
       setIsSoundPlaying(false);
       
-      // Simple fallback beep
+      // Simple fallback intermittent beep
       try {
-        const beep = () => {
+        const createBeep = () => {
           const audio = document.createElement('audio');
           audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFOo4O9yJQQmdcb1z4A7Chxxtujvpkl';
           audio.volume = 1.0;
           audio.play().catch(console.error);
         };
         
-        // Beep every second for 30 seconds
-        for (let i = 0; i < 30; i++) {
-          setTimeout(beep, i * 1000);
-        }
-        console.log('🔔 FALLBACK BEEPS STARTED');
+        // Intermittent beeps until stopped
+        const beepInterval = setInterval(() => {
+          if (!isSoundPlaying) {
+            clearInterval(beepInterval);
+            return;
+          }
+          createBeep();
+        }, 800);
+        
+        soundTimeoutRef.current = beepInterval as any;
+        console.log('🔔 FALLBACK INTERMITTENT BEEPS STARTED');
         
       } catch (fallbackError) {
         console.error('❌ FALLBACK FAILED:', fallbackError);
@@ -112,7 +111,7 @@ export const EmergencySOSButton = () => {
     setIsSoundPlaying(false);
     
     if (soundTimeoutRef.current) {
-      clearTimeout(soundTimeoutRef.current);
+      clearInterval(soundTimeoutRef.current); // Clear interval instead of timeout
       soundTimeoutRef.current = null;
     }
     
@@ -120,6 +119,16 @@ export const EmergencySOSButton = () => {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
+  };
+
+  const handleDial911 = () => {
+    // Use tel: protocol to pre-dial 911 on mobile devices
+    window.location.href = 'tel:911';
+    
+    toast({
+      title: "📞 Dialing 911",
+      description: "Emergency number pre-dialed on your device",
+    });
   };
 
   const handleMouseDown = () => {
@@ -237,6 +246,22 @@ export const EmergencySOSButton = () => {
             🔇 Stop Sound
           </Button>
         )}
+
+        {/* 911 Dialing Option */}
+        <div className="border-t pt-4 w-full">
+          <div className="text-center space-y-3">
+            <p className="text-sm font-medium text-muted-foreground">
+              Need immediate emergency assistance?
+            </p>
+            <Button
+              onClick={handleDial911}
+              variant="destructive"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
+            >
+              📞 Dial 911 Now
+            </Button>
+          </div>
+        </div>
       </div>
 
       <div className="text-center space-y-1">
@@ -251,7 +276,7 @@ export const EmergencySOSButton = () => {
         </p>
         {isSoundPlaying && (
           <p className="text-xs font-semibold text-orange-600 animate-pulse">
-            🔊 Emergency sound playing (30s max)
+            🔊 Emergency sound playing - Press "Stop Sound" to silence
           </p>
         )}
       </div>
