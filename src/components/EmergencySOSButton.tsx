@@ -15,7 +15,7 @@ export const EmergencySOSButton = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const playEmergencySound = async () => {
-    console.log('🔊 EMERGENCY SOUND STARTING - 30 SECONDS CONTINUOUS');
+    console.log('🔊 EMERGENCY SOUND STARTING - CONTINUOUS EVERY 200MS FOR 30 SECONDS');
     setIsSoundPlaying(true);
     
     try {
@@ -31,70 +31,109 @@ export const EmergencySOSButton = () => {
       
       audioContextRef.current = audioContext;
       
-      // Create continuous loud emergency siren for 30 seconds
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+      let beepCount = 0;
+      const maxBeeps = 150; // 30 seconds / 0.2 seconds = 150 beeps
       
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      // Function to create a single loud beep
+      const createBeep = () => {
+        if (beepCount >= maxBeeps || !audioContextRef.current) {
+          console.log('⏰ STOPPING AFTER 30 SECONDS OR MANUAL STOP');
+          setIsSoundPlaying(false);
+          return;
+        }
+        
+        const oscillator = audioContextRef.current.createOscillator();
+        const gainNode = audioContextRef.current.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContextRef.current.destination);
+        
+        // Very loud, harsh emergency tone
+        oscillator.frequency.setValueAtTime(1000, audioContextRef.current.currentTime);
+        oscillator.type = 'square'; // Very harsh, attention-grabbing sound
+        
+        // Maximum volume with sharp attack and quick decay
+        gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+        gainNode.gain.linearRampToValueAtTime(1.0, audioContextRef.current.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.15);
+        
+        // Play for 150ms
+        oscillator.start(audioContextRef.current.currentTime);
+        oscillator.stop(audioContextRef.current.currentTime + 0.15);
+        
+        beepCount++;
+        console.log(`🚨 BEEP ${beepCount}/${maxBeeps}`);
+      };
       
-      // Continuous siren pattern - alternating frequencies
-      oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
-      oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.5);
-      oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 1);
-      oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 1.5);
-      oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + 2);
+      // Start the first beep immediately
+      createBeep();
       
-      // Repeat the pattern for 30 seconds
-      for (let i = 2; i < 30; i += 2) {
-        oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + i + 0.5);
-        oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + i + 1);
-        oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + i + 1.5);
-        oscillator.frequency.linearRampToValueAtTime(1200, audioContext.currentTime + i + 2);
-      }
+      // Schedule beeps every 200ms
+      const beepInterval = setInterval(() => {
+        if (beepCount >= maxBeeps || !isSoundPlaying) {
+          clearInterval(beepInterval);
+          setIsSoundPlaying(false);
+          if (audioContextRef.current) {
+            audioContextRef.current.close();
+            audioContextRef.current = null;
+          }
+          return;
+        }
+        createBeep();
+      }, 200);
       
-      oscillator.type = 'sawtooth'; // Harsh, attention-grabbing sound
+      // Store interval for cleanup
+      soundTimeoutRef.current = beepInterval as any;
       
-      // Maximum volume
-      gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
-      
-      // Start the continuous 30-second sound
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 30);
-      
-      console.log('🚨 CONTINUOUS 30-SECOND SIREN STARTED');
-      
-      // Auto-stop after 30 seconds
-      soundTimeoutRef.current = setTimeout(() => {
-        console.log('⏰ AUTO-STOPPING AFTER 30 SECONDS');
+      // Auto-stop after 30 seconds as backup
+      setTimeout(() => {
+        clearInterval(beepInterval);
         setIsSoundPlaying(false);
         if (audioContextRef.current) {
           audioContextRef.current.close();
+          audioContextRef.current = null;
         }
+        console.log('⏰ AUTO-STOPPING AFTER 30 SECONDS (BACKUP)');
       }, 30000);
       
     } catch (error) {
       console.error('❌ AUDIO FAILED:', error);
       setIsSoundPlaying(false);
       
-      // Simple fallback continuous beep
+      // Fallback using multiple overlapping beeps
       try {
-        const audio = document.createElement('audio');
-        audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFUo4O9yJQQmdcb1z4A7Chxxtujvpkl';
-        audio.volume = 1.0;
-        audio.loop = true;
-        audio.play().catch(console.error);
+        let fallbackBeeps = 0;
+        const maxFallbackBeeps = 150;
         
-        // Stop after 30 seconds
+        const fallbackBeep = () => {
+          if (fallbackBeeps >= maxFallbackBeeps) {
+            setIsSoundPlaying(false);
+            return;
+          }
+          
+          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIgBFUo4O9yJQQmdcb1z4A7Chxxtujvpkl');
+          audio.volume = 1.0;
+          audio.play().catch(console.error);
+          
+          fallbackBeeps++;
+        };
+        
+        // Start fallback beeps every 200ms
+        fallbackBeep();
+        const fallbackInterval = setInterval(fallbackBeep, 200);
+        soundTimeoutRef.current = fallbackInterval as any;
+        
+        // Stop fallback after 30 seconds
         setTimeout(() => {
-          audio.pause();
+          clearInterval(fallbackInterval);
           setIsSoundPlaying(false);
         }, 30000);
         
-        console.log('🔔 FALLBACK CONTINUOUS AUDIO STARTED');
+        console.log('🔔 FALLBACK BEEPING STARTED - EVERY 200MS');
         
       } catch (fallbackError) {
         console.error('❌ FALLBACK FAILED:', fallbackError);
+        setIsSoundPlaying(false);
       }
     }
   };
