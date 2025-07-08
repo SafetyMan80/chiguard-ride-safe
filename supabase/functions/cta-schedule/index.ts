@@ -241,18 +241,14 @@ serve(async (req) => {
         .slice(0, 10); // Limit to 10 results
     }
 
-    // If no data, provide informative message
+    // Debug: Log the actual CTA API response for troubleshooting
+    console.log('🚆 CTA API Raw Response Data:', JSON.stringify(data, null, 2));
+    
+    // If no data but API succeeded, this indicates no real-time arrivals available
     if (transformedData.length === 0) {
-      console.log('🚆 No current arrivals found');
-      transformedData = [{
-        line: 'CTA',
-        station: 'Service Information',
-        destination: 'No current arrivals',
-        direction: '',
-        arrivalTime: 'Check CTA app',
-        trainId: '',
-        status: 'Real-time data may be temporarily unavailable'
-      }];
+      console.log('🚆 No current arrivals found - this is normal during low-traffic periods');
+      // Return empty array instead of fallback message to show actual status
+      transformedData = [];
     }
 
     console.log(`✅ Returning ${transformedData.length} CTA arrivals`);

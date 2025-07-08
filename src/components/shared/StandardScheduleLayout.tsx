@@ -203,10 +203,13 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
           <CardContent className="py-8 text-center text-muted-foreground">
             {loading ? (
               <div>Loading schedule...</div>
-            ) : arrivals.length === 0 ? (
-              <div>No upcoming arrivals found. Try adjusting your filters or check back later.</div>
             ) : (
-              <div>Unable to load schedule data.</div>
+              <div>
+                <div className="mb-2">No upcoming arrivals found for the selected criteria.</div>
+                <div className="text-sm text-muted-foreground">
+                  Try selecting a different line/station or check back during peak hours for real-time data.
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
