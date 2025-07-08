@@ -36,6 +36,7 @@ serve(async (req) => {
     console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
     console.log('🔑 CTA_API_KEY length:', CTA_API_KEY?.length || 0);
     console.log('📥 Request params:', { stopId, routeId, method: req.method });
+    console.log('📥 Raw request body received:', req.method === 'POST' ? 'checking...' : 'GET request');
     console.log('📥 Request headers:', Object.fromEntries(req.headers.entries()));
     
     // Enhanced API key validation

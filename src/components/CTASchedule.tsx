@@ -133,6 +133,8 @@ export const CTASchedule = () => {
       }
       
       console.log('🚆 CTA calling robust fetch with body:', requestBody);
+      console.log('🚆 Selected line:', selectedLine, '-> mapped to routeId:', requestBody.routeId);
+      console.log('🚆 Selected station:', selectedStation, '-> mapped to stpid:', requestBody.stpid);
       
       // Use robust fetch instead of direct supabase call
       const response: CTAResponse = await fetchWithRetry(
