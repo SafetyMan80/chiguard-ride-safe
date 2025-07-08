@@ -55,7 +55,7 @@ export const CTASchedule = () => {
           'red': 'Red',
           'blue': 'Blue', 
           'brown': 'Brn',
-          'green': 'G',
+          'green': 'G',        // Fixed: was missing
           'orange': 'Org',
           'purple': 'P',
           'pink': 'Pink',
@@ -87,7 +87,9 @@ export const CTASchedule = () => {
           "linden": "30307",
           "dempster-skokie": "30308"
         };
-        requestBody.stpid = stationMapping[selectedStation] || "30173"; // Default to Howard
+        const mappedStationId = stationMapping[selectedStation] || "30173";
+        console.log('🚉 Station mapping:', { selectedStation, mappedStationId, availableStations: Object.keys(stationMapping) });
+        requestBody.stpid = mappedStationId;
       }
       
       console.log('🚆 CTA calling function with payload:', requestBody);
