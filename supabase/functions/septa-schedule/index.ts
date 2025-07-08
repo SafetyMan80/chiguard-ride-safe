@@ -154,21 +154,28 @@ async function getArrivals(stationParam: string) {
       console.log(`🚇 SEPTA: Station mapping - ${stationParam} -> ${septaStationName}`);
     }
 
-    // SEPTA Real-time arrival API with required parameters
-    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}&real=true`;
+    // SEPTA Real-time arrival API with required parameters and timeout
+    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}&results=10`;
     console.log(`🚇 SEPTA: Calling API: ${url}`);
     console.log(`🚇 SEPTA: Request headers:`, {
       'Accept': 'application/json',
-      'User-Agent': 'RAILSAVIOR App'
+      'User-Agent': 'RailScheduleApp/1.0'
     });
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'RAILSAVIOR App'
-      }
+        'User-Agent': 'RailScheduleApp/1.0',
+        'Content-Type': 'application/json'
+      },
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     console.log(`🚇 SEPTA: API Response Status: ${response.status} ${response.statusText}`);
     console.log(`🚇 SEPTA: Response Headers:`, Object.fromEntries(response.headers.entries()));
