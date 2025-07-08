@@ -37,6 +37,11 @@ export const CTASchedule = () => {
     console.log('🔄 CTA Component initializing with defaults');
     setSelectedLine("all");
     setSelectedStation("all");
+    // Trigger initial fetch after state is set
+    setTimeout(() => {
+      console.log('🔄 CTA Initial fetch triggered');
+      fetchArrivals();
+    }, 100);
   }, []);
 
   useEffect(() => {
@@ -179,8 +184,13 @@ export const CTASchedule = () => {
     return result;
   };
 
+  // Only trigger fetch when line/station actually changes (not initialization)
   useEffect(() => {
-    fetchArrivals();
+    console.log('🚆 CTA useEffect triggered with:', { selectedLine, selectedStation });
+    if (selectedLine && selectedStation) {
+      console.log('🚆 CTA Calling fetchArrivals due to state change');
+      fetchArrivals();
+    }
   }, [selectedLine, selectedStation]);
 
   // Reset station when line changes
