@@ -39,23 +39,23 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
   return (
     <header className="p-6 safe-area-top bg-gradient-to-b from-background via-background/95 to-background/90 -mx-6 px-6 backdrop-blur-md">
       <OfflineIndicator />
-      <div className="flex justify-between items-center mb-6">
-        <div className="w-10 h-10 flex items-center justify-start">
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center justify-start">
           {user && profilePhotoUrl && (
-            <Avatar className="w-10 h-10 border-2 border-chicago-blue/20 shadow-lg">
+            <Avatar className="w-16 h-16 md:w-20 md:h-20 border-2 border-chicago-blue/20 shadow-lg ring-2 ring-chicago-blue/10">
               <AvatarImage 
                 src={profilePhotoUrl} 
                 alt="Profile" 
                 className="object-cover w-full h-full"
               />
               <AvatarFallback className="bg-chicago-blue/10">
-                <User className="w-5 h-5 text-chicago-blue" />
+                <User className="w-8 h-8 md:w-10 md:h-10 text-chicago-blue" />
               </AvatarFallback>
             </Avatar>
           )}
         </div>
         <ThemeToggle />
-        <div className="w-10 h-10"> {/* Spacer for balance */}
+        <div className="w-16 h-16 md:w-20 md:h-20"> {/* Spacer for balance */}
         </div>
       </div>
       <Card className="glass-card shadow-[var(--shadow-elevated)] border-chicago-blue/10">
