@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, AlertTriangle, ArrowLeft } from "lucide-react";
@@ -6,8 +6,6 @@ import { IncidentReport } from "./IncidentReport";
 import { FailsafeIncidentReports } from "./FailsafeIncidentReports";
 import { CitySelectionSkeleton } from "./LoadingSkeleton";
 import { ErrorBoundary } from "./ErrorBoundary";
-import { IncidentTestRunner } from "./testing/IncidentTestRunner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface City {
   id: string;
@@ -117,26 +115,6 @@ const CITIES_WITH_RAIL: City[] = [
 
 export const MultiCityIncidentReport = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [showTestRunner, setShowTestRunner] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase.rpc('has_role', {
-          _user_id: user.id,
-          _role: 'admin'
-        });
-        if (!error && data) {
-          setIsAdmin(true);
-        }
-      }
-    };
-    
-    checkAdminStatus();
-  }, []);
 
   const handleCitySelect = (cityId: string, available: boolean) => {
     if (available) {
@@ -146,27 +124,7 @@ export const MultiCityIncidentReport = () => {
 
   const handleBackToSelection = () => {
     setSelectedCity(null);
-    setShowTestRunner(false);
   };
-
-  // If showing test runner, show the test interface
-  if (showTestRunner) {
-    return (
-      <ErrorBoundary>
-        <div className="space-y-4">
-          <Button
-            variant="outline"
-            onClick={() => setShowTestRunner(false)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to City Selection
-          </Button>
-          <IncidentTestRunner />
-        </div>
-      </ErrorBoundary>
-    );
-  }
 
   // If a city is selected, show the incident report for that city
   if (selectedCity) {
@@ -216,17 +174,6 @@ export const MultiCityIncidentReport = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isAdmin && (
-            <div className="mb-4 flex justify-end">
-              <Button
-                variant="outline"
-                onClick={() => setShowTestRunner(true)}
-                className="text-sm"
-              >
-                🧪 Run Comprehensive Tests
-              </Button>
-            </div>
-          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {CITIES_WITH_RAIL.map((city) => (
               <Card
