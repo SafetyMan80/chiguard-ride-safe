@@ -32,15 +32,15 @@ export const CTASchedule = () => {
     console.log('🔄 CTASchedule state changed:', { selectedLine, selectedStation });
   }, [selectedLine, selectedStation]);
 
-  // Initialize with proper defaults
+  // Initialize with comprehensive station overview
   useEffect(() => {
-    console.log('🔄 CTA Component initializing with defaults');
+    console.log('🔄 CTA Component initializing with station overview');
     setSelectedLine("all");
     setSelectedStation("all");
-    // Trigger initial fetch after state is set
+    // Trigger comprehensive fetch to show all active stations
     setTimeout(() => {
-      console.log('🔄 CTA Initial fetch triggered');
-      fetchArrivals();
+      console.log('🔄 CTA Initial comprehensive fetch triggered');
+      fetchAllActiveStations();
     }, 100);
   }, []);
 
@@ -54,6 +54,118 @@ export const CTASchedule = () => {
       window.removeEventListener('offline', handleOnlineStatus);
     };
   }, []);
+
+  // Fetch all active stations across all lines
+  const fetchAllActiveStations = async () => {
+    console.log('🚆 CTA fetchAllActiveStations called');
+    
+    if (!isOnline) {
+      console.log('🚆 CTA offline - aborting fetch');
+      toast({
+        title: "No Internet Connection", 
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+        duration: 2000
+      });
+      return;
+    }
+
+    setLoading(true);
+    const allArrivals: StandardArrival[] = [];
+    
+    try {
+      // Major stations to check for comprehensive overview
+      const majorStations = [
+        { id: 'clark-lake', name: 'Clark/Lake' },
+        { id: 'fullerton', name: 'Fullerton' },
+        { id: 'howard', name: 'Howard' },
+        { id: 'ohare', name: "O'Hare Airport" },
+        { id: 'midway', name: 'Midway Airport' },
+        { id: 'roosevelt', name: 'Roosevelt' },
+        { id: 'belmont', name: 'Belmont' },
+        { id: '95th-dan-ryan', name: '95th/Dan Ryan' },
+        { id: 'jefferson-park', name: 'Jefferson Park' },
+        { id: 'logan-square', name: 'Logan Square' }
+      ];
+
+      console.log('🚆 CTA Fetching from', majorStations.length, 'major stations');
+
+      // Fetch arrivals from multiple major stations
+      const promises = majorStations.map(async (station) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('cta-schedule', {
+            body: { station: station.id }
+          });
+
+          if (!error && data?.success && data?.data?.length > 0) {
+            console.log(`🚆 Found ${data.data.length} arrivals at ${station.name}`);
+            return data.data;
+          }
+          return [];
+        } catch (err) {
+          console.log(`🚆 Error fetching ${station.name}:`, err);
+          return [];
+        }
+      });
+
+      const results = await Promise.all(promises);
+      
+      // Combine all results
+      results.forEach(stationArrivals => {
+        allArrivals.push(...stationArrivals);
+      });
+
+      console.log('🚆 CTA Total arrivals found:', allArrivals.length);
+      
+      // Sort by arrival time (earliest first)
+      const sortedArrivals = allArrivals.sort((a, b) => {
+        if (a.arrivalTime === 'Approaching' || a.arrivalTime === 'Boarding') return -1;
+        if (b.arrivalTime === 'Approaching' || b.arrivalTime === 'Boarding') return 1;
+        const aMinutes = parseInt(a.arrivalTime) || 999;
+        const bMinutes = parseInt(b.arrivalTime) || 999;
+        return aMinutes - bMinutes;
+      });
+
+      setArrivals(sortedArrivals.slice(0, 20)); // Show top 20 arrivals
+      
+      // Format timestamp with Central Time (CTA timezone)
+      const now = new Date();
+      const centralTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        hour: '2-digit',
+        minute: '2-digit', 
+        second: '2-digit'
+      }).format(now);
+      setLastUpdated(centralTime);
+      
+      if (sortedArrivals.length > 0) {
+        toast({
+          title: "CTA System Overview",
+          description: `Found ${sortedArrivals.length} upcoming arrivals across the system at ${centralTime} CT`,
+          duration: 3000
+        });
+      } else {
+        toast({
+          title: "CTA System Status",
+          description: "No active trains found across major stations. This may be normal during late night or early morning hours.",
+          duration: 3000
+        });
+      }
+      
+    } catch (error) {
+      console.error('🚆 CTA Complete error:', error);
+      setArrivals([]);
+      
+      toast({
+        title: "CTA Service Issue",
+        description: `Error: ${error?.message || 'Unknown error'}. Please try again.`,
+        variant: "destructive",
+        duration: 3000
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchArrivals = async () => {
     console.log('🚆 CTA fetchArrivals called with state:', { selectedLine, selectedStation, isOnline, loading });
@@ -184,11 +296,11 @@ export const CTASchedule = () => {
     return result;
   };
 
-  // Only trigger fetch when line/station actually changes (not initialization)
+  // Trigger targeted fetch when specific line/station is selected
   useEffect(() => {
     console.log('🚆 CTA useEffect triggered with:', { selectedLine, selectedStation });
-    if (selectedLine && selectedStation) {
-      console.log('🚆 CTA Calling fetchArrivals due to state change');
+    if (selectedLine !== "all" || selectedStation !== "all") {
+      console.log('🚆 CTA Calling fetchArrivals for specific selection');
       fetchArrivals();
     }
   }, [selectedLine, selectedStation]);
@@ -219,7 +331,7 @@ export const CTASchedule = () => {
       isOnline={isOnline}
       onLineChange={handleLineChange}
       onStationChange={handleStationChange}
-      onRefresh={fetchArrivals}
+      onRefresh={fetchAllActiveStations}
       formatArrivalTime={formatArrivalTime}
       getLineColor={getLineColor}
     />
