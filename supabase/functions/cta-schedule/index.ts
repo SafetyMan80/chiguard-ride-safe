@@ -26,17 +26,63 @@ serve(async (req) => {
     } else if (req.method === 'POST') {
       try {
         requestBody = await req.json();
-        stopId = requestBody.stpid || requestBody.stopId;
-        routeId = requestBody.routeId || requestBody.rt;
+        console.log('🚆 CTA Raw request body:', JSON.stringify(requestBody, null, 2));
+        
+        // Handle simplified parameters from frontend (like working cities)
+        if (requestBody.line) {
+          const lineMapping: { [key: string]: string } = {
+            'red': 'Red',
+            'blue': 'Blue',
+            'brown': 'Brn', 
+            'green': 'G',
+            'orange': 'Org',
+            'purple': 'P',
+            'pink': 'Pink',
+            'yellow': 'Y'
+          };
+          routeId = lineMapping[requestBody.line.toLowerCase()] || requestBody.line;
+          console.log('🚆 CTA Mapped line:', requestBody.line, '->', routeId);
+        }
+        
+        if (requestBody.station) {
+          const stationMapping: { [key: string]: string } = {
+            "clark-lake": "30131",
+            "fullerton": "30057", 
+            "belmont": "30254",
+            "howard": "30173",
+            "95th-dan-ryan": "30089",
+            "roosevelt": "30001",
+            "ohare": "30171",
+            "forest-park": "30044",
+            "jefferson-park": "30081",
+            "logan-square": "30077",
+            "midway": "30063",
+            "roosevelt-orange": "30001",
+            "harlem-lake": "30047",
+            "garfield": "30099",
+            "kimball": "30297",
+            "merchandise-mart": "30768",
+            "54th-cermak": "30098",
+            "linden": "30307",
+            "dempster-skokie": "30308"
+          };
+          stopId = stationMapping[requestBody.station] || requestBody.station;
+          console.log('🚆 CTA Mapped station:', requestBody.station, '->', stopId);
+        }
+        
+        // Legacy support for direct API parameters
+        stopId = stopId || requestBody.stpid || requestBody.stopId;
+        routeId = routeId || requestBody.routeId || requestBody.rt;
+        
       } catch (e) {
-        console.log('No valid JSON body provided, using defaults');
+        console.log('🚆 CTA No valid JSON body provided, using defaults');
       }
     }
     
     const CTA_API_KEY = Deno.env.get('CTA_API_KEY');
     console.log('🔑 CTA_API_KEY exists:', !!CTA_API_KEY);
-    console.log('📥 Request params:', { stopId, routeId, method: req.method });
-    console.log('📥 Request body:', requestBody);
+    console.log('📥 CTA Final request params:', { stopId, routeId, method: req.method });
+    console.log('📥 CTA Original request body:', requestBody);
     
     if (!CTA_API_KEY) {
       console.error('❌ ERROR: CTA API key not configured');

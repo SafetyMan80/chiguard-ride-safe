@@ -108,12 +108,21 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                     {(() => {
                       const filteredStations = config.stations
                         .filter(s => s.lines?.includes(selectedLine) && s.id !== "all");
-                      console.log('🚉 Station filtering:', { 
+                      console.log('🚉 StandardScheduleLayout Station filtering:', { 
+                        component: config.name,
                         selectedLine, 
                         availableStations: config.stations.length,
                         filteredStations: filteredStations.length,
-                        stations: filteredStations.map(s => ({ id: s.id, name: s.name, lines: s.lines }))
+                        allStations: config.stations.map(s => ({ id: s.id, name: s.name, lines: s.lines })),
+                        filteredStationDetails: filteredStations.map(s => ({ id: s.id, name: s.name, lines: s.lines }))
                       });
+                      
+                      if (filteredStations.length === 0) {
+                        console.warn('🚉 No stations found for selected line:', selectedLine);
+                        console.warn('🚉 Available lines in config:', config.lines.map(l => l.id));
+                        console.warn('🚉 Sample station line mappings:', config.stations.slice(0, 5).map(s => ({ id: s.id, lines: s.lines })));
+                      }
+                      
                       return filteredStations.map((station) => (
                         <SelectItem key={station.id} value={station.id}>
                           {station.name}

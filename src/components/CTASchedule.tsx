@@ -51,9 +51,12 @@ export const CTASchedule = () => {
   }, []);
 
   const fetchArrivals = async () => {
+    console.log('🚆 CTA fetchArrivals called with state:', { selectedLine, selectedStation, isOnline, loading });
+    
     if (!isOnline) {
+      console.log('🚆 CTA offline - aborting fetch');
       toast({
-        title: "No Internet Connection",
+        title: "No Internet Connection", 
         description: "Please check your connection and try again.",
         variant: "destructive",
         duration: 2000
@@ -63,67 +66,43 @@ export const CTASchedule = () => {
 
     setLoading(true);
     try {
+      // Simplified approach: Use same pattern as working cities
       const requestBody: any = {};
       
-      // Map UI line names to CTA API route identifiers
+      // Simple parameter passing like MTA/SEPTA
       if (selectedLine !== "all") {
-        const routeMapping: { [key: string]: string } = {
-          'red': 'Red',
-          'blue': 'Blue', 
-          'brown': 'Brn',
-          'green': 'G',        // Fixed: was missing
-          'orange': 'Org',
-          'purple': 'P',
-          'pink': 'Pink',
-          'yellow': 'Y'
-        };
-        requestBody.routeId = routeMapping[selectedLine.toLowerCase()] || selectedLine;
+        requestBody.line = selectedLine; // Use simple line ID
       }
-      
-      // Map UI station IDs to CTA stop IDs - use Howard as default
       if (selectedStation !== "all") {
-        const stationMapping: { [key: string]: string } = {
-          "clark-lake": "30131",
-          "fullerton": "30057", 
-          "belmont": "30254",
-          "howard": "30173",
-          "95th-dan-ryan": "30089",
-          "roosevelt": "30001",
-          "ohare": "30171",
-          "forest-park": "30044",
-          "jefferson-park": "30081",
-          "logan-square": "30077",
-          "midway": "30063",
-          "roosevelt-orange": "30001",
-          "harlem-lake": "30047",
-          "garfield": "30099",
-          "kimball": "30297",
-          "merchandise-mart": "30768",
-          "54th-cermak": "30098",
-          "linden": "30307",
-          "dempster-skokie": "30308"
-        };
-        requestBody.stpid = stationMapping[selectedStation] || "30173";
-      } else {
-        // Default to Howard station when "all" is selected
-        requestBody.stpid = "30173";
+        requestBody.station = selectedStation; // Use simple station ID
       }
       
-      console.log('🚆 CTA calling function with payload:', requestBody);
-      console.log('🚆 Selected station:', selectedStation);
-      console.log('🚆 Selected line:', selectedLine);
+      console.log('🚆 CTA API Request Body:', requestBody);
+      console.log('🚆 CTA Selected Line:', selectedLine);
+      console.log('🚆 CTA Selected Station:', selectedStation);
+      console.log('🚆 CTA Calling supabase function...');
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
         body: requestBody
       });
 
-      if (error) throw error;
+      console.log('🚆 CTA Supabase response received');
+      console.log('🚆 CTA Error:', error);
+      console.log('🚆 CTA Raw Data:', data);
+
+      if (error) {
+        console.error('🚆 CTA Supabase error:', error);
+        throw error;
+      }
 
       const response: CTAResponse = data;
-      console.log('🚆 CTA Response:', response);
+      console.log('🚆 CTA Parsed Response:', response);
+      console.log('🚆 CTA Response Success:', response?.success);
+      console.log('🚆 CTA Response Data Length:', response?.data?.length);
+      console.log('🚆 CTA Response Error:', response?.error);
       
       if (response.success) {
-        console.log('🚆 CTA Response data:', response.data);
+        console.log('🚆 CTA Setting arrivals data:', response.data);
         setArrivals(response.data || []);
         
         // Format timestamp with Central Time (CTA timezone)
@@ -131,18 +110,21 @@ export const CTASchedule = () => {
         const centralTime = new Intl.DateTimeFormat('en-US', {
           timeZone: 'America/Chicago',
           hour: '2-digit',
-          minute: '2-digit',
+          minute: '2-digit', 
           second: '2-digit'
         }).format(now);
         setLastUpdated(centralTime);
+        console.log('🚆 CTA Updated timestamp:', centralTime);
         
         if (response.data && response.data.length > 0) {
+          console.log('🚆 CTA Showing success toast');
           toast({
             title: "CTA Schedule Updated",
             description: `Found ${response.data.length} upcoming arrivals at ${centralTime} CT`,
             duration: 2000
           });
         } else {
+          console.log('🚆 CTA Showing no arrivals toast');
           toast({
             title: "No Current Arrivals",
             description: "No trains currently scheduled at this location",
@@ -150,26 +132,30 @@ export const CTASchedule = () => {
           });
         }
       } else {
-        console.log('🚆 CTA API returned error:', response.error);
+        console.error('🚆 CTA API returned error:', response.error);
         setArrivals([]);
         toast({
-          title: "CTA Data Issue", 
+          title: "CTA Data Issue",
           description: response.error || "Unable to fetch train data",
-          variant: "destructive",
+          variant: "destructive", 
           duration: 3000
         });
       }
     } catch (error) {
       console.error('🚆 CTA Complete error:', error);
+      console.error('🚆 CTA Error name:', error?.name);
+      console.error('🚆 CTA Error message:', error?.message);
+      console.error('🚆 CTA Error stack:', error?.stack);
       setArrivals([]);
       
       toast({
         title: "CTA Service Issue",
-        description: "Having trouble connecting to train data. Please try again.",
+        description: `Error: ${error?.message || 'Unknown error'}. Please try again.`,
         variant: "destructive",
         duration: 3000
       });
     } finally {
+      console.log('🚆 CTA Setting loading to false');
       setLoading(false);
     }
   };
