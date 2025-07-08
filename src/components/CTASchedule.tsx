@@ -13,6 +13,8 @@ interface CTAResponse {
 }
 
 export const CTASchedule = () => {
+  console.log('🏗️ CTASchedule component mounted/re-rendered');
+  
   const [arrivals, setArrivals] = useState<StandardArrival[]>([]);
   const [selectedLine, setSelectedLine] = useState<string>("all");
   const [selectedStation, setSelectedStation] = useState<string>("all");
@@ -20,6 +22,8 @@ export const CTASchedule = () => {
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { toast } = useToast();
+
+  console.log('🏗️ CTASchedule current state:', { selectedLine, selectedStation });
 
   const config = CITY_CONFIGS.chicago;
 
@@ -182,10 +186,17 @@ export const CTASchedule = () => {
 
   // Reset station when line changes
   const handleLineChange = (newLine: string) => {
+    console.log('🚆 Line change:', { from: selectedLine, to: newLine });
     setSelectedLine(newLine);
     if (newLine !== selectedLine && selectedStation !== "all") {
+      console.log('🚆 Resetting station due to line change');
       setSelectedStation("all");
     }
+  };
+
+  const handleStationChange = (newStation: string) => {
+    console.log('🚉 Station change:', { from: selectedStation, to: newStation });
+    setSelectedStation(newStation);
   };
 
   return (
@@ -198,7 +209,7 @@ export const CTASchedule = () => {
       lastUpdated={lastUpdated}
       isOnline={isOnline}
       onLineChange={handleLineChange}
-      onStationChange={setSelectedStation}
+      onStationChange={handleStationChange}
       onRefresh={fetchArrivals}
       formatArrivalTime={formatArrivalTime}
       getLineColor={getLineColor}
