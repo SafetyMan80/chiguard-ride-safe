@@ -141,6 +141,15 @@ export const useEmergencyFailsafe = () => {
         cityName: 'Boston'
       };
     }
+    // San Francisco Bay Area (roughly)
+    else if (location.latitude >= 37.7 && location.latitude <= 37.8 && 
+             location.longitude >= -122.5 && location.longitude <= -122.4) {
+      cityInfo = {
+        transitLine: 'BART/MUNI',
+        locationName: 'SOS incident reported BART/MUNI',
+        cityName: 'San Francisco'
+      };
+    }
 
     return cityInfo;
   };

@@ -8,6 +8,7 @@ import { SEPTASchedule } from "./SEPTASchedule";
 import { MARTASchedule } from "./MARTASchedule";
 import { LAMetroSchedule } from "./LAMetroSchedule";
 import { MBTASchedule } from "./MBTASchedule";
+import { SF511Schedule } from "./SF511Schedule";
 
 interface CityScheduleWrapperProps {
   cityId: string;
@@ -33,6 +34,8 @@ export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps
         return <LAMetroSchedule />;
       case "boston":
         return <MBTASchedule />;
+      case "san_francisco":
+        return <SF511Schedule onBack={onBack} />;
       default:
         return <div>Schedule not available</div>;
     }

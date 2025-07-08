@@ -91,6 +91,16 @@ const CITIES_WITH_RAIL: City[] = [
     available: true,
     majorStations: ["South Station", "North Station", "Back Bay", "Downtown Crossing", "Park Street", "Government Center", "Harvard", "MIT/Kendall"]
   },
+  {
+    id: "san_francisco",
+    name: "San Francisco",
+    agency: "BART & MUNI (Bay Area Rapid Transit & San Francisco Municipal Transportation)",
+    description: "BART Heavy Rail & MUNI Light Rail Systems",
+    railLines: ["BART Red", "BART Blue", "BART Green", "BART Yellow", "MUNI N", "MUNI T", "MUNI K", "MUNI L", "MUNI M", "MUNI J"],
+    color: "bg-purple-600",
+    available: true,
+    majorStations: ["Powell St", "Montgomery St", "Embarcadero", "Civic Center", "16th St Mission", "24th St Mission", "Balboa Park", "Daly City"]
+  },
   // Coming Soon Cities
   {
     id: "los_angeles",
@@ -286,7 +296,7 @@ export const MultiCityIncidentReport = () => {
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">
               <strong>🚨 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, 
-              Denver RTD, Philadelphia SEPTA, Atlanta MARTA, and Boston MBTA incident reporting with location tracking, photo upload, and real-time alerts.
+              Denver RTD, Philadelphia SEPTA, Atlanta MARTA, Boston MBTA, and San Francisco BART/MUNI incident reporting with location tracking, photo upload, and real-time alerts.
             </p>
           </div>
           

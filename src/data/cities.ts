@@ -55,6 +55,15 @@ export const CITIES_WITH_RAIL: City[] = [
     color: "bg-indigo-600",
     available: true
   },
+  {
+    id: "san_francisco",
+    name: "San Francisco",
+    agency: "BART & MUNI",
+    description: "BART Heavy Rail & MUNI Light Rail Systems",
+    railLines: ["BART Red", "BART Blue", "BART Green", "BART Yellow", "MUNI N", "MUNI T", "MUNI K", "MUNI L", "MUNI M", "MUNI J"],
+    color: "bg-purple-600",
+    available: true
+  },
   
   // Coming soon cities
   {

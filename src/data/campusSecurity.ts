@@ -170,6 +170,38 @@ export const campusSecurityNumbers = {
     emergency: "610-519-4444",
     security: "610-519-4444",
     escort: "610-519-1000"
+  },
+  
+  // San Francisco Bay Area Universities
+  "University of San Francisco": {
+    emergency: "415-422-4222",
+    security: "415-422-4222",
+    escort: "415-422-6911"
+  },
+  "San Francisco State University": {
+    emergency: "415-338-7200",
+    security: "415-338-7200",
+    escort: "415-338-1111"
+  },
+  "UC San Francisco": {
+    emergency: "415-476-1414",
+    security: "415-476-1414",
+    escort: "415-502-1200"
+  },
+  "Stanford University": {
+    emergency: "650-329-2413",
+    security: "650-329-2413",
+    escort: "650-725-1000"
+  },
+  "UC Berkeley": {
+    emergency: "510-642-3333",
+    security: "510-642-3333",
+    escort: "510-642-9255"
+  },
+  "San Jose State University": {
+    emergency: "408-924-2222",
+    security: "408-924-2222",
+    escort: "408-924-1000"
   }
 };
 

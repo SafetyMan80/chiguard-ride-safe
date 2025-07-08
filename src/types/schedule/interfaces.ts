@@ -7,15 +7,20 @@ export interface StandardScheduleProps {
 }
 
 export interface StandardArrival {
+  id?: string;
   line: string;
-  station: string;
+  station?: string;
   destination: string;
   direction?: string;
   arrivalTime: string;
+  minutesToArrival?: number | null;
   eventTime?: string;
   delay?: string;
   trainId?: string;
+  vehicleId?: string;
   status?: string;
+  platform?: string;
+  headsign?: string;
 }
 
 export interface StandardLine {

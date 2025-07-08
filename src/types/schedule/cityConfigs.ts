@@ -428,5 +428,55 @@ export const CITY_CONFIGS: Record<string, CityConfig> = {
       "Silver Line provides airport connections",
       "MBTA app provides real-time arrival info"
     ]
+  },
+  
+  san_francisco: {
+    name: "San Francisco BART/MUNI",
+    agency: "Bay Area Rapid Transit & San Francisco Municipal Transportation",
+    description: "BART Heavy Rail & MUNI Light Rail Systems",
+    icon: "🌉",
+    lines: [
+      { id: "all", name: "All Lines", color: "bg-gray-500" },
+      // BART Lines
+      { id: "bart-red", name: "BART Red Line", color: "bg-red-500" },
+      { id: "bart-blue", name: "BART Blue Line", color: "bg-blue-500" },
+      { id: "bart-green", name: "BART Green Line", color: "bg-green-500" },
+      { id: "bart-yellow", name: "BART Yellow Line", color: "bg-yellow-500" },
+      // MUNI Metro Lines
+      { id: "muni-n", name: "MUNI N-Judah", color: "bg-blue-600" },
+      { id: "muni-t", name: "MUNI T-Third", color: "bg-red-600" },
+      { id: "muni-k", name: "MUNI K-Ingleside", color: "bg-orange-600" },
+      { id: "muni-l", name: "MUNI L-Taraval", color: "bg-purple-600" },
+      { id: "muni-m", name: "MUNI M-Ocean View", color: "bg-green-600" },
+      { id: "muni-j", name: "MUNI J-Church", color: "bg-yellow-600" }
+    ],
+    stations: [
+      { id: "all", name: "All Stations", popular: true },
+      // Major BART Stations in SF
+      { id: "powell-st", name: "Powell St", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "montgomery-st", name: "Montgomery St", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "embarcadero", name: "Embarcadero", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "civic-center", name: "Civic Center/UN Plaza", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "16th-st-mission", name: "16th St Mission", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "24th-st-mission", name: "24th St Mission", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "glen-park", name: "Glen Park", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "balboa-park", name: "Balboa Park", lines: ["bart-red", "bart-blue"], popular: true },
+      { id: "daly-city", name: "Daly City", lines: ["bart-red", "bart-blue"], popular: true },
+      // Major MUNI Metro Stations
+      { id: "van-ness", name: "Van Ness", lines: ["muni-j", "muni-k", "muni-l", "muni-m", "muni-n", "muni-t"], popular: true },
+      { id: "church-st", name: "Church St", lines: ["muni-j", "muni-k", "muni-l", "muni-m", "muni-n"], popular: true },
+      { id: "castro", name: "Castro", lines: ["muni-k", "muni-l", "muni-m"], popular: true },
+      { id: "west-portal", name: "West Portal", lines: ["muni-k", "muni-l", "muni-m"], popular: true },
+      { id: "ocean-beach", name: "Ocean Beach", lines: ["muni-n"], popular: true },
+      { id: "caltrain", name: "Caltrain Depot", lines: ["muni-t"], popular: true }
+    ],
+    tips: [
+      "Clipper Card or mobile app for BART/MUNI rides",
+      "BART connects SF to East Bay and Peninsula",
+      "MUNI Metro serves neighborhoods within SF",
+      "Powell St is main BART transfer station",
+      "Van Ness is central MUNI Metro hub",
+      "511.org provides real-time transit info"
+    ]
   }
 };
