@@ -83,5 +83,18 @@ export const CITIES_WITH_RAIL: City[] = [
       "Blue Line": ["Hamilton E. Holmes", "West Lake", "Ashby", "Vine City", "Omni Dome", "Five Points", "Georgia State", "King Memorial", "Inman Park/Reynoldstown", "Edgewood/Candler Park", "East Lake", "Decatur", "Avondale", "Kensington", "Indian Creek"],
       "Green Line": ["Bankhead", "Ashby", "Vine City", "Omni Dome", "Five Points", "Georgia State", "King Memorial", "Inman Park/Reynoldstown", "Edgewood/Candler Park", "East Lake", "Decatur", "Avondale", "Kensington", "Indian Creek"]
     }
+  },
+  {
+    id: "boston",
+    name: "Boston",
+    agency: "MBTA (Massachusetts Bay Transportation Authority)",
+    railLines: ["Red Line", "Blue Line", "Orange Line", "Green Line", "Silver Line"],
+    lineStations: {
+      "Red Line": ["Alewife", "Davis", "Porter", "Harvard", "Central", "Kendall/MIT", "Charles/MGH", "Park Street", "Downtown Crossing", "South Station", "Broadway", "Andrew", "JFK/UMass", "Savin Hill", "Fields Corner", "Shawmut", "Ashmont", "North Quincy", "Wollaston", "Quincy Center", "Quincy Adams", "Braintree"],
+      "Blue Line": ["Wonderland", "Revere Beach", "Beachmont", "Suffolk Downs", "Orient Heights", "Wood Island", "Airport", "Maverick", "Aquarium", "State", "Government Center", "Bowdoin"],
+      "Orange Line": ["Oak Grove", "Malden Center", "Wellington", "Assembly", "Sullivan Square", "Community College", "North Station", "Haymarket", "State", "Downtown Crossing", "Chinatown", "Tufts Medical Center", "Back Bay", "Massachusetts Avenue", "Ruggles", "Roxbury Crossing", "Jackson Square", "Stony Brook", "Green Street", "Forest Hills"],
+      "Green Line": ["Lechmere", "Science Park", "North Station", "Haymarket", "Government Center", "Park Street", "Boylston", "Arlington", "Copley", "Hynes Convention Center", "Kenmore", "Fenway", "Longwood", "Brookline Village", "Brookline Hills", "Beaconsfield", "Reservoir", "Chestnut Hill", "Newton Centre", "Newton Highlands", "Eliot", "Waban", "Woodland", "Riverside"],
+      "Silver Line": ["South Station", "Courthouse", "World Trade Center", "Silver Line Way", "Logan Airport Terminal A", "Logan Airport Terminal B", "Logan Airport Terminal C", "Logan Airport Terminal E"]
+    }
   }
 ];

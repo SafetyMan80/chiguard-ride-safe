@@ -376,5 +376,57 @@ export const CITY_CONFIGS: Record<string, CityConfig> = {
       "Gold, Blue, Green, Expo are light rail",
       "Metro app provides real-time arrival info"
     ]
+  },
+  
+  boston: {
+    name: "Boston MBTA",
+    agency: "Massachusetts Bay Transportation Authority",
+    description: "The T - Subway, Light Rail & Commuter Rail",
+    icon: "🦞",
+    lines: [
+      { id: "all", name: "All Lines", color: "bg-gray-500" },
+      { id: "red", name: "Red Line", color: "bg-red-500" },
+      { id: "blue", name: "Blue Line", color: "bg-blue-500" },
+      { id: "orange", name: "Orange Line", color: "bg-orange-500" },
+      { id: "green", name: "Green Line", color: "bg-green-500" },
+      { id: "silver", name: "Silver Line", color: "bg-gray-400" }
+    ],
+    stations: [
+      { id: "all", name: "All Stations", popular: true },
+      // Red Line
+      { id: "harvard", name: "Harvard", lines: ["red"], popular: true },
+      { id: "mit", name: "Kendall/MIT", lines: ["red"], popular: true },
+      { id: "park-street", name: "Park Street", lines: ["red", "green"], popular: true },
+      { id: "downtown-crossing", name: "Downtown Crossing", lines: ["red", "orange"], popular: true },
+      { id: "south-station", name: "South Station", lines: ["red", "silver"], popular: true },
+      { id: "alewife", name: "Alewife", lines: ["red"], popular: true },
+      { id: "braintree", name: "Braintree", lines: ["red"], popular: true },
+      // Blue Line
+      { id: "government-center", name: "Government Center", lines: ["blue", "green"], popular: true },
+      { id: "state", name: "State", lines: ["blue", "orange"], popular: true },
+      { id: "airport", name: "Airport", lines: ["blue"], popular: true },
+      { id: "wonderland", name: "Wonderland", lines: ["blue"], popular: true },
+      // Orange Line
+      { id: "north-station", name: "North Station", lines: ["orange", "green"], popular: true },
+      { id: "back-bay", name: "Back Bay", lines: ["orange"], popular: true },
+      { id: "forest-hills", name: "Forest Hills", lines: ["orange"], popular: true },
+      { id: "oak-grove", name: "Oak Grove", lines: ["orange"], popular: true },
+      // Green Line
+      { id: "copley", name: "Copley", lines: ["green"], popular: true },
+      { id: "kenmore", name: "Kenmore", lines: ["green"], popular: true },
+      { id: "fenway", name: "Fenway", lines: ["green"], popular: true },
+      { id: "riverside", name: "Riverside", lines: ["green"], popular: true },
+      // Silver Line
+      { id: "logan-airport", name: "Logan Airport", lines: ["silver"], popular: true },
+      { id: "world-trade-center", name: "World Trade Center", lines: ["silver"], popular: true }
+    ],
+    tips: [
+      "CharlieCard or mobile app for MBTA rides",
+      "Blue Line connects to Logan Airport",
+      "Park Street is the main downtown hub",
+      "Green Line has multiple branches (B, C, D, E)",
+      "Silver Line provides airport connections",
+      "MBTA app provides real-time arrival info"
+    ]
   }
 };

@@ -511,6 +511,94 @@ const CITIES_WITH_UNIVERSITIES: CityData[] = [
         nearbyStations: ["Union Station", "Pepsi Center/Elitch Gardens", "Sports Authority Field"]
       }
     ]
+  },
+  {
+    id: "boston",
+    name: "Boston",
+    agency: "MBTA",
+    color: "bg-indigo-600",
+    universities: [
+      {
+        id: "northeastern",
+        name: "Northeastern University",
+        shortName: "Northeastern",
+        description: "Private research university",
+        studentCount: "27,000+",
+        nearbyStations: ["Ruggles", "Massachusetts Avenue", "Back Bay"]
+      },
+      {
+        id: "bu",
+        name: "Boston University",
+        shortName: "BU",
+        description: "Private research university",
+        studentCount: "34,000+",
+        nearbyStations: ["Kenmore", "Hynes Convention Center", "Copley"]
+      },
+      {
+        id: "harvard",
+        name: "Harvard University",
+        shortName: "Harvard",
+        description: "Private Ivy League research university",
+        studentCount: "23,000+",
+        nearbyStations: ["Harvard", "Porter", "Central"]
+      },
+      {
+        id: "mit",
+        name: "Massachusetts Institute of Technology",
+        shortName: "MIT",
+        description: "Private research university",
+        studentCount: "12,000+",
+        nearbyStations: ["Kendall/MIT", "Central", "Charles/MGH"]
+      },
+      {
+        id: "suffolk",
+        name: "Suffolk University",
+        shortName: "Suffolk",
+        description: "Private research university",
+        studentCount: "7,500+",
+        nearbyStations: ["Government Center", "State", "Park Street"]
+      },
+      {
+        id: "emerson",
+        name: "Emerson College",
+        shortName: "Emerson",
+        description: "Private liberal arts college",
+        studentCount: "4,800+",
+        nearbyStations: ["Boylston", "Arlington", "Park Street"]
+      },
+      {
+        id: "umass_boston",
+        name: "University of Massachusetts Boston",
+        shortName: "UMass Boston",
+        description: "Public research university",
+        studentCount: "16,000+",
+        nearbyStations: ["JFK/UMass", "Savin Hill", "Andrew"]
+      },
+      {
+        id: "simmons",
+        name: "Simmons University",
+        shortName: "Simmons",
+        description: "Private university",
+        studentCount: "7,000+",
+        nearbyStations: ["Fenway", "Longwood", "Ruggles"]
+      },
+      {
+        id: "wentworth",
+        name: "Wentworth Institute of Technology",
+        shortName: "Wentworth",
+        description: "Private technological university",
+        studentCount: "4,500+",
+        nearbyStations: ["Ruggles", "Massachusetts Avenue", "Roxbury Crossing"]
+      },
+      {
+        id: "berklee",
+        name: "Berklee College of Music",
+        shortName: "Berklee",
+        description: "Private music college",
+        studentCount: "7,200+",
+        nearbyStations: ["Hynes Convention Center", "Kenmore", "Massachusetts Avenue"]
+      }
+    ]
   }
 ];
 

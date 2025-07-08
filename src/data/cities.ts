@@ -71,5 +71,14 @@ export const CITIES_WITH_RAIL: City[] = [
     railLines: ["Red", "Gold", "Blue", "Green"],
     color: "bg-orange-600",
     available: true
+  },
+  {
+    id: "boston",
+    name: "Boston",
+    agency: "MBTA (Massachusetts Bay Transportation Authority)",
+    description: "The T - Subway, Light Rail & Commuter Rail",
+    railLines: ["Red", "Blue", "Orange", "Green", "Silver"],
+    color: "bg-indigo-600",
+    available: true
   }
 ];
