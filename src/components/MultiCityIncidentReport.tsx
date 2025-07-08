@@ -89,6 +89,16 @@ const CITIES_WITH_RAIL: City[] = [
     color: "bg-orange-600",
     available: true,
     majorStations: ["Five Points", "Peachtree Center", "Airport", "Lindbergh Center", "North Springs", "Decatur", "King Memorial", "West End", "Buckhead", "Midtown"]
+  },
+  {
+    id: "boston",
+    name: "Boston",
+    agency: "MBTA (Massachusetts Bay Transportation Authority)",
+    description: "Subway System - Red, Blue, Orange, Green, and Silver Lines",
+    railLines: ["Red", "Blue", "Orange", "Green-B", "Green-C", "Green-D", "Green-E", "Silver"],
+    color: "bg-blue-700",
+    available: true,
+    majorStations: ["South Station", "North Station", "Back Bay", "Downtown Crossing", "Park Street", "Government Center", "Harvard", "MIT/Kendall"]
   }
 ];
 
@@ -274,7 +284,7 @@ export const MultiCityIncidentReport = () => {
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">
               <strong>🚨 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, 
-              Denver RTD, Philadelphia SEPTA, and Atlanta MARTA incident reporting with location tracking, photo upload, and real-time alerts.
+              Denver RTD, Philadelphia SEPTA, Atlanta MARTA, and Boston MBTA incident reporting with location tracking, photo upload, and real-time alerts.
             </p>
           </div>
           
