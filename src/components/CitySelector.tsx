@@ -44,14 +44,14 @@ export const CitySelector = ({ onCitySelect }: CitySelectorProps) => {
         <CardContent className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, Denver RTD, Philadelphia SEPTA, and Atlanta MARTA with 
+              <strong>🚊 Currently Available:</strong> Chicago CTA, New York City MTA, Denver RTD, Atlanta MARTA, and Boston MBTA with 
               real-time schedules, station search, and system information.
             </p>
           </div>
           
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
-              <strong>🚧 Coming Soon:</strong> Real-time integration for LA Metro with the same features.
+              <strong>🚧 Coming Soon:</strong> Real-time integration for Washington D.C. Metro, Philadelphia SEPTA, and LA Metro with the same features.
             </p>
           </div>
           

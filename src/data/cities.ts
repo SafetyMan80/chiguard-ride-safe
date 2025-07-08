@@ -9,6 +9,7 @@ export interface City {
 }
 
 export const CITIES_WITH_RAIL: City[] = [
+  // Available cities with live data
   {
     id: "chicago",
     name: "Chicago",
@@ -37,33 +38,6 @@ export const CITIES_WITH_RAIL: City[] = [
     available: true
   },
   {
-    id: "washington_dc",
-    name: "Washington D.C.",
-    agency: "WMATA (Washington Metropolitan Area Transit Authority)",
-    description: "Metrorail System - 6 color-coded lines",
-    railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
-    color: "bg-blue-800",
-    available: false
-  },
-  {
-    id: "los_angeles",
-    name: "Los Angeles",
-    agency: "LA Metro",
-    description: "Metro Rail System - Light rail and subway lines",
-    railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
-    color: "bg-red-600",
-    available: false
-  },
-  {
-    id: "philadelphia",
-    name: "Philadelphia",
-    agency: "SEPTA (Southeastern Pennsylvania Transportation Authority)",
-    description: "Regional Rail and Subway System",
-    railLines: ["Market-Frankford", "Broad Street", "Regional Rail"],
-    color: "bg-purple-600",
-    available: false
-  },
-  {
     id: "atlanta",
     name: "Atlanta",
     agency: "MARTA (Metropolitan Atlanta Rapid Transit Authority)",
@@ -80,5 +54,34 @@ export const CITIES_WITH_RAIL: City[] = [
     railLines: ["Red", "Blue", "Orange", "Green", "Silver"],
     color: "bg-indigo-600",
     available: true
+  },
+  
+  // Coming soon cities
+  {
+    id: "washington_dc",
+    name: "Washington D.C.",
+    agency: "WMATA (Washington Metropolitan Area Transit Authority)",
+    description: "Metrorail System - 6 color-coded lines",
+    railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
+    color: "bg-blue-800",
+    available: false
+  },
+  {
+    id: "philadelphia",
+    name: "Philadelphia",
+    agency: "SEPTA (Southeastern Pennsylvania Transportation Authority)",
+    description: "Regional Rail and Subway System",
+    railLines: ["Market-Frankford", "Broad Street", "Regional Rail"],
+    color: "bg-purple-600",
+    available: false
+  },
+  {
+    id: "los_angeles",
+    name: "Los Angeles",
+    agency: "LA Metro",
+    description: "Metro Rail System - Light rail and subway lines",
+    railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
+    color: "bg-red-600",
+    available: false
   }
 ];
