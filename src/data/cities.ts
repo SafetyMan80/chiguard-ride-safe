@@ -43,7 +43,7 @@ export const CITIES_WITH_RAIL: City[] = [
     description: "Metrorail System - 6 color-coded lines",
     railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
     color: "bg-blue-800",
-    available: true
+    available: false
   },
   {
     id: "los_angeles",
@@ -52,7 +52,7 @@ export const CITIES_WITH_RAIL: City[] = [
     description: "Metro Rail System - Light rail and subway lines",
     railLines: ["Red", "Purple", "Blue", "Green", "Gold", "Expo"],
     color: "bg-red-600",
-    available: true
+    available: false
   },
   {
     id: "philadelphia",
@@ -61,7 +61,7 @@ export const CITIES_WITH_RAIL: City[] = [
     description: "Regional Rail and Subway System",
     railLines: ["Market-Frankford", "Broad Street", "Regional Rail"],
     color: "bg-purple-600",
-    available: true
+    available: false
   },
   {
     id: "atlanta",
