@@ -117,13 +117,15 @@ serve(async (req) => {
 
     let apiUrl: string;
 
-    // ALWAYS use the arrivals API - this is the correct one for real-time arrival predictions
+    // Try HTTPS first (more secure and may be required)
+    const baseUrl = 'https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx';
+    
     if (stopId && routeId) {
       // Both stop and route specified
-      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stopId}&rt=${routeId}&outputType=JSON`;
+      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&rt=${routeId}&outputType=JSON`;
     } else if (stopId) {
       // Only stop specified
-      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`;
+      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`;
     } else if (routeId) {
       // Only route specified - use a major station for that route
       const majorStationForRoute = {
@@ -137,10 +139,10 @@ serve(async (req) => {
         'Yellow': '30173' // Howard
       };
       const stationId = majorStationForRoute[routeId] || '30173'; // Default to Howard
-      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`;
+      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`;
     } else {
       // No specific parameters - get arrivals from Howard station (major hub)
-      apiUrl = `http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key=${CTA_API_KEY}&stpid=30173&outputType=JSON`;
+      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=30173&outputType=JSON`;
     }
 
     console.log(`🚆 Fetching CTA data from: ${apiUrl}`);
