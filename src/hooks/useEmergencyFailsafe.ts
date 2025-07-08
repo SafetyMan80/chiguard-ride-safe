@@ -78,6 +78,64 @@ export const useEmergencyFailsafe = () => {
     });
   };
 
+  // Determine city and transit line based on GPS coordinates
+  const determineCityFromLocation = async (location: { latitude: number; longitude: number }) => {
+    // Default fallback
+    let cityInfo = {
+      transitLine: 'Red Line', // Default to Chicago Red Line
+      locationName: 'Emergency Location',
+      cityName: 'Chicago'
+    };
+
+    // Chicago area (roughly)
+    if (location.latitude >= 41.6 && location.latitude <= 42.1 && 
+        location.longitude >= -87.9 && location.longitude <= -87.5) {
+      cityInfo = {
+        transitLine: 'Red Line',
+        locationName: 'Chicago CTA Emergency',
+        cityName: 'Chicago'
+      };
+    }
+    // NYC area (roughly)
+    else if (location.latitude >= 40.4 && location.latitude <= 40.9 && 
+             location.longitude >= -74.3 && location.longitude <= -73.7) {
+      cityInfo = {
+        transitLine: '4', // NYC Subway line
+        locationName: 'NYC MTA Emergency', 
+        cityName: 'New York'
+      };
+    }
+    // DC area (roughly)
+    else if (location.latitude >= 38.8 && location.latitude <= 39.0 && 
+             location.longitude >= -77.2 && location.longitude <= -76.9) {
+      cityInfo = {
+        transitLine: 'Red Line', // DC Metro
+        locationName: 'DC Metro Emergency',
+        cityName: 'Washington DC'
+      };
+    }
+    // Philadelphia area (roughly)
+    else if (location.latitude >= 39.8 && location.latitude <= 40.1 && 
+             location.longitude >= -75.3 && location.longitude <= -74.9) {
+      cityInfo = {
+        transitLine: 'Market-Frankford Line',
+        locationName: 'SEPTA Emergency',
+        cityName: 'Philadelphia'
+      };
+    }
+    // Atlanta area (roughly)
+    else if (location.latitude >= 33.6 && location.latitude <= 33.9 && 
+             location.longitude >= -84.6 && location.longitude <= -84.2) {
+      cityInfo = {
+        transitLine: 'Red Line', // MARTA
+        locationName: 'MARTA Emergency',
+        cityName: 'Atlanta'
+      };
+    }
+
+    return cityInfo;
+  };
+
   const sendEmergencyReport = async (report: EmergencyReport, skipQueue = false): Promise<boolean> => {
     if (!isOnline && !skipQueue) {
       // Add to offline queue
@@ -93,6 +151,9 @@ export const useEmergencyFailsafe = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Determine city and transit line based on location or user profile
+      let cityInfo = await determineCityFromLocation(report.location);
+      
       // Multiple delivery attempts with different methods
       const deliveryMethods = [
         // Primary: Supabase database
@@ -101,10 +162,10 @@ export const useEmergencyFailsafe = () => {
             .from('incident_reports')
             .insert({
               reporter_id: user?.id || 'anonymous',
-              incident_type: report.type === 'sos' ? 'emergency' : 'safety_concern',
-              transit_line: 'emergency',
-              location_name: `Emergency Location`,
-              description: `🚨 EMERGENCY: ${report.details}`,
+              incident_type: 'Medical Emergency', // Valid incident type for SOS
+              transit_line: cityInfo.transitLine,
+              location_name: cityInfo.locationName,
+              description: `🚨 SOS EMERGENCY: ${report.details}`,
               latitude: report.location.latitude,
               longitude: report.location.longitude,
               accuracy: report.location.accuracy,
@@ -150,7 +211,7 @@ export const useEmergencyFailsafe = () => {
           await method();
           toast({
             title: "✅ Emergency Report Sent",
-            description: "Your emergency report has been successfully transmitted",
+            description: `SOS incident filed in ${cityInfo.cityName} - ${cityInfo.transitLine}`,
           });
           return true;
         } catch (error) {
