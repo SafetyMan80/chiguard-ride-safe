@@ -129,12 +129,15 @@ serve(async (req) => {
       };
       const stationId = majorStationForRoute[routeId] || '30173';
       apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`;
+      console.log('🚆 CTA Using route-specific station:', stationId, 'for route:', routeId);
     } else {
       // Default to Howard station
       apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=30173&outputType=JSON`;
+      console.log('🚆 CTA Using default Howard station (30173)');
     }
 
     console.log(`🚆 Fetching CTA data from: ${apiUrl.replace(CTA_API_KEY, 'API_KEY_HIDDEN')}`);
+    console.log('🚆 CTA Request Summary:', { stopId, routeId, apiUrl: apiUrl.replace(CTA_API_KEY, 'HIDDEN') });
     
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -289,10 +292,20 @@ serve(async (req) => {
 
     // Debug: Log the actual CTA API response for troubleshooting
     console.log('🚆 CTA API Raw Response Data:', JSON.stringify(data, null, 2));
+    console.log('🚆 CTA API Response Keys:', Object.keys(data || {}));
+    console.log('🚆 CTA API ctatt object:', data?.ctatt ? JSON.stringify(data.ctatt, null, 2) : 'No ctatt object');
+    console.log('🚆 CTA API eta array:', data?.ctatt?.eta ? `Array with ${data.ctatt.eta.length} items` : 'No eta array');
     
     // If no data but API succeeded, this indicates no real-time arrivals available
     if (transformedData.length === 0) {
-      console.log('🚆 No current arrivals found - this is normal during low-traffic periods');
+      console.log('🚆 No current arrivals found - checking if this is API issue vs actual no trains');
+      console.log('🚆 CTA API Response Structure Check:');
+      console.log('🚆   - Has ctatt?', !!data?.ctatt);
+      console.log('🚆   - Has eta?', !!data?.ctatt?.eta);
+      console.log('🚆   - ETA length:', data?.ctatt?.eta?.length || 0);
+      console.log('🚆   - Error code:', data?.ctatt?.errCd);
+      console.log('🚆   - Error name:', data?.ctatt?.errNm);
+      
       // Return empty array instead of fallback message to show actual status
       transformedData = [];
     }
