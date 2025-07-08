@@ -104,8 +104,8 @@ serve(async (req) => {
   }
 });
 
-async function getArrivals(station: string) {
-  if (!station) {
+async function getArrivals(stationParam: string) {
+  if (!stationParam) {
     return new Response(
       JSON.stringify({ error: 'Station parameter is required' }),
       { 
@@ -116,13 +116,23 @@ async function getArrivals(station: string) {
   }
 
   try {
-    console.log(`🚇 SEPTA: Fetching arrivals for station: ${station}`);
+    console.log(`🚇 SEPTA: Processing parameter: ${stationParam}`);
 
-    // Map our station IDs to SEPTA API station names
+    // Handle line vs station parameters
+    let septaStationName: string;
+    
+    // Line to default station mapping
+    const lineToStationMapping: { [key: string]: string } = {
+      'market-frankford': '15th Street',
+      'broad-street': 'City Hall',
+      'regional-rail': '30th Street Station'
+    };
+    
+    // Station ID to SEPTA API station name mapping
     const stationMapping: { [key: string]: string } = {
       'millbourne': 'Millbourne',
       '69th-street': '69th Street TC',
-      '30th-street': '30th Street',
+      '30th-street': '30th Street Station',
       '15th-street': '15th Street',
       '8th-market': '8th & Market',
       '5th-independence': '5th St-Independence Hall',
@@ -134,8 +144,15 @@ async function getArrivals(station: string) {
       'walnut-locust': 'Walnut-Locust'
     };
 
-    const septaStationName = stationMapping[station] || station;
-    console.log(`🚇 SEPTA: Mapped ${station} -> ${septaStationName}`);
+    // Check if parameter is a line (choose default station for that line)
+    if (lineToStationMapping[stationParam]) {
+      septaStationName = lineToStationMapping[stationParam];
+      console.log(`🚇 SEPTA: Line detected - ${stationParam} -> using default station: ${septaStationName}`);
+    } else {
+      // Otherwise treat as station
+      septaStationName = stationMapping[stationParam] || stationParam;
+      console.log(`🚇 SEPTA: Station mapping - ${stationParam} -> ${septaStationName}`);
+    }
 
     // SEPTA Real-time arrival API
     const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}`;
@@ -207,7 +224,7 @@ async function getArrivals(station: string) {
 
         return {
           line: lineKey,
-          station: station || 'Unknown Station',
+          station: septaStationName || 'Unknown Station',
           destination: arrival.destination || arrival.trip_destination || 'Unknown Destination',
           direction: arrival.direction || arrival.Direction || 'Unknown',
           arrivalTime: arrivalTime,
