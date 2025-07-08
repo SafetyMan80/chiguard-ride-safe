@@ -32,12 +32,12 @@ export const CTASchedule = () => {
     console.log('🔄 CTASchedule state changed:', { selectedLine, selectedStation });
   }, [selectedLine, selectedStation]);
 
-  // Force reset to correct defaults on mount
+  // Initialize with proper defaults
   useEffect(() => {
-    console.log('🔄 Forcing state reset to defaults');
+    console.log('🔄 CTA Component initializing with defaults');
     setSelectedLine("all");
     setSelectedStation("all");
-  }, []); // Only run once on mount
+  }, []);
 
   useEffect(() => {
     const handleOnlineStatus = () => setIsOnline(navigator.onLine);
@@ -80,11 +80,11 @@ export const CTASchedule = () => {
         requestBody.routeId = routeMapping[selectedLine.toLowerCase()] || selectedLine;
       }
       
-      // Map UI station IDs to CTA stop IDs
+      // Map UI station IDs to CTA stop IDs - use Howard as default
       if (selectedStation !== "all") {
         const stationMapping: { [key: string]: string } = {
           "clark-lake": "30131",
-          "fullerton": "30057",
+          "fullerton": "30057", 
           "belmont": "30254",
           "howard": "30173",
           "95th-dan-ryan": "30089",
@@ -103,9 +103,10 @@ export const CTASchedule = () => {
           "linden": "30307",
           "dempster-skokie": "30308"
         };
-        const mappedStationId = stationMapping[selectedStation] || "30173";
-        console.log('🚉 Station mapping:', { selectedStation, mappedStationId, availableStations: Object.keys(stationMapping) });
-        requestBody.stpid = mappedStationId;
+        requestBody.stpid = stationMapping[selectedStation] || "30173";
+      } else {
+        // Default to Howard station when "all" is selected
+        requestBody.stpid = "30173";
       }
       
       console.log('🚆 CTA calling function with payload:', requestBody);
@@ -113,7 +114,7 @@ export const CTASchedule = () => {
       console.log('🚆 Selected line:', selectedLine);
       
       const { data, error } = await supabase.functions.invoke('cta-schedule', {
-        body: Object.keys(requestBody).length > 0 ? requestBody : { stpid: '30173' }
+        body: requestBody
       });
 
       if (error) throw error;
