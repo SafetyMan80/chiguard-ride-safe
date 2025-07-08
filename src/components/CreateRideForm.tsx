@@ -102,6 +102,18 @@ const TRANSIT_LINES_BY_CITY: { [key: string]: Array<{ name: string; color: strin
     { name: "Gold Line", color: "bg-yellow-600" },
     { name: "Blue Line", color: "bg-blue-600" },
     { name: "Green Line", color: "bg-green-600" }
+  ],
+  san_francisco: [
+    { name: "BART Red Line", color: "bg-red-600" },
+    { name: "BART Blue Line", color: "bg-blue-600" },
+    { name: "BART Green Line", color: "bg-green-600" },
+    { name: "BART Yellow Line", color: "bg-yellow-600" },
+    { name: "MUNI N-Judah", color: "bg-blue-500" },
+    { name: "MUNI T-Third", color: "bg-red-500" },
+    { name: "MUNI K-Ingleside", color: "bg-orange-500" },
+    { name: "MUNI L-Taraval", color: "bg-purple-500" },
+    { name: "MUNI M-Ocean View", color: "bg-green-500" },
+    { name: "MUNI J-Church", color: "bg-amber-500" }
   ]
 };
 
