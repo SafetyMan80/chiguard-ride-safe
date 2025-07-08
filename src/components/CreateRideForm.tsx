@@ -245,7 +245,7 @@ export const CreateRideForm = ({
               <SelectTrigger className="bg-background">
                 <SelectValue placeholder="Select your university" />
               </SelectTrigger>
-              <SelectContent className="bg-background border z-50">
+              <SelectContent className="bg-background border shadow-lg z-[100]">
                 {universities.map(uni => (
                   <SelectItem key={uni.id} value={uni.name}>{uni.name}</SelectItem>
                 ))}
@@ -264,7 +264,7 @@ export const CreateRideForm = ({
                 <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select line" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border z-50">
+                <SelectContent className="bg-background border shadow-lg z-[100]">
                   {availableTransitLines.map(line => (
                     <SelectItem key={line.name} value={line.name}>
                       <div className="flex items-center gap-2">
@@ -297,7 +297,7 @@ export const CreateRideForm = ({
                 type="datetime-local"
                 value={formData.departure_time}
                 onChange={(e) => setFormData(prev => ({ ...prev, departure_time: e.target.value }))}
-                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                min={new Date().toISOString().slice(0, 16)}
                 required
               />
             </div>
@@ -311,7 +311,7 @@ export const CreateRideForm = ({
                 <SelectTrigger className="bg-background">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background border z-50">
+                <SelectContent className="bg-background border shadow-lg z-[100]">
                   {[2, 3, 4, 5, 6].map(num => (
                     <SelectItem key={num} value={num.toString()}>{num} spots</SelectItem>
                   ))}
@@ -356,7 +356,7 @@ export const CreateRideForm = ({
                   <SelectTrigger className="bg-background">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-background border z-50">
+                  <SelectContent className="bg-background border shadow-lg z-[100]">
                     <SelectItem value="daily">Daily</SelectItem>
                     <SelectItem value="weekly">Weekly</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
