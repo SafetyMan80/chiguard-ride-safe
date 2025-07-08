@@ -105,13 +105,21 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                     <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
                       {config.lines.find(l => l.id === selectedLine)?.name} Stations
                     </div>
-                    {config.stations
-                      .filter(s => s.lines?.includes(selectedLine) && s.id !== "all")
-                      .map((station) => (
+                    {(() => {
+                      const filteredStations = config.stations
+                        .filter(s => s.lines?.includes(selectedLine) && s.id !== "all");
+                      console.log('🚉 Station filtering:', { 
+                        selectedLine, 
+                        availableStations: config.stations.length,
+                        filteredStations: filteredStations.length,
+                        stations: filteredStations.map(s => ({ id: s.id, name: s.name, lines: s.lines }))
+                      });
+                      return filteredStations.map((station) => (
                         <SelectItem key={station.id} value={station.id}>
                           {station.name}
                         </SelectItem>
-                      ))}
+                      ));
+                    })()}
                   </>
                 )}
               </SelectContent>
