@@ -176,16 +176,7 @@ serve(async (req) => {
         const arrivalDate = new Date(arrivalTime);
         const now = new Date();
         
-        console.log('🚇 Time calculation debug:', {
-          arrivalTime,
-          arrivalDate: arrivalDate.toISOString(),
-          now: now.toISOString(),
-          rawDiff: arrivalDate.getTime() - now.getTime()
-        });
-        
         const diffMinutes = Math.round((arrivalDate.getTime() - now.getTime()) / (1000 * 60));
-        
-        console.log('🚇 Minutes calculation:', { diffMinutes });
         
         // If the predicted time is more than 60 minutes in the past, treat as stale data
         if (diffMinutes < -60) {
@@ -194,6 +185,9 @@ serve(async (req) => {
           minutesAway = 'Arriving';
         } else if (diffMinutes === 1) {
           minutesAway = '1 min';
+        } else if (diffMinutes > 120) {
+          // If more than 2 hours away, likely stale data
+          minutesAway = 'No Data';
         } else {
           minutesAway = `${diffMinutes} min`;
         }

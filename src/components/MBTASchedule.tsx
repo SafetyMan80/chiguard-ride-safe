@@ -3,9 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
-import { MajorStationsDisplay } from "@/components/shared/MajorStationsDisplay";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MBTAResponse {
   success: boolean;
@@ -22,7 +20,6 @@ export const MBTASchedule = () => {
   const [selectedStation, setSelectedStation] = useState<string>("all");
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [activeTab, setActiveTab] = useState<string>("overview");
   const { toast } = useToast();
 
   const config = CITY_CONFIGS.boston;
@@ -137,33 +134,35 @@ export const MBTASchedule = () => {
     }
   };
 
+  const formatArrivalTime = (arrivalTime: string) => {
+    if (arrivalTime === "No Data") return "No Data";
+    if (arrivalTime === "Boarding" || arrivalTime === "Arrived") return arrivalTime;
+    const minutes = parseInt(arrivalTime);
+    if (!isNaN(minutes)) {
+      return minutes <= 1 ? "Arriving" : `${minutes} min`;
+    }
+    return arrivalTime;
+  };
+
+  const getLineColor = (line: string) => {
+    const lineData = config.lines.find(l => l.name.toLowerCase().includes(line.toLowerCase()));
+    return lineData?.color || "bg-gray-500";
+  };
+
   return (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="overview">System Overview</TabsTrigger>
-          <TabsTrigger value="schedule">Live Schedule</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <MajorStationsDisplay config={config} fetchArrivals={fetchArrivals} />
-        </TabsContent>
-
-        <TabsContent value="schedule" className="space-y-6">
-          <StandardScheduleLayout
-            config={config}
-            arrivals={arrivals}
-            loading={loading}
-            selectedLine={selectedLine}
-            selectedStation={selectedStation}
-            lastUpdated={lastUpdated}
-            onRefresh={handleRefresh}
-            onLineChange={handleLineChange}
-            onStationChange={handleStationChange}
-            isOnline={isOnline}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <StandardScheduleLayout
+      config={config}
+      selectedLine={selectedLine}
+      selectedStation={selectedStation}
+      arrivals={arrivals}
+      loading={loading}
+      lastUpdated={lastUpdated}
+      isOnline={isOnline}
+      onLineChange={handleLineChange}
+      onStationChange={handleStationChange}
+      onRefresh={handleRefresh}
+      formatArrivalTime={formatArrivalTime}
+      getLineColor={getLineColor}
+    />
   );
 };
