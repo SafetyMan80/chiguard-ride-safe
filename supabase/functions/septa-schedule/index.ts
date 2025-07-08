@@ -2,18 +2,24 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
+  'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, authorization, x-client-info, apikey',
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0'
 };
 
 serve(async (req) => {
+  console.log('🚇 SEPTA API function called:', req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('🚇 SEPTA Schedule function called');
     console.log('🚇 Request method:', req.method);
     console.log('🚇 Request URL:', req.url);
     console.log('🚇 Request headers:', Object.fromEntries(req.headers.entries()));
@@ -41,7 +47,7 @@ serve(async (req) => {
         }),
         { 
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: corsHeaders
         }
       );
     }
@@ -58,7 +64,7 @@ serve(async (req) => {
         }),
         { 
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: corsHeaders
         }
       );
     }
@@ -82,7 +88,7 @@ serve(async (req) => {
           JSON.stringify({ error: 'Invalid action. Use: arrivals, routes, or stations' }),
           { 
             status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: corsHeaders
           }
         );
     }
@@ -97,8 +103,8 @@ serve(async (req) => {
         source: 'SEPTA'
       }),
       { 
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 500,
+        headers: corsHeaders
       }
     );
   }
@@ -107,102 +113,122 @@ serve(async (req) => {
 async function getArrivals(stationParam: string) {
   if (!stationParam) {
     return new Response(
-      JSON.stringify({ error: 'Station parameter is required' }),
+      JSON.stringify({ 
+        error: 'Station parameter is required',
+        example: '?station=30th Street Station'
+      }),
       { 
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: corsHeaders
       }
     );
   }
 
+  console.log(`🚇 SEPTA: Processing parameter: ${stationParam}`);
+
+  // Handle line vs station parameters
+  let septaStationName: string;
+  
+  // Line to default station mapping
+  const lineToStationMapping: { [key: string]: string } = {
+    'market-frankford': '30th Street Station',
+    'broad-street': 'City Hall',
+    'regional-rail': '30th Street Station'
+  };
+  
+  // Station ID to SEPTA API station name mapping
+  const stationMapping: { [key: string]: string } = {
+    'millbourne': 'Millbourne',
+    '69th-street': '69th Street TC',
+    '30th-street': '30th Street Station',
+    '15th-street': '15th Street',
+    '8th-market': '8th & Market',
+    '5th-independence': '5th St-Independence Hall',
+    '2nd-street': '2nd Street',
+    'frankford': 'Frankford TC',
+    'fern-rock': 'Fern Rock TC',
+    'olney': 'Olney',
+    'city-hall': 'City Hall',
+    'walnut-locust': 'Walnut-Locust'
+  };
+
+  // Check if parameter is a line (choose default station for that line)
+  if (lineToStationMapping[stationParam]) {
+    septaStationName = lineToStationMapping[stationParam];
+    console.log(`🚇 SEPTA: Line detected - ${stationParam} -> using default station: ${septaStationName}`);
+  } else {
+    // Otherwise treat as station
+    septaStationName = stationMapping[stationParam] || stationParam;
+    console.log(`🚇 SEPTA: Station mapping - ${stationParam} -> ${septaStationName}`);
+  }
+
+  // SEPTA Real-time arrival API - CRITICAL: Remove any API key references (SEPTA is public)
+  const septaUrl = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}&results=10`;
+  console.log(`🚇 SEPTA: Calling API: ${septaUrl}`);
+
   try {
-    console.log(`🚇 SEPTA: Processing parameter: ${stationParam}`);
-
-    // Handle line vs station parameters
-    let septaStationName: string;
-    
-    // Line to default station mapping
-    const lineToStationMapping: { [key: string]: string } = {
-      'market-frankford': '15th Street',
-      'broad-street': 'City Hall',
-      'regional-rail': '30th Street Station'
-    };
-    
-    // Station ID to SEPTA API station name mapping
-    const stationMapping: { [key: string]: string } = {
-      'millbourne': 'Millbourne',
-      '69th-street': '69th Street TC',
-      '30th-street': '30th Street Station',
-      '15th-street': '15th Street',
-      '8th-market': '8th & Market',
-      '5th-independence': '5th St-Independence Hall',
-      '2nd-street': '2nd Street',
-      'frankford': 'Frankford TC',
-      'fern-rock': 'Fern Rock TC',
-      'olney': 'Olney',
-      'city-hall': 'City Hall',
-      'walnut-locust': 'Walnut-Locust'
-    };
-
-    // Check if parameter is a line (choose default station for that line)
-    if (lineToStationMapping[stationParam]) {
-      septaStationName = lineToStationMapping[stationParam];
-      console.log(`🚇 SEPTA: Line detected - ${stationParam} -> using default station: ${septaStationName}`);
-    } else {
-      // Otherwise treat as station
-      septaStationName = stationMapping[stationParam] || stationParam;
-      console.log(`🚇 SEPTA: Station mapping - ${stationParam} -> ${septaStationName}`);
-    }
-
-    // SEPTA Real-time arrival API with required parameters and timeout
-    const url = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(septaStationName)}&results=10`;
-    console.log(`🚇 SEPTA: Calling API: ${url}`);
-    console.log(`🚇 SEPTA: Request headers:`, {
-      'Accept': 'application/json',
-      'User-Agent': 'RailScheduleApp/1.0'
-    });
-    
+    // CRITICAL FIX: Add proper timeout and headers
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
     
-    const response = await fetch(url, {
+    const response = await fetch(septaUrl, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'RailScheduleApp/1.0',
-        'Content-Type': 'application/json'
+        'User-Agent': 'Mozilla/5.0 (compatible; RailApp/1.0)',
+        // SEPTA API is very picky about headers
       },
       signal: controller.signal
     });
     
     clearTimeout(timeoutId);
-
-    console.log(`🚇 SEPTA: API Response Status: ${response.status} ${response.statusText}`);
-    console.log(`🚇 SEPTA: Response Headers:`, Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      console.error(`🚇 SEPTA API error: ${response.status} ${response.statusText}`);
-      const errorText = await response.text();
-      console.error(`🚇 SEPTA Error response body:`, errorText);
-      throw new Error(`SEPTA API responded with status ${response.status}`);
-    }
-
-    const responseText = await response.text();
-    console.log(`🚇 SEPTA: Raw response body (first 500 chars):`, responseText.substring(0, 500));
-    console.log(`🚇 SEPTA: Full response length:`, responseText.length);
     
-    let data;
-    try {
-      data = JSON.parse(responseText);
-      console.log('🚇 SEPTA: Response parsed as JSON successfully');
-      console.log('🚇 SEPTA: Response keys:', Object.keys(data));
-      console.log('🚇 SEPTA: Full API response structure:', JSON.stringify(data, null, 2));
-    } catch (parseError) {
-      console.error('🚇 SEPTA: Failed to parse response as JSON:', parseError);
-      console.error('🚇 SEPTA: Raw response text:', responseText);
-      throw new Error(`Invalid JSON response: ${parseError.message}`);
+    console.log('🚇 SEPTA API Response Status:', response.status);
+    console.log('🚇 SEPTA API Response Headers:', Object.fromEntries(response.headers.entries()));
+    
+    if (!response.ok) {
+      throw new Error(`SEPTA API returned ${response.status}: ${response.statusText}`);
     }
-
+    
+    // CRITICAL: Check content type before parsing
+    const contentType = response.headers.get('content-type');
+    console.log('🚇 Content-Type:', contentType);
+    
+    if (!contentType || !contentType.includes('application/json')) {
+      const textResponse = await response.text();
+      console.log('🚇 Non-JSON response from SEPTA:', textResponse.substring(0, 500));
+      
+      // SEPTA sometimes returns HTML error pages
+      if (textResponse.includes('<html>') || textResponse.includes('<!DOCTYPE')) {
+        throw new Error('SEPTA API returned HTML instead of JSON - service may be down');
+      }
+      
+      throw new Error(`SEPTA API returned unexpected content type: ${contentType}`);
+    }
+    
+    const data = await response.json();
+    console.log('🚇 SEPTA API Data received:', typeof data, Array.isArray(data) ? data.length : 'object');
+    
+    // SEPTA API sometimes returns error objects instead of throwing
+    if (data.error || (typeof data === 'object' && data.message && data.message.includes('Error'))) {
+      throw new Error(`SEPTA API Error: ${data.error || data.message}`);
+    }
+    
+    // Handle empty responses (common with SEPTA)
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          station: septaStationName,
+          message: 'No arrivals currently scheduled for this station',
+          data: [],
+          timestamp: new Date().toISOString(),
+          source: 'SEPTA'
+        }),
+        { headers: corsHeaders }
+      );
+    }
+    
     // Transform the data to a consistent format
     console.log(`🚇 SEPTA: Processing ${Object.keys(data).length} potential line entries`);
     const arrivals = Object.entries(data).flatMap(([lineKey, lineData]: [string, any]) => {
@@ -210,7 +236,7 @@ async function getArrivals(stationParam: string) {
       if (!Array.isArray(lineData)) return [];
       
       return lineData.map((arrival: any) => {
-        console.log('Processing arrival:', JSON.stringify(arrival, null, 2));
+        console.log('🚇 Processing arrival:', JSON.stringify(arrival, null, 2));
         
         // Try multiple fields for arrival time
         let arrivalTime = 'Unknown';
@@ -244,28 +270,50 @@ async function getArrivals(stationParam: string) {
     return new Response(
       JSON.stringify({
         success: true,
+        station: septaStationName,
         data: arrivals,
         timestamp: new Date().toISOString(),
         source: 'SEPTA'
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      { headers: corsHeaders }
     );
-
+    
   } catch (error) {
-    console.error('Error fetching SEPTA arrivals:', error);
+    console.error('🚇 SEPTA API Error Details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
+    
+    // Specific error handling for common SEPTA issues
+    let errorMessage = 'Failed to fetch arrivals data';
+    let statusCode = 500;
+    
+    if (error.name === 'AbortError') {
+      errorMessage = 'SEPTA API request timed out - service may be slow';
+      statusCode = 504;
+    } else if (error.message.includes('SEPTA API returned HTML')) {
+      errorMessage = 'SEPTA service is currently unavailable';
+      statusCode = 503;
+    } else if (error.message.includes('400')) {
+      errorMessage = 'Invalid station name - check station parameter';
+      statusCode = 400;
+    }
+    
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: false,
-        data: [],
-        error: error.message || 'Failed to fetch SEPTA arrivals',
+        error: errorMessage,
+        details: error.message,
+        station: septaStationName,
         timestamp: new Date().toISOString(),
-        source: 'SEPTA'
+        source: 'SEPTA',
+        // Include valid station names for debugging
+        hint: 'Try stations like: "30th Street Station", "Jefferson Station", "Temple University"'
       }),
       { 
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: statusCode, 
+        headers: corsHeaders 
       }
     );
   }
