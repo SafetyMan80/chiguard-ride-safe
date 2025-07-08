@@ -187,7 +187,10 @@ serve(async (req) => {
         
         console.log('🚇 Minutes calculation:', { diffMinutes });
         
-        if (diffMinutes <= 0) {
+        // If the predicted time is more than 60 minutes in the past, treat as stale data
+        if (diffMinutes < -60) {
+          minutesAway = 'No Data';
+        } else if (diffMinutes <= 0) {
           minutesAway = 'Arriving';
         } else if (diffMinutes === 1) {
           minutesAway = '1 min';
