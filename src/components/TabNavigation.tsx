@@ -64,16 +64,12 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
                 flex flex-col items-center gap-1.5 h-auto py-2 px-2 min-h-[60px] min-w-[48px] justify-center
                 touch-target-large rounded-2xl transition-all duration-300 ease-out relative group
                 ${isActive 
-                  ? 'text-chicago-blue bg-chicago-blue/12 shadow-[var(--shadow-interactive)] scale-105 border-2 border-white' 
-                  : 'text-muted-foreground hover:text-chicago-blue hover:bg-chicago-blue/8 hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)] hover:border-2 hover:border-white'
+                  ? 'text-chicago-blue shadow-[var(--shadow-interactive)] scale-105 border-2 border-white' 
+                  : 'text-muted-foreground hover:text-chicago-blue hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)] hover:border-2 hover:border-white'
                 }
                 ${tab.priority ? 'hover:shadow-[var(--shadow-emergency)]' : ''}
               `}
             >
-              {/* Active state background gradient */}
-              {isActive && (
-                <div className="absolute inset-0 bg-gradient-to-b from-chicago-blue/8 to-chicago-blue/12 rounded-2xl animate-fade-in"></div>
-              )}
               
               {/* Icon with enhanced styling */}
               <div className={`relative z-10 transition-all duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>

@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { EmergencySOSButton } from "@/components/EmergencySOSButton";
+
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useLocationService } from "@/hooks/useLocationService";
 import { useAppMonitoring } from "@/hooks/useAppMonitoring";
@@ -51,7 +51,7 @@ const App = () => {
       <TooltipProvider>
           <Toaster />
           <Sonner />
-          <EmergencySOSButton />
+          
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
