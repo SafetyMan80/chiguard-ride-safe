@@ -27,6 +27,18 @@ export const CTASchedule = () => {
 
   const config = CITY_CONFIGS.chicago;
 
+  // Debug state changes
+  useEffect(() => {
+    console.log('🔄 CTASchedule state changed:', { selectedLine, selectedStation });
+  }, [selectedLine, selectedStation]);
+
+  // Force reset to correct defaults on mount
+  useEffect(() => {
+    console.log('🔄 Forcing state reset to defaults');
+    setSelectedLine("all");
+    setSelectedStation("all");
+  }, []); // Only run once on mount
+
   useEffect(() => {
     const handleOnlineStatus = () => setIsOnline(navigator.onLine);
     window.addEventListener('online', handleOnlineStatus);
