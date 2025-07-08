@@ -25,8 +25,8 @@ serve(async (req) => {
     } else if (req.method === 'POST') {
       try {
         const body = await req.json();
-        stopId = body.stopId;
-        routeId = body.routeId;
+        stopId = body.stpid || body.stopId; // Support both parameter names
+        routeId = body.routeId || body.rt;
       } catch (e) {
         console.log('No valid JSON body provided, treating as general request');
       }
