@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Home, AlertTriangle, FileText, Users, Calendar, Settings } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -8,10 +9,12 @@ interface TabNavigationProps {
 }
 
 export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
+  const { t } = useLanguage();
+  
   const tabs = [
     { 
       id: "home", 
-      label: "Home", 
+      label: t("Home"), 
       icon: Home, 
       badge: null 
     },
@@ -24,25 +27,25 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
     },
     { 
       id: "incidents", 
-      label: "Reports", 
+      label: t("Reports"), 
       icon: FileText, 
       badge: null 
     },
     { 
       id: "groups", 
-      label: "Group Up", 
+      label: t("Group Up"), 
       icon: Users, 
       badge: null 
     },
     { 
       id: "schedule", 
-      label: "Schedule", 
+      label: t("Schedule"), 
       icon: Calendar, 
       badge: null 
     },
     { 
       id: "settings", 
-      label: "Settings", 
+      label: t("Settings"), 
       icon: Settings, 
       badge: null 
     },

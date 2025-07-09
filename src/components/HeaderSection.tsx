@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 import { User } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -14,6 +16,7 @@ interface HeaderSectionProps {
 
 export const HeaderSection = ({ user }: HeaderSectionProps) => {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchProfilePhoto = async () => {
@@ -54,7 +57,10 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
             </Avatar>
           )}
         </div>
-        <ThemeToggle />
+        <div className="flex items-center space-x-2">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
         <div className="w-16 h-16 md:w-20 md:h-20"> {/* Spacer for balance */}
         </div>
       </div>
@@ -72,7 +78,7 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
         </CardHeader>
         <CardContent className="pt-0 pb-6">
           <p className="text-center text-base text-muted-foreground/80 font-medium">
-            Safety Driven...Community Powered
+            {t("Safety Driven...Community Powered")}
           </p>
         </CardContent>
       </Card>

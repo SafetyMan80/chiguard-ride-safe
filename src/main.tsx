@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { LanguageProvider } from '@/components/LanguageProvider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // Create a client with optimized settings for performance
@@ -55,7 +56,9 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <App />
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
