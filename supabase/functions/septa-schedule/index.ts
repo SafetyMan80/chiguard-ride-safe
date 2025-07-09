@@ -127,14 +127,16 @@ serve(async (req) => {
             
             return trains.map((t: any) => {
               // Parse the API's timestamp field
-              const arrivalTimeStr = t.arrival_time || t.scheduled_time || t.time;
+              const arrivalTimeStr = t.departure_time || t.arrival_time || t.arrT || t.time;
               
               if (!arrivalTimeStr) {
-                console.log('No arrival time found for train:', JSON.stringify(t));
+                console.log('No departure time found for train:', JSON.stringify(t));
                 return null;
               }
               
-              const arrMs = new Date(arrivalTimeStr).getTime();
+              // Parse time string (assuming "HH:mm" format)
+              const [h, m] = arrivalTimeStr.split(':').map(Number);
+              const arrMs = new Date().setHours(h, m, 0, 0);
               const deltaMin = Math.max(0, Math.round((arrMs - now) / 60000));
               
               return {
