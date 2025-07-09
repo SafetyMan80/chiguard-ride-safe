@@ -42,7 +42,7 @@ serve(async (req) => {
     }
 
     const { action, latitude, longitude, radius } = await req.json();
-    const agencyKey = 'lametro-rail';
+    const agencyKey = 'lametro-rail'; // Ensure this matches Swiftly's agency key for LA Metro
     const baseUrl = 'https://api.goswift.ly/real-time';
 
     console.log(`LA Metro API request: ${action}`, { latitude, longitude, radius });
@@ -111,7 +111,8 @@ serve(async (req) => {
       const response = await fetch(fullUrl, {
         headers: {
           'Authorization': `Bearer ${SWIFTLY_API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-API-Key': SWIFTLY_API_KEY // Try both auth methods
         }
       });
 
