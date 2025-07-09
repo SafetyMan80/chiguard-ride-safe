@@ -36,39 +36,31 @@ serve(async (req) => {
   }
 
   try {
-    const SWIFTLY_API_KEY = Deno.env.get('SWIFTLY_API_KEY');
-    if (!SWIFTLY_API_KEY) {
-      throw new Error('SWIFTLY_API_KEY environment variable is required');
-    }
-
     const { action, latitude, longitude, radius } = await req.json();
-    const agencyKey = 'lametro-rail'; // Ensure this matches Swiftly's agency key for LA Metro
-    const baseUrl = 'https://api.goswift.ly/real-time';
 
     console.log(`LA Metro API request: ${action}`, { latitude, longitude, radius });
 
     if (action === 'alerts') {
-      // Fetch service alerts
-      const alertsUrl = `${baseUrl}/${agencyKey}/gtfs-rt-alerts/v2`;
+      // Fetch service alerts from LA Metro's official API
+      const alertsUrl = 'https://api.metro.net/gtfs_rt/alerts/json';
       console.log('Fetching alerts from:', alertsUrl);
 
       const response = await fetch(alertsUrl, {
         headers: {
-          'Authorization': `Bearer ${SWIFTLY_API_KEY}`,
           'Content-Type': 'application/json'
         }
       });
 
       if (!response.ok) {
         console.error('Alerts API error:', response.status, response.statusText);
-        throw new Error(`Alerts API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`LA Metro Alerts API returned ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Alerts API response:', data);
+      console.log('LA Metro Alerts API response:', data);
 
-      // Parse GTFS-RT alerts format
-      const alerts: SwiftlyAlert[] = [];
+      // Parse LA Metro alerts format
+      const alerts: any[] = [];
       if (data.entity) {
         data.entity.forEach((entity: any) => {
           if (entity.alert) {
@@ -93,69 +85,81 @@ serve(async (req) => {
       });
 
     } else if (action === 'predictions') {
-      // Fetch predictions near location
-      if (!latitude || !longitude) {
-        throw new Error('Latitude and longitude are required for predictions');
+      // Fetch real-time transit data from LA Metro's API
+      const vehiclePositionsUrl = 'https://api.metro.net/gtfs_rt/vehicle_positions/json';
+      const tripUpdatesUrl = 'https://api.metro.net/gtfs_rt/trip_updates/json';
+      
+      console.log('Fetching LA Metro real-time data from official API');
+
+      // Fetch both vehicle positions and trip updates
+      const [vehicleResponse, tripResponse] = await Promise.all([
+        fetch(vehiclePositionsUrl),
+        fetch(tripUpdatesUrl)
+      ]);
+
+      if (!vehicleResponse.ok) {
+        console.error('Vehicle positions API error:', vehicleResponse.status);
+        throw new Error(`Vehicle positions API returned ${vehicleResponse.status}`);
       }
 
-      const predictionsUrl = `${baseUrl}/${agencyKey}/predictions-near-location`;
-      const params = new URLSearchParams({
-        lat: latitude.toString(),
-        lon: longitude.toString(),
-        radius_m: (radius || 200).toString()
-      });
-
-      const fullUrl = `${predictionsUrl}?${params}`;
-      console.log('Fetching predictions from:', fullUrl);
-
-      const response = await fetch(fullUrl, {
-        headers: {
-          'Authorization': `Bearer ${SWIFTLY_API_KEY}`,
-          'Content-Type': 'application/json',
-          'X-API-Key': SWIFTLY_API_KEY // Try both auth methods
-        }
-      });
-
-      if (!response.ok) {
-        console.error('Predictions API error:', response.status, response.statusText);
-        throw new Error(`Predictions API returned ${response.status}: ${response.statusText}`);
+      if (!tripResponse.ok) {
+        console.error('Trip updates API error:', tripResponse.status);
+        throw new Error(`Trip updates API returned ${tripResponse.status}`);
       }
 
-      const data = await response.json();
-      console.log('Predictions API response sample:', {
-        total_predictions: data.predictions?.length || 0,
-        first_prediction: data.predictions?.[0]
+      const vehicleData = await vehicleResponse.json();
+      const tripData = await tripResponse.json();
+
+      console.log('Vehicle data sample:', {
+        total_vehicles: vehicleData.entity?.length || 0,
+        first_vehicle: vehicleData.entity?.[0]
       });
 
-      // Transform predictions to our format
+      console.log('Trip data sample:', {
+        total_trips: tripData.entity?.length || 0,
+        first_trip: tripData.entity?.[0]
+      });
+
+      // Transform the data to our format
       const predictions: any[] = [];
-      if (data.predictions && Array.isArray(data.predictions)) {
-        data.predictions.forEach((pred: any) => {
-          predictions.push({
-            route_id: pred.route_id || pred.route?.route_id,
-            route_name: pred.route_short_name || pred.route?.route_short_name || pred.route_id,
-            headsign: pred.trip_headsign || pred.headsign || 'Unknown Destination',
-            arrival_time: pred.arrival_time || pred.predicted_arrival_time,
-            departure_time: pred.departure_time || pred.predicted_departure_time,
-            delay_seconds: pred.delay || 0,
-            vehicle_id: pred.vehicle_id || pred.vehicle?.id,
-            stop_id: pred.stop_id,
-            stop_name: pred.stop_name
-          });
+      
+      // Process trip updates for predictions
+      if (tripData.entity && Array.isArray(tripData.entity)) {
+        tripData.entity.forEach((entity: any) => {
+          if (entity.trip_update && entity.trip_update.stop_time_update) {
+            entity.trip_update.stop_time_update.forEach((stopUpdate: any) => {
+              if (stopUpdate.arrival) {
+                const arrivalTime = stopUpdate.arrival.time || stopUpdate.arrival.delay;
+                if (arrivalTime) {
+                  predictions.push({
+                    route_name: entity.trip_update.trip?.route_id || 'Unknown Route',
+                    headsign: entity.trip_update.trip?.trip_headsign || 'Unknown Destination',
+                    arrival_time: arrivalTime ? 
+                      Math.max(0, Math.round((arrivalTime * 1000 - Date.now()) / 60000)).toString() : 
+                      'Unknown',
+                    delay_seconds: stopUpdate.arrival.delay || 0,
+                    vehicle_id: entity.trip_update.vehicle?.id || '',
+                    stop_name: stopUpdate.stop_id || 'Unknown Stop'
+                  });
+                }
+              }
+            });
+          }
         });
       }
 
       // Sort by arrival time
       predictions.sort((a, b) => {
-        const timeA = new Date(a.arrival_time).getTime();
-        const timeB = new Date(b.arrival_time).getTime();
+        const timeA = parseInt(a.arrival_time) || 999;
+        const timeB = parseInt(b.arrival_time) || 999;
         return timeA - timeB;
       });
 
       return new Response(JSON.stringify({ 
-        predictions: predictions.slice(0, 10), // Limit to 10 predictions
+        predictions: predictions.slice(0, 20), // Limit to 20 predictions
         timestamp: new Date().toISOString(),
-        location: { latitude, longitude, radius }
+        location: { latitude, longitude, radius },
+        source: 'LA Metro Official API'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -169,7 +173,8 @@ serve(async (req) => {
     
     return new Response(JSON.stringify({ 
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      source: 'LA Metro Official API'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
