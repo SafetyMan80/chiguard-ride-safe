@@ -63,16 +63,23 @@ export const LAMetroSchedule = () => {
         body: requestBody
       });
 
+      console.log('Supabase invoke response:', { data, error });
+
       if (error) {
-        console.error('LA Metro edge function error:', error);
-        throw error;
+        console.error('LA Metro edge function error details:', {
+          message: error.message,
+          context: error.context,
+          details: error.details
+        });
+        throw new Error(`Edge function error: ${error.message}`);
       }
 
       console.log('LA Metro API response:', data);
 
-      // Check if we got an error in the response
+      // Check if we got an error in the response data
       if (data && data.error) {
-        throw new Error(data.error);
+        console.error('API returned error:', data);
+        throw new Error(`API Error: ${data.error} - ${data.details || ''}`);
       }
 
       // Transform the response to match our StandardArrival format

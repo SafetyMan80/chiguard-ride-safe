@@ -36,8 +36,21 @@ serve(async (req) => {
   }
 
   try {
-    const { action, latitude, longitude, radius } = await req.json();
+    let requestData;
+    try {
+      requestData = await req.json();
+    } catch (jsonError) {
+      console.error('Failed to parse JSON:', jsonError);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid JSON in request body',
+        details: jsonError.message 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
+    const { action, latitude, longitude, radius } = requestData;
     console.log(`LA Metro API request: ${action}`, { latitude, longitude, radius });
 
     if (action === 'alerts') {
@@ -169,12 +182,19 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('LA Metro API error:', error);
+    console.error('LA Metro API error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
+    // Return detailed error information
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: error.message || 'Unknown error occurred',
+      errorType: error.name || 'Error',
       timestamp: new Date().toISOString(),
-      source: 'LA Metro Official API'
+      source: 'LA Metro API',
+      details: error.stack || 'No stack trace available'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
