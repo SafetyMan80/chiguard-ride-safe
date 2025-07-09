@@ -130,6 +130,7 @@ serve(async (req) => {
       console.log('🚆 CTA Fetching multiple stations for route:', routeId, 'stations:', stations);
     } else {
       // Default: Get comprehensive data from major hub stations that serve multiple lines
+      // Removed invalid station IDs 30307 and 30308 that were causing API errors
       const majorHubStations = [
         '30131', // Clark/Lake (Blue, Brown, Green, Orange, Pink, Purple)
         '30173', // Howard (Red, Purple, Yellow)
@@ -142,8 +143,7 @@ serve(async (req) => {
         '30297', // Kimball (Brown)
         '30098', // 54th/Cermak (Pink)
         '30047', // Harlem/Lake (Green)
-        '30307', // Linden (Purple)
-        '30308'  // Dempster-Skokie (Yellow)
+        '30768'  // Merchandise Mart (Brown, Purple)
       ];
       
       apiUrls = majorHubStations.map(stationId => 
