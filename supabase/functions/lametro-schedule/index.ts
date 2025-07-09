@@ -98,9 +98,9 @@ serve(async (req) => {
       });
 
     } else if (action === 'predictions') {
-      // Fetch real-time transit data from LA Metro's GTFS-RT API
-      const vehiclePositionsUrl = 'https://api.metro.net/gtfs-rt/vehicles/json';
-      const tripUpdatesUrl = 'https://api.metro.net/gtfs-rt/trips/json';
+      // Fetch real-time transit data from LA Metro's GTFS-RT API via Swiftly
+      const vehiclePositionsUrl = 'https://api.goswift.ly/real-time/lametro-rail/gtfs-rt-vehicle-positions';
+      const tripUpdatesUrl = 'https://api.goswift.ly/real-time/lametro-rail/gtfs-rt-trip-updates';
       
       console.log('Fetching LA Metro real-time data from GTFS-RT API');
 
