@@ -51,42 +51,60 @@ export const LAMetroSchedule = () => {
 
     setLoading(true);
     try {
-      // LA Metro edge function expects different parameters - location-based rather than line/station
+      // Fetch predictions for LA Metro area
       const requestBody = {
-        action: 'alerts', // Default to alerts since the current edge function is set up for location-based queries
-        latitude: 34.0522, // Default LA coordinates 
+        action: 'predictions',
+        latitude: 34.0522, // Downtown LA coordinates 
         longitude: -118.2437,
-        radius: 5000 // 5km radius
+        radius: 2000 // 2km radius for better results
       };
       
       const { data, error } = await supabase.functions.invoke('lametro-schedule', {
-        method: 'POST',
         body: requestBody
       });
 
       if (error) throw error;
 
-      const response: LAMetroResponse = data;
-      if (response.success) {
-        setArrivals(response.data || []);
+      console.log('LA Metro API response:', data);
+
+      // Transform the response to match our StandardArrival format
+      if (data && data.predictions) {
+        const transformedArrivals: StandardArrival[] = data.predictions.map((pred: any) => ({
+          route_name: pred.route_name || pred.route_id,
+          headsign: pred.headsign || 'Unknown Destination',
+          arrival_time: pred.arrival_time ? 
+            Math.max(0, Math.round((new Date(pred.arrival_time).getTime() - Date.now()) / 60000)).toString() : 
+            'Unknown',
+          delay_seconds: pred.delay_seconds || 0,
+          vehicle_id: pred.vehicle_id || '',
+          stop_name: pred.stop_name || 'Unknown Stop'
+        }));
+
+        setArrivals(transformedArrivals);
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
-          title: "Schedule Updated",
-          description: `Found ${response.data?.length || 0} upcoming arrivals`,
+          title: "LA Metro Schedule Updated",
+          description: `Found ${transformedArrivals.length} upcoming arrivals`,
           duration: 2000
         });
       } else {
-        throw new Error(response.error || 'Failed to fetch LA Metro data');
+        setArrivals([]);
+        toast({
+          title: "No arrivals found",
+          description: "No LA Metro arrivals in the area right now.",
+          duration: 2000
+        });
       }
     } catch (error) {
       console.error('Error fetching LA Metro arrivals:', error);
       
       toast({
-        title: "Hold tight! We're working to get real-time data",
-        description: "LA Metro arrivals will be available soon.",
-        variant: "default",
+        title: "Unable to fetch LA Metro data",
+        description: "Please try again in a moment.",
+        variant: "destructive",
         duration: 2000
       });
+      setArrivals([]);
     } finally {
       setLoading(false);
     }
@@ -137,10 +155,7 @@ export const LAMetroSchedule = () => {
         
         <TabsContent value="overview" className="space-y-4">
           <MajorStationsDisplay
-            config={{
-              ...config,
-              name: config.name + " - Coming Soon!"
-            }}
+            config={config}
             onStationClick={handleStationClick}
             fetchArrivals={fetchStationArrivals}
             formatArrivalTime={formatArrivalTime}
@@ -150,10 +165,7 @@ export const LAMetroSchedule = () => {
         
         <TabsContent value="detailed" className="space-y-4">
           <StandardScheduleLayout
-            config={{
-              ...config,
-              name: config.name + " - Coming Soon!"
-            }}
+            config={config}
             selectedLine={selectedLine}
             selectedStation={selectedStation}
             arrivals={arrivals}
