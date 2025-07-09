@@ -73,7 +73,7 @@ export const CITIES_WITH_RAIL: City[] = [
     description: "Metrorail System - 6 color-coded lines",
     railLines: ["Red", "Blue", "Orange", "Silver", "Green", "Yellow"],
     color: "bg-blue-800",
-    available: false
+    available: true
   },
   {
     id: "philadelphia",
