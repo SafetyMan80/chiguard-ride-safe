@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { FeedMessage } from "https://esm.sh/gtfs-realtime-bindings@1.2.0";
+import { FeedMessage } from "https://cdn.skypack.dev/gtfs-realtime-bindings@1.2.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
