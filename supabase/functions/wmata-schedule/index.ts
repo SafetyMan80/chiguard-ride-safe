@@ -104,12 +104,13 @@ serve(async (req) => {
     
     const url = new URL(req.url);
     const stationCode = body.station || url.searchParams.get('station');
+    const lineFilter = body.line || url.searchParams.get('line');
     const action = body.action || url.searchParams.get('action') || 'arrivals';
 
-    console.log(`Action: ${action}, Station: ${stationCode}`);
+    console.log(`Action: ${action}, Station: ${stationCode}, Line: ${lineFilter}`);
     
-    // If no station specified, use a default major station (Union Station)
-    const defaultStation = stationCode || 'A01'; // Union Station
+    // For arrivals, we need to get all stations and their trains
+    // WMATA API requires station codes, not line names
 
     switch (action) {
       case 'lines': {
@@ -210,38 +211,92 @@ serve(async (req) => {
 
       case 'arrivals':
       default: {
-        const targetStation = defaultStation;
+        // If a specific station is provided, get arrivals for that station
+        if (stationCode) {
+          console.log(`Fetching arrivals for specific station: ${stationCode}`);
+          const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${stationCode}&api_key=${wmataApiKey}`);
+          
+          if (!response.ok) {
+            console.error(`WMATA Station Times API error: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          const trains: WMATAStationTime[] = data.Trains || [];
+          
+          console.log(`Found ${trains.length} incoming trains for station ${stationCode}`);
+          
+          // Filter by line if specified
+          const filteredTrains = lineFilter 
+            ? trains.filter(train => train.Line.toLowerCase() === lineFilter.toLowerCase())
+            : trains;
+          
+          const arrivals = filteredTrains.map(train => ({
+            line: train.Line,
+            station: train.LocationName || 'Unknown Station',
+            destination: train.DestinationName || train.Destination,
+            direction: train.Group === '1' ? 'Platform 1' : 'Platform 2',
+            arrivalTime: train.Min === 'ARR' ? 'Arriving' : train.Min === 'BRD' ? 'Boarding' : train.Min,
+            trainId: train.Car ? `${train.Car} cars` : 'Unknown',
+            status: 'On Time'
+          }));
 
-        console.log(`Fetching arrivals for station: ${targetStation}`);
-        const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${targetStation}&api_key=${wmataApiKey}`);
-        
-        if (!response.ok) {
-          console.error(`WMATA Station Times API error: ${response.status} ${response.statusText}`);
-          const errorText = await response.text();
-          console.error('Error response:', errorText);
-          throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
+          return new Response(
+            JSON.stringify({ 
+              success: true,
+              data: arrivals,
+              timestamp: new Date().toISOString(),
+              source: 'WMATA'
+            }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          );
         }
-        
-        const data = await response.json();
-        const trains: WMATAStationTime[] = data.Trains || [];
-        
-        console.log(`Found ${trains.length} incoming trains for station ${targetStation}`);
-        
-        // Transform WMATA data to StandardArrival format
-        const arrivals = trains.map(train => ({
-          line: train.Line,
-          station: train.LocationName || 'Union Station',
-          destination: train.DestinationName || train.Destination,
-          direction: train.Group === '1' ? 'Platform 1' : 'Platform 2',
-          arrivalTime: train.Min === 'ARR' ? 'Arriving' : train.Min === 'BRD' ? 'Boarding' : train.Min,
-          trainId: train.Car ? `${train.Car} cars` : 'Unknown',
-          status: 'On Time'
-        }));
+
+        // For general arrivals or line filtering, get major stations and aggregate
+        const majorStations = ['A01', 'C01', 'D01', 'E01', 'F01', 'G01']; // Union, Metro Center, Federal Triangle, Gallery Place, L'Enfant Plaza, Dupont Circle
+        const allArrivals: any[] = [];
+
+        for (const station of majorStations) {
+          try {
+            console.log(`Fetching arrivals for major station: ${station}`);
+            const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${station}&api_key=${wmataApiKey}`);
+            
+            if (response.ok) {
+              const data = await response.json();
+              const trains: WMATAStationTime[] = data.Trains || [];
+              
+              // Filter by line if specified
+              const filteredTrains = lineFilter 
+                ? trains.filter(train => train.Line.toLowerCase() === lineFilter.toLowerCase())
+                : trains;
+              
+              const arrivals = filteredTrains.map(train => ({
+                line: train.Line,
+                station: train.LocationName || 'Unknown Station',
+                destination: train.DestinationName || train.Destination,
+                direction: train.Group === '1' ? 'Platform 1' : 'Platform 2',
+                arrivalTime: train.Min === 'ARR' ? 'Arriving' : train.Min === 'BRD' ? 'Boarding' : train.Min,
+                trainId: train.Car ? `${train.Car} cars` : 'Unknown',
+                status: 'On Time'
+              }));
+              
+              allArrivals.push(...arrivals);
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch arrivals for station ${station}:`, error);
+          }
+        }
+
+        console.log(`Found total ${allArrivals.length} arrivals across all major stations`);
 
         return new Response(
           JSON.stringify({ 
             success: true,
-            data: arrivals,
+            data: allArrivals.slice(0, 50), // Limit to 50 arrivals
             timestamp: new Date().toISOString(),
             source: 'WMATA'
           }),
