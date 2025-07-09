@@ -192,8 +192,8 @@ export const MultiCityIncidentReport = () => {
                     <div className="flex items-center gap-3">
                       <div className={`w-4 h-4 rounded-full ${city.color}`} />
                       <div>
-                        <h3 className="font-bold text-lg">{city.name}</h3>
-                        <p className="text-sm text-muted-foreground">{city.agency}</p>
+                        <h3 className="font-bold text-lg">{t(city.name)}</h3>
+                        <p className="text-sm text-muted-foreground">{t(city.agency)}</p>
                       </div>
                     </div>
                     {city.available ? (
@@ -208,7 +208,7 @@ export const MultiCityIncidentReport = () => {
                   </div>
                   
                   <p className="text-sm text-muted-foreground mb-3">
-                    {city.description}
+                    {t(city.description)}
                   </p>
                   
                   <div className="space-y-2">
@@ -219,12 +219,12 @@ export const MultiCityIncidentReport = () => {
                           key={index}
                           className="bg-muted px-2 py-1 rounded text-xs font-medium"
                         >
-                          {line}
+                          {t(line)}
                         </span>
                       ))}
                       {city.railLines.length > 6 && (
                         <span className="text-xs text-muted-foreground px-2 py-1">
-                          +{city.railLines.length - 6} more
+                          +{city.railLines.length - 6} {t("more")}
                         </span>
                       )}
                     </div>

@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { City } from "@/data/cities";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface CityCardProps {
   city: City;
@@ -7,6 +8,8 @@ interface CityCardProps {
 }
 
 export const CityCard = ({ city, onCitySelect }: CityCardProps) => {
+  const { t } = useLanguage();
+  
   return (
     <Card
       className={`cursor-pointer transition-all duration-200 touch-target-large ${
@@ -21,39 +24,39 @@ export const CityCard = ({ city, onCitySelect }: CityCardProps) => {
           <div className="flex items-center gap-3">
             <div className={`w-4 h-4 rounded-full ${city.color} flex-shrink-0`} />
             <div className="min-w-0">
-              <h3 className="font-bold text-lg leading-tight">{city.name}</h3>
-              <p className="text-sm text-muted-foreground leading-tight">{city.agency}</p>
+              <h3 className="font-bold text-lg leading-tight">{t(city.name)}</h3>
+              <p className="text-sm text-muted-foreground leading-tight">{t(city.agency)}</p>
             </div>
           </div>
           {city.available ? (
             <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-              Live Data
+              {t("Live Data")}
             </div>
           ) : (
             <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-              Coming Soon!
+              {t("Coming Soon!")}
             </div>
           )}
         </div>
         
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {city.description}
+          {t(city.description)}
         </p>
         
         <div className="space-y-3">
-          <p className="text-xs font-medium text-muted-foreground">Rail Lines:</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("Rail Lines:")}</p>
           <div className="flex flex-wrap gap-2">
             {city.railLines.slice(0, 6).map((line, index) => (
               <span
                 key={index}
                 className="bg-muted px-2 py-1 rounded-md text-xs font-medium"
               >
-                {line}
+                {t(line)}
               </span>
             ))}
             {city.railLines.length > 6 && (
               <span className="text-xs text-muted-foreground px-2 py-1">
-                +{city.railLines.length - 6} more
+                +{city.railLines.length - 6} {t("more")}
               </span>
             )}
           </div>
