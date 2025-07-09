@@ -262,53 +262,44 @@ serve(async (req) => {
         if (data.ctatt?.eta && data.ctatt.eta.length > 0) {
           console.log(`🚆 CTA [${i+1}/${apiUrls.length}] Processing ${data.ctatt.eta.length} arrivals from this endpoint`);
           
+          const nowMs = Date.now();
+          
           const transformedData = data.ctatt.eta
             .map((arrival: any) => {
               let arrivalTime = 'Due';
               
-              // Parse CTA datetime format: YYYYMMDD HH:MM:SS
-              function parseCTADateTime(dateTimeStr: string): Date | null {
-                if (!dateTimeStr) return null;
-                
+              // Parse the CTA arrival timestamp (arrT is in ISO format)
+              if (arrival.arrT) {
                 try {
-                  const year = parseInt(dateTimeStr.substring(0, 4));
-                  const month = parseInt(dateTimeStr.substring(4, 6));
-                  const day = parseInt(dateTimeStr.substring(6, 8));
-                  const hour = parseInt(dateTimeStr.substring(9, 11));
-                  const minute = parseInt(dateTimeStr.substring(12, 14));
-                  const second = parseInt(dateTimeStr.substring(15, 17));
+                  const arrMs = new Date(arrival.arrT).getTime();
+                  const deltaMin = Math.max(0, Math.round((arrMs - nowMs) / 60000));
                   
-                  return new Date(year, month - 1, day, hour, minute, second);
-                } catch (error) {
-                  return null;
-                }
-              }
-              
-              if (arrival.isApp === '1' || arrival.isApp === 1) {
-                arrivalTime = 'Approaching';
-              } else if (arrival.arrT) {
-                const arrivalDate = parseCTADateTime(arrival.arrT);
-                const currentTime = new Date();
-                
-                if (arrivalDate) {
-                  const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
-                  const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+                  console.log(`🚆 CTA Arrival calc: arrT=${arrival.arrT}, deltaMin=${deltaMin}, isApp=${arrival.isApp}`);
                   
                   // Filter out stale data (more than 3 hours old/future)
-                  if (Math.abs(timeDiffMinutes) > 180) {
+                  if (Math.abs(deltaMin) > 180) {
+                    console.log(`🚆 CTA Filtering out stale data: ${deltaMin} minutes`);
                     return null;
                   }
                   
-                  if (timeDiffMinutes <= 0) {
-                    arrivalTime = 'Arriving';
-                  } else if (timeDiffMinutes === 1) {
-                    arrivalTime = '1 min';
-                  } else if (timeDiffMinutes > 60) {
-                    arrivalTime = 'Scheduled';
+                  // Decide what to display
+                  if (deltaMin === 0) {
+                    // arriving within the minute
+                    arrivalTime = arrival.isApp === "1" ? "Approaching" : "Due";
                   } else {
-                    arrivalTime = `${timeDiffMinutes} min`;
+                    arrivalTime = `${deltaMin} min`;
+                  }
+                } catch (error) {
+                  console.error(`🚆 CTA Error parsing arrival time: ${arrival.arrT}`, error);
+                  // Fallback logic
+                  if (arrival.isApp === '1' || arrival.isApp === 1) {
+                    arrivalTime = 'Approaching';
+                  } else if (arrival.isSch === '1') {
+                    arrivalTime = 'Scheduled';
                   }
                 }
+              } else if (arrival.isApp === '1' || arrival.isApp === 1) {
+                arrivalTime = 'Approaching';
               } else if (arrival.isSch === '1') {
                 arrivalTime = 'Scheduled';
               }
