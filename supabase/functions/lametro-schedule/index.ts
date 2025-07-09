@@ -107,8 +107,8 @@ serve(async (req) => {
 
       console.log('Swiftly API key found, length:', swiftlyApiKey.length);
 
-      // Swiftly API seems to be returning 403 for LA Metro, use Metro's official feeds
-      const useSwiftly = false; // Switch to Metro official API due to 403 errors
+      // Use Swiftly API which provides JSON responses (no Protobuf decoding needed)
+      const useSwiftly = true;
       
       let vehiclePositionsUrl, tripUpdatesUrl;
       
@@ -117,9 +117,9 @@ serve(async (req) => {
         vehiclePositionsUrl = `${baseUrl}/gtfs-rt-vehicle-positions`;
         tripUpdatesUrl = `${baseUrl}/gtfs-rt-trip-updates`;
       } else {
-        // Fallback to Metro's official GTFS-RT feeds
-        vehiclePositionsUrl = 'https://api.metro.net/gtfs_rt/vehicles/json';
-        tripUpdatesUrl = 'https://api.metro.net/gtfs_rt/trip_updates/json';
+        // Metro's official GTFS-RT feeds require agency_id parameter and return Protobuf
+        vehiclePositionsUrl = 'https://api.metro.net/gtfs-rt/vehicle-positions?agency_id=lametro';
+        tripUpdatesUrl = 'https://api.metro.net/gtfs-rt/trip-updates?agency_id=lametro';
       }
       
       console.log(`Fetching LA Metro real-time data from ${useSwiftly ? 'Swiftly API' : 'Metro Official API'}`);
