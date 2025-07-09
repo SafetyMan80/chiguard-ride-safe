@@ -101,20 +101,43 @@ serve(async (req) => {
       // Get Swiftly API key from environment
       const swiftlyApiKey = Deno.env.get('SWIFTLY_API_KEY');
       if (!swiftlyApiKey) {
+        console.error('SWIFTLY_API_KEY is not configured');
         throw new Error('SWIFTLY_API_KEY is not configured');
       }
 
-      // Fetch real-time transit data from Swiftly API with proper authentication
-      const baseUrl = 'https://api.goswift.ly/real-time/lametro-rail';
-      const vehiclePositionsUrl = `${baseUrl}/gtfs-rt-vehicle-positions`;
-      const tripUpdatesUrl = `${baseUrl}/gtfs-rt-trip-updates`;
-      
-      console.log('Fetching LA Metro real-time data from Swiftly API with authentication');
+      console.log('Swiftly API key found, length:', swiftlyApiKey.length);
 
-      const headers = {
+      // Try Swiftly API first, fallback to Metro's official feeds if that fails
+      const useSwiftly = true; // Set to false to test direct Metro feeds
+      
+      let vehiclePositionsUrl, tripUpdatesUrl;
+      
+      if (useSwiftly) {
+        const baseUrl = 'https://api.goswift.ly/real-time/lametro-rail';
+        vehiclePositionsUrl = `${baseUrl}/gtfs-rt-vehicle-positions`;
+        tripUpdatesUrl = `${baseUrl}/gtfs-rt-trip-updates`;
+      } else {
+        // Fallback to Metro's official GTFS-RT feeds
+        vehiclePositionsUrl = 'https://api.metro.net/gtfs_rt/vehicles/json';
+        tripUpdatesUrl = 'https://api.metro.net/gtfs_rt/trip_updates/json';
+      }
+      
+      console.log(`Fetching LA Metro real-time data from ${useSwiftly ? 'Swiftly API' : 'Metro Official API'}`);
+      console.log('Vehicle URL:', vehiclePositionsUrl);
+      console.log('Trip URL:', tripUpdatesUrl);
+
+      const headers = useSwiftly ? {
         'Authorization': `Bearer ${swiftlyApiKey}`,
         'Content-Type': 'application/json'
+      } : {
+        'Content-Type': 'application/json'
       };
+
+      if (useSwiftly) {
+        console.log('Request headers prepared (Authorization header length):', headers.Authorization?.length);
+      } else {
+        console.log('Using Metro official API (no auth required)');
+      }
 
       // Fetch both vehicle positions and trip updates
       const [vehicleResponse, tripResponse] = await Promise.all([
@@ -123,13 +146,25 @@ serve(async (req) => {
       ]);
 
       if (!vehicleResponse.ok) {
-        console.error('Vehicle positions API error:', vehicleResponse.status);
-        throw new Error(`Vehicle positions API returned ${vehicleResponse.status}`);
+        const errorText = await vehicleResponse.text();
+        console.error('Vehicle positions API error:', {
+          status: vehicleResponse.status,
+          statusText: vehicleResponse.statusText,
+          response: errorText,
+          headers: Object.fromEntries(vehicleResponse.headers.entries())
+        });
+        throw new Error(`Vehicle positions API returned ${vehicleResponse.status}: ${vehicleResponse.statusText} - ${errorText}`);
       }
 
       if (!tripResponse.ok) {
-        console.error('Trip updates API error:', tripResponse.status);
-        throw new Error(`Trip updates API returned ${tripResponse.status}`);
+        const errorText = await tripResponse.text();
+        console.error('Trip updates API error:', {
+          status: tripResponse.status,
+          statusText: tripResponse.statusText,
+          response: errorText,
+          headers: Object.fromEntries(tripResponse.headers.entries())
+        });
+        throw new Error(`Trip updates API returned ${tripResponse.status}: ${tripResponse.statusText} - ${errorText}`);
       }
 
       const vehicleData = await vehicleResponse.json();

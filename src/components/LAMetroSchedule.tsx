@@ -50,6 +50,8 @@ export const LAMetroSchedule = () => {
     }
 
     setLoading(true);
+    console.log('🚇 LA Metro: Starting fetch process...');
+    
     try {
       // Fetch predictions for LA Metro area
       const requestBody = {
@@ -59,11 +61,13 @@ export const LAMetroSchedule = () => {
         radius: 2000 // 2km radius for better results
       };
       
+      console.log('🚇 LA Metro: Sending request to edge function:', requestBody);
+      
       const { data, error } = await supabase.functions.invoke('lametro-schedule', {
         body: requestBody
       });
 
-      console.log('Supabase invoke response:', { data, error });
+      console.log('🚇 LA Metro: Supabase invoke response:', { data, error });
 
       if (error) {
         console.error('LA Metro edge function error details:', {
