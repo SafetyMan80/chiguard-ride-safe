@@ -34,8 +34,10 @@ const App = () => {
         console.log('Location initialization failed:', error);
       }
       
-      // Remove artificial delay - set loading to false immediately
-      setIsLoading(false);
+      // Show loading screen for 2 seconds as requested
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
     };
 
     initializeApp();

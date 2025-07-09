@@ -59,40 +59,44 @@ export const CTASchedule = () => {
     }
 
     setLoading(true);
-    const allArrivals: CTAArrival[] = [];
     
     try {
-      // Get comprehensive data from multiple major stations
-      const majorStations = [
-        'clark-lake', 'fullerton', 'howard', 'ohare', 'midway', 
-        'roosevelt', 'belmont', '95th-dan-ryan', 'jefferson-park', 
-        'logan-square', 'forest-park', 'harlem-lake', 'garfield',
-        'kimball', 'merchandise-mart', '54th-cermak', 'linden',
-        'dempster-skokie'
-      ];
-
-      const promises = majorStations.map(async (stationId) => {
-        try {
-          const { data, error } = await supabase.functions.invoke('cta-schedule', {
-            body: { station: stationId }
-          });
-
-          if (!error && data?.success && data?.data?.length > 0) {
-            return data.data;
-          }
-          return [];
-        } catch (err) {
-          console.log(`Error fetching ${stationId}:`, err);
-          return [];
-        }
-      });
-
-      const results = await Promise.all(promises);
+      console.log('🚆 CTA Schedule: Starting fetch...');
       
-      // Combine all results
-      results.forEach(stationArrivals => {
-        allArrivals.push(...stationArrivals);
+      // Make a single call to the edge function without any station parameter
+      // Let the edge function handle fetching from multiple stations
+      const { data, error } = await supabase.functions.invoke('cta-schedule', {
+        body: {} // Empty body - let function use its default behavior
       });
+
+      console.log('🚆 CTA Schedule: Response received', { 
+        data: data ? 'present' : 'missing', 
+        error: error ? error.message : 'none',
+        dataLength: data?.data?.length || 0
+      });
+
+      if (error) {
+        console.error('🚆 CTA Schedule: Supabase function error:', error);
+        throw new Error(error.message || 'Failed to fetch CTA data');
+      }
+
+      if (!data?.success) {
+        console.error('🚆 CTA Schedule: Function returned unsuccessful:', data);
+        throw new Error(data?.error || 'CTA API returned unsuccessful response');
+      }
+
+      if (!data?.data || data.data.length === 0) {
+        console.warn('🚆 CTA Schedule: No arrivals found in response');
+        setArrivals([]);
+        toast({
+          title: "No Active Trains",
+          description: "No CTA trains currently active. Try again in a few minutes.",
+          duration: 3000
+        });
+        return;
+      }
+
+      const allArrivals = data.data;
 
       // Remove duplicates based on train ID and arrival time
       const uniqueArrivals = allArrivals.filter((arrival, index, self) => 
