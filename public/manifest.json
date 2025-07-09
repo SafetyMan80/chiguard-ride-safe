@@ -14,19 +14,19 @@
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "icons": [
     {
-      "src": "/lovable-uploads/6a1df393-5d5c-4b5e-a336-8db8396616a4.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/6a1df393-5d5c-4b5e-a336-8db8396616a4.png",
+      "src": "/icon-512.png",
       "sizes": "512x512", 
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/6a1df393-5d5c-4b5e-a336-8db8396616a4.png",
+      "src": "/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
