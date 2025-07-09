@@ -155,12 +155,15 @@ serve(async (req) => {
 
     console.log(`🚆 Fetching CTA data from ${apiUrls.length} endpoint(s)`);
     
-    // Fetch from all URLs
+    // Fetch from all URLs with detailed logging
     const allTransformedData: any[] = [];
     
-    for (const apiUrl of apiUrls) {
+    console.log(`🚆 CTA Starting to fetch from ${apiUrls.length} URLs`);
+    
+    for (let i = 0; i < apiUrls.length; i++) {
+      const apiUrl = apiUrls[i];
       try {
-        console.log(`🚆 Calling: ${apiUrl.replace(CTA_API_KEY, 'API_KEY_HIDDEN')}`);
+        console.log(`🚆 CTA [${i+1}/${apiUrls.length}] Calling: ${apiUrl.replace(CTA_API_KEY, 'API_KEY_HIDDEN')}`);
         
         const response = await fetch(apiUrl, {
           method: 'GET',
@@ -170,10 +173,11 @@ serve(async (req) => {
           }
         });
         
-        console.log(`🚆 CTA API HTTP Status: ${response.status} for ${apiUrl.includes('rt=') ? apiUrl.split('rt=')[1].split('&')[0] : 'endpoint'}`);
+        console.log(`🚆 CTA [${i+1}/${apiUrls.length}] HTTP Status: ${response.status} for ${apiUrl.includes('stpid=') ? 'Station ' + apiUrl.split('stpid=')[1].split('&')[0] : 'endpoint'}`);
         
         if (!response.ok) {
-          console.error(`❌ CTA API HTTP Error: ${response.status} for endpoint`);
+          const errorText = await response.text();
+          console.error(`❌ CTA [${i+1}/${apiUrls.length}] HTTP Error ${response.status}: ${errorText}`);
           continue; // Skip this endpoint and try the next one
         }
 
@@ -191,13 +195,13 @@ serve(async (req) => {
         
         // Handle CTA API error responses
         if (data.ctatt?.errCd && data.ctatt.errCd !== '0') {
-          console.error('❌ CTA API Error:', data.ctatt.errNm);
+          console.error(`❌ CTA [${i+1}/${apiUrls.length}] API Error: ${data.ctatt.errNm}`);
           continue; // Skip this endpoint
         }
 
         // Transform CTA data to our standard format
         if (data.ctatt?.eta && data.ctatt.eta.length > 0) {
-          console.log('🚆 Processing', data.ctatt.eta.length, 'arrivals from this endpoint');
+          console.log(`🚆 CTA [${i+1}/${apiUrls.length}] Processing ${data.ctatt.eta.length} arrivals from this endpoint`);
           
           const transformedData = data.ctatt.eta
             .map((arrival: any) => {

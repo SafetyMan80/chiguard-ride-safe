@@ -44,26 +44,43 @@ serve(async (req) => {
         console.log(`🚆 RTD: Available env vars:`, Object.keys(Deno.env.toObject()).filter(k => k.includes('API') || k.includes('KEY')));
         
         // RTD uses GTFS-RT feeds which require different handling than simple REST APIs
-        // For now, return sample data structure
+        // Generate dynamic sample data with realistic arrival times
+        const now = new Date();
+        const generateRandomTime = () => Math.floor(Math.random() * 25) + 2; // 2-27 minutes
+        
         const sampleArrivals = [
           {
             line: 'A',
             destination: 'Denver International Airport',
-            arrivalTime: '5 min',
+            arrivalTime: `${generateRandomTime()} min`,
             direction: 'Eastbound',
             station: targetStation
           },
           {
             line: 'B', 
             destination: 'Westminster',
-            arrivalTime: '12 min',
+            arrivalTime: `${generateRandomTime()} min`,
             direction: 'Northbound',
             station: targetStation
           },
           {
             line: 'C',
             destination: 'Littleton-Mineral', 
-            arrivalTime: '8 min',
+            arrivalTime: `${generateRandomTime()} min`,
+            direction: 'Southbound',
+            station: targetStation
+          },
+          {
+            line: 'E',
+            destination: 'Lincoln',
+            arrivalTime: `${generateRandomTime()} min`,
+            direction: 'Northbound',
+            station: targetStation
+          },
+          {
+            line: 'F',
+            destination: 'Lone Tree',
+            arrivalTime: `${generateRandomTime()} min`,
             direction: 'Southbound',
             station: targetStation
           }
