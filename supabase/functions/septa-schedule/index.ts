@@ -98,25 +98,66 @@ serve(async (req) => {
     const now = Date.now();
     let arrivals = [];
 
-    // SEPTA API structure can vary, handle different response formats
-    if (data && Array.isArray(data)) {
-      // Direct array of arrivals
-      arrivals = data.map((e: any) => processArrival(e, now));
-    } else if (data?.rail?.stationList) {
-      // Nested structure with station list
-      arrivals = data.rail.stationList
-        .flatMap((st: any) => st.eta || st.arrivals || [])
-        .map((e: any) => processArrival(e, now));
-    } else if (data?.arrivals) {
-      // Direct arrivals array
-      arrivals = data.arrivals.map((e: any) => processArrival(e, now));
+    // Handle SEPTA's nested structure with dynamic station key
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      // 1. Grab the one dynamic key (station name + timestamp)
+      const stationKeys = Object.keys(data);
+      console.log('Station keys found:', stationKeys);
+      
+      if (stationKeys.length === 0) {
+        console.log('No station keys found in response');
+        arrivals = [];
+      } else {
+        const stationKey = stationKeys[0];
+        const stationArr = data[stationKey];
+        console.log('Processing station key:', stationKey);
+        
+        if (!Array.isArray(stationArr) || stationArr.length === 0) {
+          console.log("No departures at", stationKey);
+          arrivals = [];
+        } else {
+          // 2. Unwrap the single object
+          const scheduleObj = stationArr[0];
+          console.log('Schedule object keys:', Object.keys(scheduleObj));
+          
+          // 3. Flatten Northbound & Southbound into one array
+          arrivals = ['Northbound', 'Southbound'].flatMap(dir => {
+            const trains = scheduleObj[dir] || [];
+            console.log(`${dir} trains:`, trains.length);
+            
+            return trains.map((t: any) => {
+              // Parse the API's timestamp field
+              const arrivalTimeStr = t.arrival_time || t.scheduled_time || t.time;
+              
+              if (!arrivalTimeStr) {
+                console.log('No arrival time found for train:', JSON.stringify(t));
+                return null;
+              }
+              
+              const arrMs = new Date(arrivalTimeStr).getTime();
+              const deltaMin = Math.max(0, Math.round((arrMs - now) / 60000));
+              
+              return {
+                line: t.path || t.route || t.line || 'Unknown',
+                trainId: t.train_id || t.id,
+                direction: dir,
+                destination: t.destination || t.dest || `${dir} Service`,
+                arrivalTime: arrivalTimeStr,
+                minutes: deltaMin,
+                label: deltaMin === 0 ? 'Due' : `${deltaMin} min`,
+                platform: t.platform || t.track || null,
+                status: t.status || 'On Time'
+              };
+            }).filter(Boolean); // Remove null entries
+          });
+        }
+      }
+    } else if (Array.isArray(data)) {
+      // Fallback for direct array format
+      arrivals = data.map((e: any) => processArrival(e, now)).filter(Boolean);
     } else {
       console.log('Unexpected data structure:', JSON.stringify(data, null, 2));
-      // Try to extract any array from the response
-      const possibleArrays = Object.values(data).filter(Array.isArray);
-      if (possibleArrays.length > 0) {
-        arrivals = possibleArrays[0].map((e: any) => processArrival(e, now));
-      }
+      arrivals = [];
     }
 
     // Filter out invalid arrivals and sort by arrival time
