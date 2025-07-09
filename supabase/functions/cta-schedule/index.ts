@@ -62,9 +62,8 @@ serve(async (req) => {
             "garfield": "30099",
             "kimball": "30297",
             "merchandise-mart": "30768",
-            "54th-cermak": "30098",
-            "linden": "30307",
-            "dempster-skokie": "30308"
+            "54th-cermak": "30098"
+            // Removed invalid station IDs 30307 and 30308
           };
           stopId = stationMapping[requestBody.station] || requestBody.station;
           console.log('🚆 CTA Mapped station:', requestBody.station, '->', stopId);
@@ -119,8 +118,8 @@ serve(async (req) => {
         'G': ['30131', '30047', '30099'], // Clark/Lake, Harlem/Lake, Garfield
         'Org': ['30063', '30001'], // Midway, Roosevelt
         'Pink': ['30098', '30131'], // 54th/Cermak, Clark/Lake
-        'P': ['30307', '30173', '30768'], // Linden, Howard, Merchandise Mart
-        'Y': ['30308'] // Dempster-Skokie
+        'P': ['30173', '30768'], // Howard, Merchandise Mart (removed invalid 30307)
+        'Y': ['30173'] // Howard (removed invalid 30308)
       };
       
       const stations = majorStationsForRoute[routeId] || ['30173'];
@@ -279,11 +278,12 @@ serve(async (req) => {
       }
     }
     
-    // Remove duplicates based on train ID, station, and arrival time
+    // Remove duplicates more conservatively - only remove exact matches
     const uniqueArrivals = allTransformedData.filter((arrival, index, self) => 
       index === self.findIndex(a => 
         a.trainId === arrival.trainId && 
         a.station === arrival.station &&
+        a.destination === arrival.destination &&
         a.arrivalTime === arrival.arrivalTime
       )
     );
