@@ -1,65 +1,52 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
-  console.log('=== SEPTA DIRECT TEST ===');
+  console.log('=== SEPTA SCHEDULE API ===');
   console.log('Request Method:', req.method);
   console.log('Request URL:', req.url);
-  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
-  // Simple CORS handling
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      }
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+    ...corsHeaders
   };
 
   try {
-    // Get parameters
-    const url = new URL(req.url);
-    const station = url.searchParams.get('station') || '30th Street Station';
-    const results = url.searchParams.get('results') || '5';
+    // Extract station from request body
+    let station = '30th Street Station'; // default
     
-    // Get API key from environment
-    const apiKey = Deno.env.get('SEPTA_API_KEY');
-    
-    console.log('Station:', station);
-    console.log('Results:', results);
-    console.log('API Key exists:', !!apiKey);
-    console.log('API Key length:', apiKey ? apiKey.length : 0);
-    console.log('API Key first 4 chars:', apiKey ? apiKey.substring(0, 4) + '...' : 'none');
-
-    if (!apiKey) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'SEPTA_API_KEY environment variable not found',
-        debug: {
-          env_vars: Object.keys(Deno.env.toObject()).filter(k => k.includes('SEPTA')),
-          all_env_count: Object.keys(Deno.env.toObject()).length
-        }
-      }), { status: 500, headers });
+    if (req.method === 'POST') {
+      const body = await req.json();
+      station = body.station || body.req1 || '30th Street Station';
+      console.log('POST body station:', station);
+    } else {
+      // GET method - extract from URL params
+      const url = new URL(req.url);
+      station = url.searchParams.get('station') || url.searchParams.get('req1') || '30th Street Station';
+      console.log('GET param station:', station);
     }
-
-    // Test the exact SEPTA API endpoint with your key
-    const septaUrl = `https://www3.septa.org/api/Arrivals/index.php?station=${encodeURIComponent(station)}&results=${results}&key=${apiKey}`;
     
-    console.log('Full SEPTA URL (with key masked):', septaUrl.replace(apiKey, 'API_KEY_MASKED'));
-
-    // Make the request with detailed logging
-    console.log('Making fetch request...');
+    console.log('Processing station:', station);
     
+    // Build the correct SEPTA API URL (no API key needed according to Data.gov)
+    const name = encodeURIComponent(station);
+    const septaUrl = `https://www3.septa.org/api/Arrivals/index.php?req1=${name}&outputType=JSON`;
+    
+    console.log('SEPTA URL:', septaUrl);
+
+    // Make the request with robust error handling
     const fetchStart = Date.now();
-    const response = await fetch(septaUrl, {
+    const res = await fetch(septaUrl, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -70,94 +57,134 @@ serve(async (req) => {
     
     const fetchDuration = Date.now() - fetchStart;
     console.log('Fetch completed in:', fetchDuration, 'ms');
-    console.log('Response status:', response.status);
-    console.log('Response statusText:', response.statusText);
-    console.log('Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
+    console.log('Response status:', res.status, res.statusText);
 
-    // Get the raw response text first
-    const responseText = await response.text();
-    console.log('Response text length:', responseText.length);
-    console.log('Response text (first 500 chars):', responseText.substring(0, 500));
-    console.log('Response text (last 100 chars):', responseText.slice(-100));
+    // Get response text first for better error handling
+    const text = await res.text();
+    console.log('Response text length:', text.length);
+    console.log('Response preview:', text.substring(0, 200));
 
-    // Check if response is OK
-    if (!response.ok) {
-      return new Response(JSON.stringify({
+    if (!res.ok) {
+      console.error(`SEPTA fetch error (${res.status}):`, text);
+      return new Response(JSON.stringify({ 
         success: false,
-        error: `SEPTA API returned ${response.status}: ${response.statusText}`,
-        raw_response: responseText.substring(0, 1000),
-        debug: {
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers.entries()),
-          url_masked: septaUrl.replace(apiKey, 'API_KEY_MASKED')
-        }
-      }), { status: response.status, headers });
+        error: `SEPTA API Error: ${res.status} ${res.statusText}`,
+        details: text.substring(0, 500)
+      }), { 
+        status: 502, 
+        headers 
+      });
     }
 
-    // Try to parse as JSON
+    // Parse JSON response
     let data;
     try {
-      data = JSON.parse(responseText);
-      console.log('JSON parse successful');
-      console.log('Data type:', typeof data);
-      console.log('Data is array:', Array.isArray(data));
-      console.log('Data length/keys:', Array.isArray(data) ? data.length : Object.keys(data).length);
+      data = JSON.parse(text);
+      console.log('JSON parsed successfully');
+      console.log('Data keys:', Object.keys(data));
     } catch (jsonError) {
-      console.error('JSON parse failed:', jsonError.message);
-      return new Response(JSON.stringify({
+      console.error('JSON parse error:', jsonError.message);
+      return new Response(JSON.stringify({ 
         success: false,
-        error: 'SEPTA API returned invalid JSON',
-        raw_response: responseText.substring(0, 1000),
-        json_error: jsonError.message,
-        debug: {
-          response_starts_with: responseText.substring(0, 50),
-          response_content_type: response.headers.get('content-type')
-        }
-      }), { status: 500, headers });
+        error: 'Invalid JSON response from SEPTA API',
+        raw_response: text.substring(0, 500)
+      }), { 
+        status: 502, 
+        headers 
+      });
     }
 
-    // Check for SEPTA API errors in the data
-    if (data && typeof data === 'object') {
-      if (data.error) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'SEPTA API Error: ' + data.error,
-          septa_response: data,
-          debug: {
-            api_key_used: !!apiKey,
-            station: station
-          }
-        }), { status: 400, headers });
+    // Process arrivals with minute countdowns
+    const now = Date.now();
+    let arrivals = [];
+
+    // SEPTA API structure can vary, handle different response formats
+    if (data && Array.isArray(data)) {
+      // Direct array of arrivals
+      arrivals = data.map((e: any) => processArrival(e, now));
+    } else if (data?.rail?.stationList) {
+      // Nested structure with station list
+      arrivals = data.rail.stationList
+        .flatMap((st: any) => st.eta || st.arrivals || [])
+        .map((e: any) => processArrival(e, now));
+    } else if (data?.arrivals) {
+      // Direct arrivals array
+      arrivals = data.arrivals.map((e: any) => processArrival(e, now));
+    } else {
+      console.log('Unexpected data structure:', JSON.stringify(data, null, 2));
+      // Try to extract any array from the response
+      const possibleArrays = Object.values(data).filter(Array.isArray);
+      if (possibleArrays.length > 0) {
+        arrivals = possibleArrays[0].map((e: any) => processArrival(e, now));
       }
     }
 
-    // Success! Return the data
-    console.log('SUCCESS - returning data');
+    // Filter out invalid arrivals and sort by arrival time
+    arrivals = arrivals
+      .filter(arrival => arrival && arrival.line && arrival.destination)
+      .sort((a, b) => a.minutes - b.minutes)
+      .slice(0, 10); // Limit to 10 results
+
+    console.log(`Processed ${arrivals.length} arrivals`);
+
     return new Response(JSON.stringify({
       success: true,
-      message: 'SEPTA API call successful',
-      station: station,
+      data: arrivals,
       timestamp: new Date().toISOString(),
-      api_key_used: true,
-      data: data,
-      debug: {
-        response_time_ms: fetchDuration,
-        data_type: typeof data,
-        data_length: Array.isArray(data) ? data.length : Object.keys(data).length
-      }
-    }, null, 2), { status: 200, headers });
+      station: station,
+      count: arrivals.length
+    }), { headers });
 
-  } catch (error) {
-    console.error('Function error:', error);
-    return new Response(JSON.stringify({
+  } catch (err) {
+    console.error('SEPTA fetch exception:', err);
+    return new Response(JSON.stringify({ 
       success: false,
-      error: 'Function execution error: ' + error.message,
-      stack: error.stack,
-      debug: {
-        error_name: error.name,
-        error_message: error.message
-      }
-    }), { status: 500, headers });
+      error: err.message,
+      stack: err.stack 
+    }), { 
+      status: 500, 
+      headers 
+    });
   }
 });
+
+// Helper function to process individual arrival
+function processArrival(e: any, now: number) {
+  try {
+    // Handle different possible timestamp fields
+    const arrivalTimeStr = e.arrival_time || e.arrT || e.scheduled_time || e.eta;
+    
+    if (!arrivalTimeStr) {
+      console.log('No arrival time found in:', JSON.stringify(e));
+      return null;
+    }
+
+    // Parse arrival time
+    const arrMs = new Date(arrivalTimeStr).getTime();
+    
+    // Calculate minutes until arrival
+    const mins = Math.max(0, Math.round((arrMs - now) / 60000));
+    
+    // Determine display label
+    let label: string;
+    if (mins === 0) {
+      label = (e.isApp === '1' || e.approaching) ? 'Approaching' : 'Due';
+    } else {
+      label = `${mins} min`;
+    }
+
+    return {
+      line: e.route || e.line || e.train_id || 'Unknown',
+      destination: e.destination || e.destNm || e.dest || 'Unknown',
+      direction: e.direction || (e.trDr === "1" ? "Inbound" : "Outbound") || 'Unknown',
+      minutes: mins,
+      label: label,
+      scheduled_time: arrivalTimeStr,
+      platform: e.platform || e.track || null,
+      status: e.status || 'On Time'
+    };
+  } catch (error) {
+    console.error('Error processing arrival:', error, 'Data:', JSON.stringify(e));
+    return null;
+  }
+}
