@@ -100,7 +100,7 @@ serve(async (req) => {
       );
     }
 
-    // For comprehensive system overview, we'll call multiple major stations and all route endpoints
+    // For comprehensive system overview, fetch from major stations across all lines
     let apiUrls: string[] = [];
     const baseUrl = 'https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx';
     
@@ -111,18 +111,46 @@ serve(async (req) => {
       // Only stop specified
       apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`);
     } else if (routeId) {
-      // Only route specified - get ALL stations for this route
-      apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&rt=${routeId}&outputType=JSON`);
-      console.log('🚆 CTA Fetching ALL stations for route:', routeId);
-    } else {
-      // Default: Get ALL trains system-wide by fetching each route
-      const allRoutes = ['Red', 'Blue', 'Brn', 'G', 'Org', 'Pink', 'P', 'Y'];
+      // Only route specified - get multiple major stations for this route
+      const majorStationsForRoute: { [key: string]: string[] } = {
+        'Red': ['30173', '30089', '30057'], // Howard, 95th/Dan Ryan, Fullerton
+        'Blue': ['30171', '30044', '30077'], // O'Hare, Forest Park, Logan Square
+        'Brn': ['30297', '30057', '30768'], // Kimball, Fullerton, Merchandise Mart
+        'G': ['30131', '30047', '30099'], // Clark/Lake, Harlem/Lake, Garfield
+        'Org': ['30063', '30001'], // Midway, Roosevelt
+        'Pink': ['30098', '30131'], // 54th/Cermak, Clark/Lake
+        'P': ['30307', '30173', '30768'], // Linden, Howard, Merchandise Mart
+        'Y': ['30308'] // Dempster-Skokie
+      };
       
-      apiUrls = allRoutes.map(route => 
-        `${baseUrl}?key=${CTA_API_KEY}&rt=${route}&outputType=JSON`
+      const stations = majorStationsForRoute[routeId] || ['30173'];
+      apiUrls = stations.map(stationId => 
+        `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`
+      );
+      console.log('🚆 CTA Fetching multiple stations for route:', routeId, 'stations:', stations);
+    } else {
+      // Default: Get comprehensive data from major hub stations that serve multiple lines
+      const majorHubStations = [
+        '30131', // Clark/Lake (Blue, Brown, Green, Orange, Pink, Purple)
+        '30173', // Howard (Red, Purple, Yellow)
+        '30171', // O'Hare (Blue)
+        '30089', // 95th/Dan Ryan (Red)
+        '30063', // Midway (Orange)
+        '30057', // Fullerton (Red, Brown, Purple)
+        '30077', // Logan Square (Blue)
+        '30044', // Forest Park (Blue)
+        '30297', // Kimball (Brown)
+        '30098', // 54th/Cermak (Pink)
+        '30047', // Harlem/Lake (Green)
+        '30307', // Linden (Purple)
+        '30308'  // Dempster-Skokie (Yellow)
+      ];
+      
+      apiUrls = majorHubStations.map(stationId => 
+        `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&outputType=JSON`
       );
       
-      console.log('🚆 CTA Fetching ALL routes for system overview:', allRoutes);
+      console.log('🚆 CTA Fetching from', majorHubStations.length, 'major hub stations for system overview');
     }
 
     console.log(`🚆 Fetching CTA data from ${apiUrls.length} endpoint(s)`);
