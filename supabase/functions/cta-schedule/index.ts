@@ -100,222 +100,180 @@ serve(async (req) => {
       );
     }
 
-    // If no specific parameters, use Howard station (major hub with frequent service)
-    if (!stopId && !routeId) {
-      console.log('🚆 No specific parameters, defaulting to Howard station');
-      stopId = '30173'; // Howard station
-    }
-
-    let apiUrl: string;
+    // For comprehensive system overview, we'll call multiple major stations and all route endpoints
+    let apiUrls: string[] = [];
     const baseUrl = 'https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx';
     
     if (stopId && routeId) {
       // Both stop and route specified
-      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&rt=${routeId}&outputType=JSON`;
+      apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&rt=${routeId}&outputType=JSON`);
     } else if (stopId) {
       // Only stop specified
-      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`;
+      apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`);
     } else if (routeId) {
-      // Only route specified - use major stations for that route
-      const majorStationForRoute: { [key: string]: string } = {
-        'Red': '30173',   // Howard
-        'Blue': '30171',  // O'Hare  
-        'Brn': '30057',   // Fullerton
-        'G': '30131',     // Clark/Lake
-        'Org': '30063',   // Midway
-        'Pink': '30131',  // Clark/Lake
-        'P': '30173',     // Howard
-        'Y': '30173'      // Howard
-      };
-      const stationId = majorStationForRoute[routeId] || '30173';
-      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`;
-      console.log('🚆 CTA Using route-specific station:', stationId, 'for route:', routeId);
+      // Only route specified - get ALL stations for this route
+      apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&rt=${routeId}&outputType=JSON`);
+      console.log('🚆 CTA Fetching ALL stations for route:', routeId);
     } else {
-      // Default to Howard station
-      apiUrl = `${baseUrl}?key=${CTA_API_KEY}&stpid=30173&outputType=JSON`;
-      console.log('🚆 CTA Using default Howard station (30173)');
+      // Default: Get ALL trains system-wide by fetching each route
+      const allRoutes = ['Red', 'Blue', 'Brn', 'G', 'Org', 'Pink', 'P', 'Y'];
+      
+      apiUrls = allRoutes.map(route => 
+        `${baseUrl}?key=${CTA_API_KEY}&rt=${route}&outputType=JSON`
+      );
+      
+      console.log('🚆 CTA Fetching ALL routes for system overview:', allRoutes);
     }
 
-    console.log(`🚆 Fetching CTA data from: ${apiUrl.replace(CTA_API_KEY, 'API_KEY_HIDDEN')}`);
-    console.log('🚆 CTA Request Summary:', { stopId, routeId, apiUrl: apiUrl.replace(CTA_API_KEY, 'HIDDEN') });
+    console.log(`🚆 Fetching CTA data from ${apiUrls.length} endpoint(s)`);
     
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'ChiGuard-Transit-App/1.0',
-        'Accept': 'application/json'
-      }
-    });
+    // Fetch from all URLs
+    const allTransformedData: any[] = [];
     
-    console.log(`🚆 CTA API HTTP Status: ${response.status}`);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ CTA API HTTP Error: ${response.status} - ${errorText}`);
-      
-      let errorMessage = `CTA API error: ${response.status}`;
-      if (response.status === 401 || response.status === 403) {
-        errorMessage = 'CTA API key authentication failed';
-      } else if (response.status === 404) {
-        errorMessage = 'CTA station/route not found';
-      } else if (response.status >= 500) {
-        errorMessage = 'CTA API server temporarily unavailable';
-      }
-      
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: [],
-          error: errorMessage,
-          timestamp: new Date().toISOString(),
-          source: 'CTA'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    const responseText = await response.text();
-    console.log(`✅ CTA API Response received (${responseText.length} chars)`);
-    
-    let data;
-    try {
-      data = JSON.parse(responseText);
-      console.log('🚆 CTA API Response parsed successfully');
-    } catch (parseError) {
-      console.error('❌ Failed to parse CTA API response as JSON:', parseError);
-      
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: [],
-          error: 'Invalid response from CTA API',
-          timestamp: new Date().toISOString(),
-          source: 'CTA'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-    
-    // Handle CTA API error responses
-    if (data.ctatt?.errCd && data.ctatt.errCd !== '0') {
-      console.error('❌ CTA API Error:', data.ctatt.errNm);
-      
-      return new Response(
-        JSON.stringify({
-          success: false,
-          data: [],
-          error: `CTA API: ${data.ctatt.errNm}`,
-          timestamp: new Date().toISOString(),
-          source: 'CTA'
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Transform CTA data to our standard format
-    let transformedData: any[] = [];
-    
-    if (data.ctatt?.eta && data.ctatt.eta.length > 0) {
-      console.log('🚆 Processing', data.ctatt.eta.length, 'arrivals');
-      
-      transformedData = data.ctatt.eta
-        .map((arrival: any) => {
-          let arrivalTime = 'Due';
-          
-          // Parse CTA datetime format: YYYYMMDD HH:MM:SS
-          function parseCTADateTime(dateTimeStr: string): Date | null {
-            if (!dateTimeStr) return null;
-            
-            try {
-              const year = parseInt(dateTimeStr.substring(0, 4));
-              const month = parseInt(dateTimeStr.substring(4, 6));
-              const day = parseInt(dateTimeStr.substring(6, 8));
-              const hour = parseInt(dateTimeStr.substring(9, 11));
-              const minute = parseInt(dateTimeStr.substring(12, 14));
-              const second = parseInt(dateTimeStr.substring(15, 17));
-              
-              return new Date(year, month - 1, day, hour, minute, second);
-            } catch (error) {
-              return null;
-            }
+    for (const apiUrl of apiUrls) {
+      try {
+        console.log(`🚆 Calling: ${apiUrl.replace(CTA_API_KEY, 'API_KEY_HIDDEN')}`);
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'ChiGuard-Transit-App/1.0',
+            'Accept': 'application/json'
           }
+        });
+        
+        console.log(`🚆 CTA API HTTP Status: ${response.status} for ${apiUrl.includes('rt=') ? apiUrl.split('rt=')[1].split('&')[0] : 'endpoint'}`);
+        
+        if (!response.ok) {
+          console.error(`❌ CTA API HTTP Error: ${response.status} for endpoint`);
+          continue; // Skip this endpoint and try the next one
+        }
+
+        const responseText = await response.text();
+        console.log(`✅ CTA API Response received (${responseText.length} chars)`);
+        
+        let data;
+        try {
+          data = JSON.parse(responseText);
+          console.log('🚆 CTA API Response parsed successfully');
+        } catch (parseError) {
+          console.error('❌ Failed to parse CTA API response as JSON:', parseError);
+          continue; // Skip this endpoint
+        }
+        
+        // Handle CTA API error responses
+        if (data.ctatt?.errCd && data.ctatt.errCd !== '0') {
+          console.error('❌ CTA API Error:', data.ctatt.errNm);
+          continue; // Skip this endpoint
+        }
+
+        // Transform CTA data to our standard format
+        if (data.ctatt?.eta && data.ctatt.eta.length > 0) {
+          console.log('🚆 Processing', data.ctatt.eta.length, 'arrivals from this endpoint');
           
-          if (arrival.isApp === '1' || arrival.isApp === 1) {
-            arrivalTime = 'Approaching';
-          } else if (arrival.arrT) {
-            const arrivalDate = parseCTADateTime(arrival.arrT);
-            const currentTime = new Date();
-            
-            if (arrivalDate) {
-              const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
-              const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+          const transformedData = data.ctatt.eta
+            .map((arrival: any) => {
+              let arrivalTime = 'Due';
               
-              // Filter out stale data (more than 3 hours old/future)
-              if (Math.abs(timeDiffMinutes) > 180) {
-                return null;
+              // Parse CTA datetime format: YYYYMMDD HH:MM:SS
+              function parseCTADateTime(dateTimeStr: string): Date | null {
+                if (!dateTimeStr) return null;
+                
+                try {
+                  const year = parseInt(dateTimeStr.substring(0, 4));
+                  const month = parseInt(dateTimeStr.substring(4, 6));
+                  const day = parseInt(dateTimeStr.substring(6, 8));
+                  const hour = parseInt(dateTimeStr.substring(9, 11));
+                  const minute = parseInt(dateTimeStr.substring(12, 14));
+                  const second = parseInt(dateTimeStr.substring(15, 17));
+                  
+                  return new Date(year, month - 1, day, hour, minute, second);
+                } catch (error) {
+                  return null;
+                }
               }
               
-              if (timeDiffMinutes <= 0) {
-                arrivalTime = 'Arriving';
-              } else if (timeDiffMinutes === 1) {
-                arrivalTime = '1 min';
-              } else if (timeDiffMinutes > 60) {
+              if (arrival.isApp === '1' || arrival.isApp === 1) {
+                arrivalTime = 'Approaching';
+              } else if (arrival.arrT) {
+                const arrivalDate = parseCTADateTime(arrival.arrT);
+                const currentTime = new Date();
+                
+                if (arrivalDate) {
+                  const timeDiffMs = arrivalDate.getTime() - currentTime.getTime();
+                  const timeDiffMinutes = Math.round(timeDiffMs / (1000 * 60));
+                  
+                  // Filter out stale data (more than 3 hours old/future)
+                  if (Math.abs(timeDiffMinutes) > 180) {
+                    return null;
+                  }
+                  
+                  if (timeDiffMinutes <= 0) {
+                    arrivalTime = 'Arriving';
+                  } else if (timeDiffMinutes === 1) {
+                    arrivalTime = '1 min';
+                  } else if (timeDiffMinutes > 60) {
+                    arrivalTime = 'Scheduled';
+                  } else {
+                    arrivalTime = `${timeDiffMinutes} min`;
+                  }
+                }
+              } else if (arrival.isSch === '1') {
                 arrivalTime = 'Scheduled';
-              } else {
-                arrivalTime = `${timeDiffMinutes} min`;
               }
-            }
-          } else if (arrival.isSch === '1') {
-            arrivalTime = 'Scheduled';
-          }
-          
-          return {
-            line: arrival.rt || 'Unknown',
-            station: arrival.staNm || 'Unknown',
-            destination: arrival.destNm || 'Unknown',
-            direction: arrival.trDr || 'Unknown',
-            arrivalTime: arrivalTime,
-            trainId: arrival.rn || 'Unknown',
-            status: arrival.isApp === '1' ? 'Approaching' : 
-                   arrival.isDly === '1' ? 'Delayed' : 'On Time'
-          };
-        })
-        .filter(result => result !== null)
-        .slice(0, 10); // Limit to 10 results
+              
+              return {
+                line: arrival.rt || 'Unknown',
+                station: arrival.staNm || 'Unknown',
+                destination: arrival.destNm || 'Unknown',
+                direction: arrival.trDr || 'Unknown',
+                arrivalTime: arrivalTime,
+                trainId: arrival.rn || 'Unknown',
+                status: arrival.isApp === '1' ? 'Approaching' : 
+                       arrival.isDly === '1' ? 'Delayed' : 'On Time'
+              };
+            })
+            .filter(result => result !== null);
+            
+          allTransformedData.push(...transformedData);
+          console.log(`🚆 Added ${transformedData.length} arrivals from this endpoint`);
+        } else {
+          console.log('🚆 No arrivals found for this endpoint');
+        }
+        
+      } catch (error) {
+        console.error('❌ Error processing endpoint:', error);
+        continue; // Continue with next endpoint
+      }
     }
-
-    // Debug: Log the actual CTA API response for troubleshooting
-    console.log('🚆 CTA API Raw Response Data:', JSON.stringify(data, null, 2));
-    console.log('🚆 CTA API Response Keys:', Object.keys(data || {}));
-    console.log('🚆 CTA API ctatt object:', data?.ctatt ? JSON.stringify(data.ctatt, null, 2) : 'No ctatt object');
-    console.log('🚆 CTA API eta array:', data?.ctatt?.eta ? `Array with ${data.ctatt.eta.length} items` : 'No eta array');
     
-    // If no data but API succeeded, this indicates no real-time arrivals available
-    if (transformedData.length === 0) {
-      console.log('🚆 No current arrivals found - checking if this is API issue vs actual no trains');
-      console.log('🚆 CTA API Response Structure Check:');
-      console.log('🚆   - Has ctatt?', !!data?.ctatt);
-      console.log('🚆   - Has eta?', !!data?.ctatt?.eta);
-      console.log('🚆   - ETA length:', data?.ctatt?.eta?.length || 0);
-      console.log('🚆   - Error code:', data?.ctatt?.errCd);
-      console.log('🚆   - Error name:', data?.ctatt?.errNm);
-      
-      // Return empty array instead of fallback message to show actual status
-      transformedData = [];
-    }
+    // Remove duplicates based on train ID, station, and arrival time
+    const uniqueArrivals = allTransformedData.filter((arrival, index, self) => 
+      index === self.findIndex(a => 
+        a.trainId === arrival.trainId && 
+        a.station === arrival.station &&
+        a.arrivalTime === arrival.arrivalTime
+      )
+    );
+    
+    // Sort by arrival time and limit results
+    const sortedArrivals = uniqueArrivals
+      .sort((a, b) => {
+        if (a.arrivalTime === 'Approaching' || a.arrivalTime === 'Arriving') return -1;
+        if (b.arrivalTime === 'Approaching' || b.arrivalTime === 'Arriving') return 1;
+        const aMinutes = parseInt(a.arrivalTime.replace(' min', '')) || 999;
+        const bMinutes = parseInt(b.arrivalTime.replace(' min', '')) || 999;
+        return aMinutes - bMinutes;
+      })
+      .slice(0, 100); // Increase limit to 100 for comprehensive view
 
-    console.log(`✅ Returning ${transformedData.length} CTA arrivals`);
+    console.log(`✅ Total unique arrivals found: ${uniqueArrivals.length}`);
+    console.log(`✅ Returning ${sortedArrivals.length} CTA arrivals after sorting and limiting`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        data: transformedData,
+        data: sortedArrivals,
         timestamp: new Date().toISOString(),
         source: 'CTA'
       }),
