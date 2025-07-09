@@ -127,7 +127,8 @@ serve(async (req) => {
       console.log('Trip URL:', tripUpdatesUrl);
 
       const headers = useSwiftly ? {
-        'Authorization': `Bearer ${swiftlyApiKey}`,
+        'Authorization': swiftlyApiKey, // Swiftly wants raw API key, no "Bearer " prefix
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
       } : {
         'Content-Type': 'application/json'
