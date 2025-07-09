@@ -177,7 +177,7 @@ export const SEPTASchedule = () => {
           <MajorStationsDisplay
             config={{
               ...config,
-              name: config.name + " - Coming Soon!"
+              name: config.name + " - Live"
             }}
             onStationClick={handleStationClick}
             fetchArrivals={fetchStationArrivals}
@@ -190,7 +190,7 @@ export const SEPTASchedule = () => {
           <StandardScheduleLayout
             config={{
               ...config,
-              name: config.name + " - Coming Soon!"
+              name: config.name + " - Live"
             }}
             selectedLine={selectedLine}
             selectedStation={selectedStation}
