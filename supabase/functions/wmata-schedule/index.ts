@@ -256,40 +256,67 @@ serve(async (req) => {
           );
         }
 
-        // For general arrivals or line filtering, get major stations and aggregate
-        const majorStations = ['A01', 'C01', 'D01', 'E01', 'F01', 'G01']; // Union, Metro Center, Federal Triangle, Gallery Place, L'Enfant Plaza, Dupont Circle
-        const allArrivals: any[] = [];
-
-        for (const station of majorStations) {
-          try {
-            console.log(`Fetching arrivals for major station: ${station}`);
-            const response = await fetch(`https://api.wmata.com/Rail.svc/json/jStationTimes?StationCode=${station}&api_key=${wmataApiKey}`);
-            
-            if (response.ok) {
-              const data = await response.json();
-              const trains: WMATAStationTime[] = data.Trains || [];
-              
-              // Filter by line if specified
-              const filteredTrains = lineFilter 
-                ? trains.filter(train => train.Line.toLowerCase() === lineFilter.toLowerCase())
-                : trains;
-              
-              const arrivals = filteredTrains.map(train => ({
-                line: train.Line,
-                station: train.LocationName || 'Unknown Station',
-                destination: train.DestinationName || train.Destination,
-                direction: train.Group === '1' ? 'Platform 1' : 'Platform 2',
-                arrivalTime: train.Min === 'ARR' ? 'Arriving' : train.Min === 'BRD' ? 'Boarding' : train.Min,
-                trainId: train.Car ? `${train.Car} cars` : 'Unknown',
-                status: 'On Time'
-              }));
-              
-              allArrivals.push(...arrivals);
-            }
-          } catch (error) {
-            console.warn(`Failed to fetch arrivals for station ${station}:`, error);
-          }
+        // Get all predictions and filter for major/popular stations
+        console.log('Fetching all WMATA predictions...');
+        const response = await fetch(`https://api.wmata.com/StationPrediction.svc/json/GetPrediction/All?api_key=${wmataApiKey}`);
+        
+        if (!response.ok) {
+          console.error(`WMATA All Predictions API error: ${response.status} ${response.statusText}`);
+          throw new Error(`WMATA API error: ${response.status} ${response.statusText}`);
         }
+        
+        const data = await response.json();
+        const trains: any[] = data.Trains || [];
+        console.log(`Received ${trains.length} total train predictions`);
+        
+        // Define major/popular stations we want to show
+        const majorStationCodes = [
+          'A15', // Shady Grove (Red line end)
+          'C01', // Metro Center (Red/Orange/Silver/Blue)
+          'E10', // Greenbelt (Green line end) 
+          'F11', // Branch Ave (Green line end)
+          'K08', // Court House (Orange/Silver)
+          'B35', // Largo Town Center (Silver/Blue)
+          'N06', // Wiehle-Reston East (Silver)
+          'J03'  // Franconia-Springfield (Blue)
+        ];
+        
+        // Filter by line if specified, otherwise show major stations
+        const filteredTrains = lineFilter 
+          ? trains.filter(train => train.Line && train.Line.toLowerCase() === lineFilter.toLowerCase())
+          : trains.filter(train => majorStationCodes.includes(train.LocationCode));
+        
+        console.log(`Filtered to ${filteredTrains.length} trains for major stations`);
+        
+        const allArrivals = filteredTrains.map(train => {
+          // Parse minutes: "2", "ARR", "BRD", etc.
+          let minutes = 0;
+          let label = 'Unknown';
+          
+          if (train.Min === 'BRD') {
+            label = 'Boarding';
+            minutes = 0;
+          } else if (train.Min === 'ARR') {
+            label = 'Arriving';
+            minutes = 0;
+          } else if (!isNaN(parseInt(train.Min))) {
+            minutes = parseInt(train.Min);
+            label = `${minutes} min`;
+          } else {
+            label = train.Min || 'Unknown';
+          }
+          
+          return {
+            line: train.Line,
+            station: train.LocationName || train.StationName || 'Unknown Station',
+            destination: train.DestinationName || train.Destination,
+            direction: train.Group === '1' ? 'Platform 1' : 'Platform 2',
+            arrivalTime: label,
+            minutes: minutes,
+            trainId: train.Car ? `${train.Car} cars` : 'Unknown',
+            status: 'On Time'
+          };
+        });
 
         console.log(`Found total ${allArrivals.length} arrivals across all major stations`);
 
