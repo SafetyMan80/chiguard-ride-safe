@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useVisibilityAwareInterval } from "@/hooks/useVisibilityAwareInterval";
+import { useRobustScheduleFetch } from "@/hooks/useRobustScheduleFetch";
 import { StandardScheduleLayout } from "@/components/shared/StandardScheduleLayout";
 import { MajorStationsDisplay } from "@/components/shared/MajorStationsDisplay";
 import { StandardArrival, CITY_CONFIGS } from "@/types/schedule";
@@ -17,13 +18,13 @@ interface LAMetroResponse {
 
 export const LAMetroSchedule = () => {
   const [arrivals, setArrivals] = useState<StandardArrival[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedLine, setSelectedLine] = useState<string>("all");
   const [selectedStation, setSelectedStation] = useState<string>("all");
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [activeTab, setActiveTab] = useState<string>("overview");
   const { toast } = useToast();
+  const { fetchWithRetry, loading, error } = useRobustScheduleFetch('la-metro');
 
   const config = CITY_CONFIGS.los_angeles;
 
@@ -49,11 +50,10 @@ export const LAMetroSchedule = () => {
       return;
     }
 
-    setLoading(true);
     console.log('🚇 LA Metro: Starting fetch process...');
     
     try {
-      // Fetch predictions for LA Metro area
+      // Fetch predictions for LA Metro area using robust fetch
       const requestBody = {
         action: 'predictions',
         latitude: 34.0522, // Downtown LA coordinates 
@@ -63,28 +63,9 @@ export const LAMetroSchedule = () => {
       
       console.log('🚇 LA Metro: Sending request to edge function:', requestBody);
       
-      const { data, error } = await supabase.functions.invoke('lametro-schedule', {
-        body: requestBody
-      });
+      const data = await fetchWithRetry('lametro-schedule', requestBody);
 
-      console.log('🚇 LA Metro: Supabase invoke response:', { data, error });
-
-      if (error) {
-        console.error('LA Metro edge function error details:', {
-          message: error.message,
-          context: error.context,
-          details: error.details
-        });
-        throw new Error(`Edge function error: ${error.message}`);
-      }
-
-      console.log('LA Metro API response:', data);
-
-      // Check if we got an error in the response data
-      if (data && data.error) {
-        console.error('API returned error:', data);
-        throw new Error(`API Error: ${data.error} - ${data.details || ''}`);
-      }
+      console.log('🚇 LA Metro: Response data:', data);
 
       // Transform the response to match our StandardArrival format
       if (data && data.predictions && Array.isArray(data.predictions)) {
@@ -116,16 +97,7 @@ export const LAMetroSchedule = () => {
       }
     } catch (error) {
       console.error('Error fetching LA Metro arrivals:', error);
-      
-      toast({
-        title: "Unable to fetch LA Metro data",
-        description: "Please try again in a moment.",
-        variant: "destructive",
-        duration: 2000
-      });
       setArrivals([]);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -107,8 +107,8 @@ serve(async (req) => {
 
       console.log('Swiftly API key found, length:', swiftlyApiKey.length);
 
-      // Try Swiftly API first, fallback to Metro's official feeds if that fails
-      const useSwiftly = true; // Set to false to test direct Metro feeds
+      // Swiftly API seems to be returning 403 for LA Metro, use Metro's official feeds
+      const useSwiftly = false; // Switch to Metro official API due to 403 errors
       
       let vehiclePositionsUrl, tripUpdatesUrl;
       
