@@ -108,7 +108,8 @@ export const LAMetroSchedule = () => {
   };
 
   const getLineColor = (line: string) => {
-    const lineData = config.lines.find(l => l.name.toLowerCase().includes(line.toLowerCase()));
+    if (!line) return "bg-gray-500";
+    const lineData = config.lines.find(l => l.name && l.name.toLowerCase().includes(line.toLowerCase()));
     return lineData?.color || "bg-gray-500";
   };
 
