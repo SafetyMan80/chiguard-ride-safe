@@ -98,16 +98,28 @@ serve(async (req) => {
       });
 
     } else if (action === 'predictions') {
-      // Fetch real-time transit data from LA Metro's GTFS-RT API via Swiftly
-      const vehiclePositionsUrl = 'https://api.goswift.ly/real-time/lametro-rail/gtfs-rt-vehicle-positions';
-      const tripUpdatesUrl = 'https://api.goswift.ly/real-time/lametro-rail/gtfs-rt-trip-updates';
+      // Get Swiftly API key from environment
+      const swiftlyApiKey = Deno.env.get('SWIFTLY_API_KEY');
+      if (!swiftlyApiKey) {
+        throw new Error('SWIFTLY_API_KEY is not configured');
+      }
+
+      // Fetch real-time transit data from Swiftly API with proper authentication
+      const baseUrl = 'https://api.goswift.ly/real-time/lametro-rail';
+      const vehiclePositionsUrl = `${baseUrl}/gtfs-rt-vehicle-positions`;
+      const tripUpdatesUrl = `${baseUrl}/gtfs-rt-trip-updates`;
       
-      console.log('Fetching LA Metro real-time data from GTFS-RT API');
+      console.log('Fetching LA Metro real-time data from Swiftly API with authentication');
+
+      const headers = {
+        'Authorization': `Bearer ${swiftlyApiKey}`,
+        'Content-Type': 'application/json'
+      };
 
       // Fetch both vehicle positions and trip updates
       const [vehicleResponse, tripResponse] = await Promise.all([
-        fetch(vehiclePositionsUrl),
-        fetch(tripUpdatesUrl)
+        fetch(vehiclePositionsUrl, { headers }),
+        fetch(tripUpdatesUrl, { headers })
       ]);
 
       if (!vehicleResponse.ok) {
