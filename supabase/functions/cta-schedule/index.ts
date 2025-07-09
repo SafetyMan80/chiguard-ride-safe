@@ -98,56 +98,118 @@ serve(async (req) => {
       );
     }
 
+    // First, fetch the current list of train stations to get proper mapid values
+    console.log('🚆 CTA Fetching station list first...');
+    const stationsUrl = `https://lapi.transitchicago.com/api/1.0/ttstations.aspx?key=${CTA_API_KEY}&outputType=JSON`;
+    
+    let stationMapIds: { [key: string]: string } = {};
+    
+    try {
+      const stationsResponse = await fetch(stationsUrl);
+      if (!stationsResponse.ok) {
+        throw new Error(`Failed to fetch stations: ${stationsResponse.status}`);
+      }
+      
+      const stationsData = await stationsResponse.json();
+      console.log('🚆 CTA Stations response:', JSON.stringify(stationsData, null, 2));
+      
+      // Build mapping of station names to mapids
+      if (stationsData.ctatt?.stations) {
+        stationsData.ctatt.stations.forEach((station: any) => {
+          stationMapIds[station.staNm] = station.mapId;
+        });
+        console.log('🚆 CTA Station mapids found:', Object.keys(stationMapIds).length);
+      }
+    } catch (error) {
+      console.error('❌ Failed to fetch CTA stations:', error);
+      // Fall back to hardcoded mapids if station fetch fails
+      stationMapIds = {
+        'Howard': '40900',
+        'Clark/Lake': '40380', 
+        'O\'Hare': '40890',
+        '95th/Dan Ryan': '40450',
+        'Midway': '40930',
+        'Fullerton': '41220',
+        'Logan Square': '41020',
+        'Forest Park': '40390',
+        'Kimball': '41290',
+        '54th/Cermak': '40420',
+        'Harlem/Lake': '40020'
+      };
+      console.log('🚆 Using fallback station mapids');
+    }
+
     // For comprehensive system overview, fetch from major stations across all lines
     let apiUrls: string[] = [];
     const baseUrl = 'https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx';
     
     if (stopId && routeId) {
-      // Both stop and route specified
-      apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&rt=${routeId}&outputType=JSON`);
+      // Both stop and route specified - convert stopId to mapid if needed
+      const mapId = stationMapIds[stopId] || stopId;
+      const url = new URL(baseUrl);
+      url.searchParams.set('key', CTA_API_KEY);
+      url.searchParams.set('mapid', mapId);
+      url.searchParams.set('rt', routeId);
+      url.searchParams.set('outputType', 'JSON');
+      apiUrls.push(url.toString());
     } else if (stopId) {
       // Only stop specified
-      apiUrls.push(`${baseUrl}?key=${CTA_API_KEY}&stpid=${stopId}&outputType=JSON`);
+      const mapId = stationMapIds[stopId] || stopId;
+      const url = new URL(baseUrl);
+      url.searchParams.set('key', CTA_API_KEY);
+      url.searchParams.set('mapid', mapId);
+      url.searchParams.set('outputType', 'JSON');
+      apiUrls.push(url.toString());
     } else if (routeId) {
       // Only route specified - get multiple major stations for this route
       const majorStationsForRoute: { [key: string]: string[] } = {
-        'Red': ['30173', '30089', '30057'], // Howard, 95th/Dan Ryan, Fullerton
-        'Blue': ['30171', '30044', '30077'], // O'Hare, Forest Park, Logan Square
-        'Brn': ['30297', '30057', '30131'], // Kimball, Fullerton, Clark/Lake
-        'G': ['30131', '30047', '30099'], // Clark/Lake, Harlem/Lake, Garfield
-        'Org': ['30063', '30001'], // Midway, Roosevelt
-        'Pink': ['30098', '30131'], // 54th/Cermak, Clark/Lake
-        'P': ['30173', '30131'], // Howard, Clark/Lake (removed invalid 30307, 30768)
-        'Y': ['30173'] // Howard (removed invalid 30308)
+        'Red': ['Howard', '95th/Dan Ryan', 'Fullerton'],
+        'Blue': ['O\'Hare', 'Forest Park', 'Logan Square'],
+        'Brn': ['Kimball', 'Fullerton', 'Clark/Lake'],
+        'G': ['Clark/Lake', 'Harlem/Lake'],
+        'Org': ['Midway'],
+        'Pink': ['54th/Cermak', 'Clark/Lake'],
+        'P': ['Howard', 'Clark/Lake'],
+        'Y': ['Howard']
       };
       
-      const stations = majorStationsForRoute[routeId] || ['30173'];
-      apiUrls = stations.map(stationId => 
-        `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&rt=${routeId}&outputType=JSON`
-      );
+      const stations = majorStationsForRoute[routeId] || ['Howard'];
+      apiUrls = stations.map(stationName => {
+        const mapId = stationMapIds[stationName];
+        if (!mapId) {
+          console.warn(`🚆 No mapid found for station: ${stationName}`);
+          return null;
+        }
+        const url = new URL(baseUrl);
+        url.searchParams.set('key', CTA_API_KEY);
+        url.searchParams.set('mapid', mapId);
+        url.searchParams.set('rt', routeId);
+        url.searchParams.set('outputType', 'JSON');
+        return url.toString();
+      }).filter(Boolean) as string[];
+      
       console.log('🚆 CTA Fetching multiple stations for route:', routeId, 'stations:', stations);
     } else {
       // Default: Get comprehensive data from major hub stations that serve multiple lines
-      // Removed invalid station IDs 30307, 30308, and 30768 that were causing API errors
       const majorHubStations = [
-        '30131', // Clark/Lake (Blue, Brown, Green, Orange, Pink, Purple)
-        '30173', // Howard (Red, Purple, Yellow)
-        '30171', // O'Hare (Blue)
-        '30089', // 95th/Dan Ryan (Red)
-        '30063', // Midway (Orange)
-        '30057', // Fullerton (Red, Brown, Purple)
-        '30077', // Logan Square (Blue)
-        '30044', // Forest Park (Blue)
-        '30297', // Kimball (Brown)
-        '30098', // 54th/Cermak (Pink)
-        '30047'  // Harlem/Lake (Green)
+        'Clark/Lake', 'Howard', 'O\'Hare', '95th/Dan Ryan', 'Midway',
+        'Fullerton', 'Logan Square', 'Forest Park', 'Kimball', '54th/Cermak', 'Harlem/Lake'
       ];
       
-      apiUrls = majorHubStations.map(stationId => 
-        `${baseUrl}?key=${CTA_API_KEY}&stpid=${stationId}&outputType=JSON`
-      );
+      apiUrls = majorHubStations.map(stationName => {
+        const mapId = stationMapIds[stationName];
+        if (!mapId) {
+          console.warn(`🚆 No mapid found for station: ${stationName}`);
+          return null;
+        }
+        const url = new URL(baseUrl);
+        url.searchParams.set('key', CTA_API_KEY);
+        url.searchParams.set('mapid', mapId);
+        url.searchParams.set('outputType', 'JSON');
+        return url.toString();
+      }).filter(Boolean) as string[];
       
-      console.log('🚆 CTA Fetching from', majorHubStations.length, 'major hub stations for system overview');
+      console.log('🚆 CTA Fetching from', apiUrls.length, 'major hub stations for system overview');
     }
 
     console.log(`🚆 Fetching CTA data from ${apiUrls.length} endpoint(s)`);
