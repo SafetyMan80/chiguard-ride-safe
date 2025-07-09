@@ -342,15 +342,76 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
               type="button"
               variant="outline"
               size="sm"
-              onClick={handlePhotoUpload}
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/jpeg,image/jpg,image/png,image/webp';
+                input.onchange = async (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (!file) return;
+                  
+                  setUploadingPhoto(true);
+                  try {
+                    if (file.size > 5 * 1024 * 1024) {
+                      throw new Error('Photo must be smaller than 5MB');
+                    }
+
+                    const { url, error } = await uploadFile(file, {
+                      bucket: 'group-chat-photos',
+                      folder: currentUser.id,
+                      allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+                      maxSize: 5 * 1024 * 1024
+                    });
+
+                    if (error) throw new Error(error);
+                    if (!url) throw new Error('Failed to upload photo');
+
+                    const { error: messageError } = await supabase
+                      .from('group_messages')
+                      .insert({
+                        ride_id: rideId,
+                        sender_id: currentUser.id,
+                        message_text: '',
+                        message_type: 'image',
+                        image_url: url
+                      });
+
+                    if (messageError) throw messageError;
+
+                    toast({
+                      title: "Photo sent!",
+                      description: "Your photo has been shared with the group.",
+                    });
+                  } catch (error: any) {
+                    toast({
+                      title: "Failed to send photo",
+                      description: error.message || "Please try again.",
+                      variant: "destructive"
+                    });
+                  } finally {
+                    setUploadingPhoto(false);
+                  }
+                };
+                input.click();
+              }}
               disabled={loading || uploadingPhoto}
               className="flex-shrink-0"
             >
               {uploadingPhoto ? (
                 <Loader className="w-4 h-4 animate-spin" />
               ) : (
-                <Camera className="w-4 h-4" />
+                <ImageIcon className="w-4 h-4" />
               )}
+            </Button>
+            <Button 
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePhotoUpload}
+              disabled={loading || uploadingPhoto}
+              className="flex-shrink-0"
+            >
+              <Camera className="w-4 h-4" />
             </Button>
             <Button type="submit" disabled={loading || !newMessage.trim() || uploadingPhoto} size="sm">
               <Send className="w-4 h-4" />
