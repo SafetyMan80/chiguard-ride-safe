@@ -69,19 +69,50 @@ serve(async (req) => {
       throw new Error('Invalid MARTA API response format')
     }
 
-    // Transform MARTA data to our standard format
-    const transformedData = data.map((arrival: any) => ({
-      line: arrival.LINE || 'Unknown',
-      station: arrival.STATION || 'Unknown',
-      destination: arrival.DESTINATION || 'Unknown',
-      direction: arrival.DIRECTION || 'Unknown',
-      arrivalTime: arrival.WAITING_TIME || 'Unknown',
-      eventTime: arrival.EVENT_TIME || new Date().toISOString(),
-      delay: arrival.DELAY || "0",
-      trainId: arrival.TRAIN_ID || arrival.VEHICLE_ID || 'Unknown',
-      status: arrival.WAITING_TIME === "Boarding" ? "Boarding" : 
-              arrival.WAITING_TIME === "Arrived" ? "Arrived" : "On Time"
-    }))
+    // Transform MARTA data to our standard format with proper time calculation
+    const nowMs = Date.now();
+    const transformedData = data.map((arrival: any) => {
+      // MARTA returns either "X min", "Boarding", "Arrived", or actual time
+      let minutes = 0;
+      let label = arrival.WAITING_TIME || 'Unknown';
+      
+      if (arrival.WAITING_TIME) {
+        if (arrival.WAITING_TIME === "Boarding" || arrival.WAITING_TIME === "Arrived") {
+          minutes = 0;
+          label = arrival.WAITING_TIME;
+        } else if (arrival.WAITING_TIME.includes('min')) {
+          // Extract number from "X min"
+          const match = arrival.WAITING_TIME.match(/(\d+)/);
+          minutes = match ? parseInt(match[1]) : 0;
+          label = `${minutes} min`;
+        } else if (arrival.NEXT_ARR) {
+          // Parse actual time format if available
+          try {
+            const arrMs = new Date(arrival.NEXT_ARR).getTime();
+            minutes = Math.max(0, Math.round((arrMs - nowMs) / 60000));
+            label = minutes === 0 ? 'Due' : `${minutes} min`;
+          } catch {
+            minutes = 0;
+            label = arrival.WAITING_TIME;
+          }
+        }
+      }
+      
+      return {
+        line: arrival.LINE || 'Unknown',
+        station: arrival.STATION || 'Unknown', 
+        destination: arrival.DESTINATION || 'Unknown',
+        direction: arrival.DIRECTION || 'Unknown',
+        arrivalTime: label,
+        minutes: minutes,
+        label: label,
+        eventTime: arrival.EVENT_TIME || new Date().toISOString(),
+        delay: arrival.DELAY || "0",
+        trainId: arrival.TRAIN_ID || arrival.VEHICLE_ID || 'Unknown',
+        status: arrival.WAITING_TIME === "Boarding" ? "Boarding" : 
+                arrival.WAITING_TIME === "Arrived" ? "Arrived" : "On Time"
+      };
+    })
 
     console.log('Transformed data length:', transformedData.length)
 
