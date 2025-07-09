@@ -60,12 +60,12 @@ export const GroupRideSelector = () => {
             <Button
               onClick={() => setSelectedType('student')}
               variant="outline"
-              className="h-auto p-6 flex flex-col items-center space-y-3 hover:bg-chicago-light-blue/10 border-chicago-blue/20"
+              className="h-auto min-h-[120px] p-6 flex flex-col items-center space-y-3 hover:bg-chicago-light-blue/10 border-chicago-blue/20"
             >
-              <GraduationCap className="w-8 h-8 text-chicago-blue" />
-              <div className="text-center">
-                <h3 className="font-semibold text-lg">{t("Student Rides")}</h3>
-                <p className="text-sm text-muted-foreground">
+              <GraduationCap className="w-8 h-8 text-chicago-blue flex-shrink-0" />
+              <div className="text-center space-y-2">
+                <h3 className="font-semibold text-lg leading-tight">{t("Student Rides")}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-normal">
                   {t("University-verified student group rides")}
                 </p>
               </div>
@@ -74,12 +74,12 @@ export const GroupRideSelector = () => {
             <Button
               onClick={() => setSelectedType('general')}
               variant="outline"
-              className="h-auto p-6 flex flex-col items-center space-y-3 hover:bg-muted/50"
+              className="h-auto min-h-[120px] p-6 flex flex-col items-center space-y-3 hover:bg-muted/50"
             >
-              <Users className="w-8 h-8 text-primary" />
-              <div className="text-center">
-                <h3 className="font-semibold text-lg">{t("General Rides")}</h3>
-                <p className="text-sm text-muted-foreground">
+              <Users className="w-8 h-8 text-primary flex-shrink-0" />
+              <div className="text-center space-y-2">
+                <h3 className="font-semibold text-lg leading-tight">{t("General Rides")}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-normal">
                   {t("Open to all verified community members")}
                 </p>
               </div>
