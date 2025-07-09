@@ -380,15 +380,71 @@ export const translations = {
     "Open to all verified community members": "Abierto a todos los miembros verificados de la comunidad",
     "Back to Group Options": "Volver a Opciones de Grupo",
     
-    // Cities
+    // City and Transit Data
     "Chicago": "Chicago",
-    "New York": "Nueva York",
-    "Los Angeles": "Los Ángeles",
+    "New York City": "Nueva York",
+    "Los Angeles": "Los Ángeles", 
     "Boston": "Boston",
-    "Washington DC": "Washington DC",
+    "Washington D.C.": "Washington D.C.",
     "Philadelphia": "Filadelfia",
     "San Francisco": "San Francisco",
     "Denver": "Denver",
-    "Atlanta": "Atlanta"
+    "Atlanta": "Atlanta",
+    
+    // Transit Agencies
+    "CTA (Chicago Transit Authority)": "CTA (Autoridad de Tránsito de Chicago)",
+    "MTA (Metropolitan Transportation Authority)": "MTA (Autoridad Metropolitana de Transporte)",
+    "LA Metro": "LA Metro",
+    "MBTA (Massachusetts Bay Transportation Authority)": "MBTA (Autoridad de Transporte de la Bahía de Massachusetts)",
+    "WMATA (Washington Metropolitan Area Transit Authority)": "WMATA (Autoridad de Tránsito del Área Metropolitana de Washington)",
+    "SEPTA (Southeastern Pennsylvania Transportation Authority)": "SEPTA (Autoridad de Transporte del Sureste de Pensilvania)",
+    "BART & MUNI": "BART y MUNI",
+    "RTD (Regional Transportation District)": "RTD (Distrito Regional de Transporte)",
+    "MARTA (Metropolitan Atlanta Rapid Transit Authority)": "MARTA (Autoridad de Tránsito Rápido Metropolitano de Atlanta)",
+    
+    // System descriptions
+    "L Train System - 8 color-coded lines": "Sistema de Tren L - 8 líneas codificadas por color",
+    "Subway System - Multiple numbered and lettered lines": "Sistema de Metro - Múltiples líneas numeradas y con letras",
+    "Metro Rail System - Light rail and subway lines": "Sistema Metro Rail - Líneas de tren ligero y metro",
+    "The T - Subway, Light Rail & Commuter Rail": "El T - Metro, Tren Ligero y Tren de Cercanías",
+    "Metrorail System - 6 color-coded lines": "Sistema Metrorail - 6 líneas codificadas por color",
+    "Regional Rail and Subway System": "Sistema de Tren Regional y Metro",
+    "BART Heavy Rail & MUNI Light Rail Systems": "Sistemas BART Tren Pesado y MUNI Tren Ligero",
+    "Light Rail & Commuter Rail - Multiple lettered lines": "Tren Ligero y de Cercanías - Múltiples líneas con letras",
+    "Heavy Rail System - 4 colored lines": "Sistema de Tren Pesado - 4 líneas de colores",
+    
+    // Line colors/names (keep consistent internationally)
+    "Red": "Roja",
+    "Blue": "Azul", 
+    "Green": "Verde",
+    "Orange": "Naranja",
+    "Purple": "Púrpura",
+    "Yellow": "Amarilla",
+    "Pink": "Rosa",
+    "Brown": "Marrón",
+    "Silver": "Plateada",
+    "Gold": "Dorada",
+    
+    // Common transit terms
+    "Station": "Estación",
+    "Stop": "Parada",
+    "Platform": "Plataforma",
+    "Track": "Vía",
+    "Line": "Línea",
+    "Route": "Ruta",
+    "Arrival": "Llegada",
+    "Departure": "Salida",
+    "Delay": "Retraso",
+    "On Time": "A Tiempo",
+    "Express": "Expreso",
+    "Local": "Local",
+    "Inbound": "Entrante",
+    "Outbound": "Saliente",
+    "Northbound": "Hacia el Norte",
+    "Southbound": "Hacia el Sur", 
+    "Eastbound": "Hacia el Este",
+    "Westbound": "Hacia el Oeste",
+    "Transfer": "Transferencia",
+    "Service Alert": "Alerta de Servicio"
   }
 };
