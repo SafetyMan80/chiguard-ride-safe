@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { FeedMessage } from "https://esm.sh/gtfs-realtime-bindings@1.2.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -98,109 +99,63 @@ serve(async (req) => {
       });
 
     } else if (action === 'predictions') {
-      // Get Swiftly API key from environment
-      const swiftlyApiKey = Deno.env.get('SWIFTLY_API_KEY');
-      if (!swiftlyApiKey) {
-        console.error('SWIFTLY_API_KEY is not configured');
-        throw new Error('SWIFTLY_API_KEY is not configured');
-      }
-
-      console.log('Swiftly API key found, length:', swiftlyApiKey.length);
-
-      // Use Swiftly API which provides JSON responses (no Protobuf decoding needed)
-      const useSwiftly = true;
+      // Use LA Metro's public GTFS-rt feeds (no API key required)
+      const AGENCY = 'lametro';
+      const tripUpdatesUrl = `https://api.metro.net/gtfs-rt/trip-updates?agency_id=${AGENCY}`;
+      const vehiclePositionsUrl = `https://api.metro.net/gtfs-rt/vehicle-positions?agency_id=${AGENCY}`;
       
-      let vehiclePositionsUrl, tripUpdatesUrl;
-      
-      if (useSwiftly) {
-        const baseUrl = 'https://api.goswift.ly/real-time/lametro-rail';
-        vehiclePositionsUrl = `${baseUrl}/gtfs-rt-vehicle-positions`;
-        tripUpdatesUrl = `${baseUrl}/gtfs-rt-trip-updates`;
-      } else {
-        // Metro's official GTFS-RT feeds require agency_id parameter and return Protobuf
-        vehiclePositionsUrl = 'https://api.metro.net/gtfs-rt/vehicle-positions?agency_id=lametro';
-        tripUpdatesUrl = 'https://api.metro.net/gtfs-rt/trip-updates?agency_id=lametro';
-      }
-      
-      console.log(`Fetching LA Metro real-time data from ${useSwiftly ? 'Swiftly API' : 'Metro Official API'}`);
-      console.log('Vehicle URL:', vehiclePositionsUrl);
-      console.log('Trip URL:', tripUpdatesUrl);
+      console.log('Fetching LA Metro real-time data from Metro Official API (no auth required)');
+      console.log('Trip updates URL:', tripUpdatesUrl);
+      console.log('Vehicle positions URL:', vehiclePositionsUrl);
 
-      const headers = useSwiftly ? {
-        'Authorization': swiftlyApiKey, // Swiftly wants raw API key, no "Bearer " prefix
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      } : {
-        'Content-Type': 'application/json'
-      };
-
-      if (useSwiftly) {
-        console.log('Request headers prepared (Authorization header length):', headers.Authorization?.length);
-      } else {
-        console.log('Using Metro official API (no auth required)');
-      }
-
-      // Fetch both vehicle positions and trip updates
-      const [vehicleResponse, tripResponse] = await Promise.all([
-        fetch(vehiclePositionsUrl, { headers }),
-        fetch(tripUpdatesUrl, { headers })
+      // Fetch both trip updates and vehicle positions
+      const [tripResponse, vehicleResponse] = await Promise.all([
+        fetch(tripUpdatesUrl),
+        fetch(vehiclePositionsUrl)
       ]);
 
-      if (!vehicleResponse.ok) {
-        const errorText = await vehicleResponse.text();
-        console.error('Vehicle positions API error:', {
-          status: vehicleResponse.status,
-          statusText: vehicleResponse.statusText,
-          response: errorText,
-          headers: Object.fromEntries(vehicleResponse.headers.entries())
-        });
-        throw new Error(`Vehicle positions API returned ${vehicleResponse.status}: ${vehicleResponse.statusText} - ${errorText}`);
-      }
-
       if (!tripResponse.ok) {
-        const errorText = await tripResponse.text();
-        console.error('Trip updates API error:', {
-          status: tripResponse.status,
-          statusText: tripResponse.statusText,
-          response: errorText,
-          headers: Object.fromEntries(tripResponse.headers.entries())
-        });
-        throw new Error(`Trip updates API returned ${tripResponse.status}: ${tripResponse.statusText} - ${errorText}`);
+        console.error('Trip updates API error:', tripResponse.status, tripResponse.statusText);
+        throw new Error(`Trip updates API returned ${tripResponse.status}: ${tripResponse.statusText}`);
       }
 
-      const vehicleData = await vehicleResponse.json();
-      const tripData = await tripResponse.json();
+      if (!vehicleResponse.ok) {
+        console.error('Vehicle positions API error:', vehicleResponse.status, vehicleResponse.statusText);
+        throw new Error(`Vehicle positions API returned ${vehicleResponse.status}: ${vehicleResponse.statusText}`);
+      }
 
-      console.log('Vehicle data sample:', {
-        total_vehicles: vehicleData.entity?.length || 0,
-        first_vehicle: vehicleData.entity?.[0]
-      });
+      // Decode protobuf responses
+      const tripBuffer = await tripResponse.arrayBuffer();
+      const vehicleBuffer = await vehicleResponse.arrayBuffer();
+      
+      const tripData = FeedMessage.decode(new Uint8Array(tripBuffer));
+      const vehicleData = FeedMessage.decode(new Uint8Array(vehicleBuffer));
 
-      console.log('Trip data sample:', {
-        total_trips: tripData.entity?.length || 0,
-        first_trip: tripData.entity?.[0]
-      });
+      console.log('Trip data entities:', tripData.entity?.length || 0);
+      console.log('Vehicle data entities:', vehicleData.entity?.length || 0);
 
       // Transform the data to our format
       const predictions: any[] = [];
+      const now = Date.now();
       
       // Process trip updates for predictions
       if (tripData.entity && Array.isArray(tripData.entity)) {
         tripData.entity.forEach((entity: any) => {
-          if (entity.trip_update && entity.trip_update.stop_time_update) {
-            entity.trip_update.stop_time_update.forEach((stopUpdate: any) => {
-              if (stopUpdate.arrival) {
-                const arrivalTime = stopUpdate.arrival.time || stopUpdate.arrival.delay;
+          if (entity.tripUpdate && entity.tripUpdate.stopTimeUpdate) {
+            entity.tripUpdate.stopTimeUpdate.forEach((stopUpdate: any) => {
+              if (stopUpdate.arrival || stopUpdate.departure) {
+                const timeUpdate = stopUpdate.arrival || stopUpdate.departure;
+                const arrivalTime = timeUpdate.time;
+                
                 if (arrivalTime) {
+                  const minutesUntilArrival = Math.max(0, Math.round((arrivalTime * 1000 - now) / 60000));
                   predictions.push({
-                    route_name: entity.trip_update.trip?.route_id || 'Unknown Route',
-                    headsign: entity.trip_update.trip?.trip_headsign || 'Unknown Destination',
-                    arrival_time: arrivalTime ? 
-                      Math.max(0, Math.round((arrivalTime * 1000 - Date.now()) / 60000)).toString() : 
-                      'Unknown',
-                    delay_seconds: stopUpdate.arrival.delay || 0,
-                    vehicle_id: entity.trip_update.vehicle?.id || '',
-                    stop_name: stopUpdate.stop_id || 'Unknown Stop'
+                    route_name: entity.tripUpdate.trip?.routeId || 'Unknown Route',
+                    headsign: entity.tripUpdate.trip?.tripHeadsign || 'Unknown Destination',
+                    arrival_time: minutesUntilArrival.toString(),
+                    delay_seconds: timeUpdate.delay || 0,
+                    vehicle_id: entity.tripUpdate.vehicle?.id || '',
+                    stop_name: stopUpdate.stopId || 'Unknown Stop'
                   });
                 }
               }
