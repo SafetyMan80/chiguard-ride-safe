@@ -98,24 +98,30 @@ serve(async (req) => {
       });
 
     } else if (action === 'predictions') {
-      // Use LA Metro's public alerts endpoint (no auth required)
-      // Note: LA Metro's GTFS-rt feeds require protobuf decoding which is complex in edge functions
-      // For now, we'll use their alerts API and transform it into predictions format
-      const alertsUrl = 'https://api.metro.net/gtfs_rt/alerts/json';
-      
-      console.log('Fetching LA Metro alerts data from:', alertsUrl);
+      // Get Swiftly API key for JSON alerts
+      const swiftlyApiKey = Deno.env.get('SWIFTLY_API_KEY');
+      if (!swiftlyApiKey) {
+        console.error('SWIFTLY_API_KEY is not configured');
+        throw new Error('SWIFTLY_API_KEY is not configured');
+      }
 
-      const response = await fetch(alertsUrl);
+      // Use Swiftly's JSON service alerts endpoint
+      const alertsUrl = 'https://api.goswift.ly/real-time/lametro-rail/gtfs-rt-service-alerts';
+      const headers = { 'Authorization': swiftlyApiKey };
+      
+      console.log('Fetching LA Metro service alerts from Swiftly:', alertsUrl);
+
+      const response = await fetch(alertsUrl, { headers });
 
       if (!response.ok) {
-        console.error('LA Metro alerts API error:', response.status, response.statusText);
-        throw new Error(`LA Metro alerts API returned ${response.status}: ${response.statusText}`);
+        console.error('Swiftly alerts API error:', response.status, response.statusText);
+        throw new Error(`Swiftly alerts API returned ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('LA Metro alerts API response structure:', Object.keys(data));
+      console.log('Swiftly alerts response:', data);
 
-      // Transform alerts into mock predictions for now
+      // Generate realistic-looking predictions based on current time
       const predictions = [
         {
           route_name: 'Red Line',
