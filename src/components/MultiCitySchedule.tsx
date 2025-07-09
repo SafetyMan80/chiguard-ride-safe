@@ -3,9 +3,11 @@ import { CitySelector } from "./CitySelector";
 import { CityScheduleWrapper } from "./CityScheduleWrapper";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ScheduleLoadingSkeleton } from "./LoadingStates";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const MultiCitySchedule = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   console.log('🏙️ MultiCitySchedule rendered with selectedCity:', selectedCity);
 
@@ -24,9 +26,9 @@ export const MultiCitySchedule = () => {
     return (
       <ErrorBoundary fallback={({ retry }) => (
         <div className="text-center p-6">
-          <p className="text-destructive mb-4">Failed to load schedule</p>
+          <p className="text-destructive mb-4">{t("Failed to load schedule")}</p>
           <button onClick={retry} className="text-chicago-blue hover:underline">
-            Try again
+            {t("Try again")}
           </button>
         </div>
       )}>

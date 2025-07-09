@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { TermsOfService } from "./TermsOfService";
 import { PrivacyPolicy } from "./PrivacyPolicy";
 import { SafetyGuidelines } from "./SafetyGuidelines";
@@ -24,6 +25,7 @@ interface SettingsProps {
 
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'profile-edit' | 'verification' | 'security' | 'notifications'>('settings');
 
   const handleSignOut = async () => {
@@ -32,12 +34,12 @@ export const Settings = ({ user }: SettingsProps) => {
       if (error) throw error;
       
       toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
+        title: t("Signed out"),
+        description: t("You have been successfully signed out."),
       });
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t("Error"),
         description: error.message,
         variant: "destructive",
       });
@@ -102,7 +104,7 @@ export const Settings = ({ user }: SettingsProps) => {
         <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <div className="w-5 h-5 bg-chicago-blue rounded text-white flex items-center justify-center text-xs font-bold">🛡</div>
-          Privacy & Safety Settings
+          {t("Privacy & Safety Settings")}
         </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -111,13 +113,13 @@ export const Settings = ({ user }: SettingsProps) => {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                <span className="font-medium">Location Services</span>
+                <span className="font-medium">{t("Location Services")}</span>
                 <Badge variant={locationEnabled ? "secondary" : "outline"}>
-                  {locationEnabled ? "Enabled" : "Disabled"}
+                  {locationEnabled ? t("Enabled") : t("Disabled")}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                Allow RAILSAVIOR to access your location for incident reporting and emergency services
+                {t("Allow RAILSAVIOR to access your location for incident reporting and emergency services")}
               </p>
             </div>
             <Switch
@@ -129,9 +131,9 @@ export const Settings = ({ user }: SettingsProps) => {
           {/* Push Notifications */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <span className="font-medium">Push Notifications</span>
+              <span className="font-medium">{t("Push Notifications")}</span>
               <p className="text-sm text-muted-foreground">
-                Location-based incident alerts and emergency notifications
+                {t("Location-based incident alerts and emergency notifications")}
               </p>
             </div>
             <Button 
@@ -139,16 +141,16 @@ export const Settings = ({ user }: SettingsProps) => {
               size="sm"
               onClick={() => setActiveView('notifications')}
             >
-              Configure
+              {t("Configure")}
             </Button>
           </div>
 
           {/* Emergency Contacts */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <span className="font-medium">Auto-Contact Emergency Contacts</span>
+              <span className="font-medium">{t("Auto-Contact Emergency Contacts")}</span>
               <p className="text-sm text-muted-foreground">
-                Automatically notify your emergency contacts when SOS is activated
+                {t("Automatically notify your emergency contacts when SOS is activated")}
               </p>
             </div>
             <Switch
@@ -160,9 +162,9 @@ export const Settings = ({ user }: SettingsProps) => {
           {/* Theme Toggle */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <span className="font-medium">App Theme</span>
+              <span className="font-medium">{t("App Theme")}</span>
               <p className="text-sm text-muted-foreground">
-                Switch between light and dark mode
+                {t("Switch between light and dark mode")}
               </p>
             </div>
             <ThemeToggle />
@@ -175,7 +177,7 @@ export const Settings = ({ user }: SettingsProps) => {
         <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <div className="w-5 h-5 bg-chicago-blue rounded text-white flex items-center justify-center text-xs font-bold">📋</div>
-          Legal Information
+          {t("Legal Information")}
         </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -185,7 +187,7 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={() => setActiveView('privacy')}
           >
             <div className="w-4 h-4 mr-2 text-xs">👁</div>
-            Privacy Policy
+            {t("Privacy Policy")}
           </Button>
           <Button 
             variant="chicago-outline" 
@@ -193,7 +195,7 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={() => setActiveView('terms')}
           >
             <div className="w-4 h-4 mr-2 text-xs">📋</div>
-            Terms of Service
+            {t("Terms of Service")}
           </Button>
           <Button 
             variant="chicago-outline" 
@@ -201,7 +203,7 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={() => setActiveView('safety')}
           >
             <div className="w-4 h-4 mr-2 text-xs">🛡</div>
-            Safety Guidelines
+            {t("Safety Guidelines")}
           </Button>
         </CardContent>
       </Card>
@@ -211,17 +213,17 @@ export const Settings = ({ user }: SettingsProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-5 h-5 bg-chicago-blue rounded text-white flex items-center justify-center text-xs font-bold">ℹ</div>
-            About RAILSAVIOR
+            {t("About RAILSAVIOR")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="text-sm space-y-2">
-            <p><span className="font-medium">Established:</span> 2025</p>
-            <p><span className="font-medium">Mission:</span> Community-powered safety for rail commuters across major US cities</p>
-            <p><span className="font-medium">Coverage:</span> All major US cities with rail service</p>
-            <p><span className="font-medium">Disclaimer:</span> Not affiliated with LA Metro, MTA (New York), WMATA (Washington D.C.), SEPTA (Philadelphia), MARTA (Atlanta), CTA (Chicago), or any other transit authority</p>
+            <p><span className="font-medium">{t("Established")}:</span> 2025</p>
+            <p><span className="font-medium">{t("Mission")}:</span> {t("Community-powered safety for rail commuters across major US cities")}</p>
+            <p><span className="font-medium">{t("Coverage")}:</span> {t("All major US cities with rail service")}</p>
+            <p><span className="font-medium">{t("Disclaimer")}:</span> {t("Not affiliated with LA Metro, MTA (New York), WMATA (Washington D.C.), SEPTA (Philadelphia), MARTA (Atlanta), CTA (Chicago), or any other transit authority")}</p>
             <p className="text-muted-foreground italic pt-2">
-              RAILSAVIOR is an independent safety platform built by and for transit communities nationwide to enhance rail safety through real-time incident reporting and group ride coordination.
+              {t("RAILSAVIOR is an independent safety platform built by and for transit communities nationwide to enhance rail safety through real-time incident reporting and group ride coordination.")}
             </p>
           </div>
         </CardContent>
@@ -232,13 +234,13 @@ export const Settings = ({ user }: SettingsProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5" />
-            Account
+            {t("Account")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {user?.email && (
             <p className="text-sm text-muted-foreground">
-              Signed in as {user.email}
+              {t("Signed in as")} {user.email}
             </p>
           )}
           <Button 
@@ -246,21 +248,21 @@ export const Settings = ({ user }: SettingsProps) => {
             className="w-full justify-start"
             onClick={() => setActiveView('profile')}
           >
-            Edit Profile
+            {t("Edit Profile")}
           </Button>
           <Button 
             variant="outline" 
             className="w-full justify-start"
             onClick={() => setActiveView('verification')}
           >
-            ID Verification Status
+            {t("ID Verification Status")}
           </Button>
           <Button 
             variant="outline" 
             className="w-full justify-start"
             onClick={() => setActiveView('security')}
           >
-            🔒 Security Audit (Admin)
+            {t("🔒 Security Audit (Admin)")}
           </Button>
           <Button 
             variant="outline" 
@@ -268,7 +270,7 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={handleSignOut}
           >
             <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
+            {t("Sign Out Button")}
           </Button>
         </CardContent>
       </Card>
@@ -276,8 +278,8 @@ export const Settings = ({ user }: SettingsProps) => {
       {/* App Information */}
       <Card>
         <CardContent className="py-4 text-center text-sm text-muted-foreground">
-          <p>RAILSAVIOR v1.0</p>
-          <p>Keeping rail commuters safe nationwide</p>
+          <p>{t("RAILSAVIOR v1.0")}</p>
+          <p>{t("Keeping rail commuters safe nationwide")}</p>
         </CardContent>
       </Card>
     </div>

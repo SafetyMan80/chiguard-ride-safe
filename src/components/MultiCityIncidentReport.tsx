@@ -6,6 +6,7 @@ import { IncidentReport } from "./IncidentReport";
 import { FailsafeIncidentReports } from "./FailsafeIncidentReports";
 import { CitySelectionSkeleton } from "./LoadingSkeleton";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface City {
   id: string;
@@ -115,6 +116,7 @@ const CITIES_WITH_RAIL: City[] = [
 
 export const MultiCityIncidentReport = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const handleCitySelect = (cityId: string, available: boolean) => {
     if (available) {
@@ -138,12 +140,12 @@ export const MultiCityIncidentReport = () => {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to City Selection
+            {t("Back to City Selection")}
           </Button>
           <div className="mb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              {city?.name} Rail Incident Reporting
+              {city?.name} {t("Rail Incident Reporting")}
             </h3>
             <p className="text-sm text-muted-foreground">{city?.agency}</p>
           </div>
@@ -167,10 +169,10 @@ export const MultiCityIncidentReport = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5" />
-            Rail Safety Incident Reporting
+            {t("Rail Safety Incident Reporting")}
           </CardTitle>
           <CardDescription>
-            Select a city to report safety incidents and concerns on their rail transit systems
+            {t("Select a city to report safety incidents and concerns on their rail transit systems")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -196,11 +198,11 @@ export const MultiCityIncidentReport = () => {
                     </div>
                     {city.available ? (
                       <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
-                        Available
+                        {t("Available")}
                       </div>
                     ) : (
                       <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
-                        Coming Soon
+                        {t("Coming Soon")}
                       </div>
                     )}
                   </div>
@@ -210,7 +212,7 @@ export const MultiCityIncidentReport = () => {
                   </p>
                   
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">Rail Lines:</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("Rail Lines:")}</p>
                     <div className="flex flex-wrap gap-1">
                       {city.railLines.slice(0, 6).map((line, index) => (
                         <span
@@ -229,7 +231,7 @@ export const MultiCityIncidentReport = () => {
                   </div>
 
                   <div className="space-y-2 mt-3">
-                    <p className="text-xs font-medium text-muted-foreground">Major Stations:</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t("Major Stations:")}</p>
                     <div className="flex flex-wrap gap-1">
                       {city.majorStations.slice(0, 3).map((station, index) => (
                         <span
@@ -258,32 +260,30 @@ export const MultiCityIncidentReport = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5" />
-            About Multi-City Safety Reporting  
+            {t("About Multi-City Safety Reporting")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>🚨 Currently Available:</strong> Chicago CTA, New York City MTA, Washington D.C. WMATA, 
-              Denver RTD, Philadelphia SEPTA, Atlanta MARTA, Boston MBTA, and San Francisco BART/MUNI incident reporting with location tracking, photo upload, and real-time alerts.
+              <strong>{t("🚨 Currently Available:")}</strong> {t("Chicago CTA, New York City MTA, Washington D.C. WMATA, Denver RTD, Philadelphia SEPTA, Atlanta MARTA, Boston MBTA, and San Francisco BART/MUNI incident reporting with location tracking, photo upload, and real-time alerts.")}
             </p>
           </div>
           
           <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              <strong>🚧 Coming Soon:</strong> Safety reporting for LA Metro 
-              with the same comprehensive features.
+              <strong>{t("🚧 Coming Soon:")}</strong> {t("Safety reporting for LA Metro with the same comprehensive features.")}
             </p>
           </div>
           
           <div className="space-y-2">
-            <h4 className="font-medium">Safety Features for Each City:</h4>
+            <h4 className="font-medium">{t("Safety Features for Each City:")}</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Report incidents with location tracking</li>
-              <li>• Upload photos and evidence</li>
-              <li>• Anonymous reporting options</li>
-              <li>• Real-time safety alerts</li>
-              <li>• Direct integration with transit authorities</li>
+              <li>{t("• Report incidents with location tracking")}</li>
+              <li>{t("• Upload photos and evidence")}</li>
+              <li>{t("• Anonymous reporting options")}</li>
+              <li>{t("• Real-time safety alerts")}</li>
+              <li>{t("• Direct integration with transit authorities")}</li>
             </ul>
           </div>
         </CardContent>

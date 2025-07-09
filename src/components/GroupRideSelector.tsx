@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Users, ArrowLeft } from "lucide-react";
 import { MultiCityGroupRides } from "@/components/MultiCityGroupRides";
 import { GeneralGroupRides } from "@/components/GeneralGroupRides";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const GroupRideSelector = () => {
   const [selectedType, setSelectedType] = useState<'student' | 'general' | null>(null);
+  const { t } = useLanguage();
 
   if (selectedType === 'student') {
     return (
@@ -17,7 +19,7 @@ export const GroupRideSelector = () => {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Group Options
+          {t("Back to Group Options")}
         </Button>
         <MultiCityGroupRides />
       </div>
@@ -33,7 +35,7 @@ export const GroupRideSelector = () => {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Group Options
+          {t("Back to Group Options")}
         </Button>
         <GeneralGroupRides />
       </div>
@@ -46,12 +48,12 @@ export const GroupRideSelector = () => {
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2">
             <Users className="w-5 h-5" />
-            Choose Your Group Type
+            {t("Choose Your Group Type")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center mb-6">
-            Select the type of group ride you'd like to join or create
+            {t("Select the type of group ride you'd like to join or create")}
           </p>
           
           <div className="grid grid-cols-1 gap-4">
@@ -62,9 +64,9 @@ export const GroupRideSelector = () => {
             >
               <GraduationCap className="w-8 h-8 text-chicago-blue" />
               <div className="text-center">
-                <h3 className="font-semibold text-lg">Student Rides</h3>
+                <h3 className="font-semibold text-lg">{t("Student Rides")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  University-verified student group rides
+                  {t("University-verified student group rides")}
                 </p>
               </div>
             </Button>
@@ -76,9 +78,9 @@ export const GroupRideSelector = () => {
             >
               <Users className="w-8 h-8 text-primary" />
               <div className="text-center">
-                <h3 className="font-semibold text-lg">General Rides</h3>
+                <h3 className="font-semibold text-lg">{t("General Rides")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Open to all verified community members
+                  {t("Open to all verified community members")}
                 </p>
               </div>
             </Button>
