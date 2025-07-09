@@ -4,14 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Send, X, Shield } from "lucide-react";
+import { MessageSquare, Send, X, Shield, Camera, Image as ImageIcon, Loader } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSecureUpload } from "@/hooks/useSecureUpload";
+import { useCamera } from "@/hooks/useCamera";
 
 interface Message {
   id: string;
   sender_id: string;
   message_text: string;
+  message_type: string;
+  image_url?: string;
   created_at: string;
   sender_name: string;
 }
@@ -26,9 +30,13 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { uploadFile } = useSecureUpload();
+  const { selectFromGallery } = useCamera();
 
   useEffect(() => {
     getCurrentUser();
@@ -124,7 +132,8 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
         .insert({
           ride_id: rideId,
           sender_id: currentUser.id,
-          message_text: newMessage.trim()
+          message_text: newMessage.trim(),
+          message_type: 'text'
         })
         .select();
 
@@ -141,6 +150,75 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    if (!currentUser) return;
+
+    try {
+      setUploadingPhoto(true);
+      
+      // Create a file input to select photos
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment';
+      
+      input.onchange = async (event) => {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        try {
+          const { url, error } = await uploadFile(file, {
+            bucket: 'group-chat-photos',
+            folder: currentUser.id,
+            allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+            maxSize: 5 * 1024 * 1024 // 5MB
+          });
+
+          if (error) throw new Error(error);
+          if (!url) throw new Error('Failed to upload photo');
+
+          // Send photo message
+          const { data, error: messageError } = await supabase
+            .from('group_messages')
+            .insert({
+              ride_id: rideId,
+              sender_id: currentUser.id,
+              message_text: '',
+              message_type: 'image',
+              image_url: url
+            })
+            .select();
+
+          if (messageError) throw messageError;
+
+          toast({
+            title: "Photo sent!",
+            description: "Your photo has been shared with the group.",
+          });
+
+        } catch (error: any) {
+          console.error('Error uploading photo:', error);
+          toast({
+            title: "Failed to send photo",
+            description: error.message || "Please try again.",
+            variant: "destructive"
+          });
+        }
+      };
+
+      input.click();
+    } catch (error) {
+      console.error('Error initiating photo upload:', error);
+      toast({
+        title: "Failed to open camera",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -207,15 +285,29 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
                         {formatTime(message.created_at)}
                       </span>
                     </div>
-                    <div
-                      className={`rounded-lg px-3 py-2 text-sm ${
-                        message.sender_id === currentUser?.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
-                      {message.message_text}
-                    </div>
+                    {message.message_type === 'image' && message.image_url ? (
+                      <div className="rounded-lg overflow-hidden max-w-[200px]">
+                        <img 
+                          src={message.image_url} 
+                          alt="Shared photo"
+                          className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => window.open(message.image_url, '_blank')}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className={`rounded-lg px-3 py-2 text-sm ${
+                          message.sender_id === currentUser?.id
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        {message.message_text || (message.message_type === 'image' ? 'Photo' : '')}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -224,18 +316,37 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
           </div>
         </ScrollArea>
 
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type your message..."
-            disabled={loading}
-            maxLength={500}
-          />
-          <Button type="submit" disabled={loading || !newMessage.trim()} size="sm">
-            <Send className="w-4 h-4" />
-          </Button>
-        </form>
+        <div className="space-y-3">
+          <form onSubmit={handleSendMessage} className="flex gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type your message..."
+              disabled={loading || uploadingPhoto}
+              maxLength={500}
+            />
+            <Button 
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePhotoUpload}
+              disabled={loading || uploadingPhoto}
+              className="flex-shrink-0"
+            >
+              {uploadingPhoto ? (
+                <Loader className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+            </Button>
+            <Button type="submit" disabled={loading || !newMessage.trim() || uploadingPhoto} size="sm">
+              <Send className="w-4 h-4" />
+            </Button>
+          </form>
+          <div className="text-xs text-muted-foreground text-center">
+            📷 Share photos of stops, landmarks, or meeting points to help group members
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
