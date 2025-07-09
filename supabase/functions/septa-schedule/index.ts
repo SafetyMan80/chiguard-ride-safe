@@ -22,8 +22,8 @@ serve(async (req) => {
   };
 
   try {
-    // Extract station from request body
-    let station = '30th Street Station'; // default
+    // Extract station from request body - use valid Regional Rail station
+    let station = '30th Street Station'; // Default to valid Regional Rail station
     
     if (req.method === 'POST') {
       const body = await req.json();
@@ -36,7 +36,7 @@ serve(async (req) => {
       console.log('GET param station:', station);
     }
     
-    console.log('Processing station:', station);
+    console.log('Processing Regional Rail station:', station);
     
     // Build the correct SEPTA API URL (no API key needed according to Data.gov)
     const name = encodeURIComponent(station);
