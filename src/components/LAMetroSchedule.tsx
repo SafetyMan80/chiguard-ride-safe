@@ -63,12 +63,20 @@ export const LAMetroSchedule = () => {
         body: requestBody
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('LA Metro edge function error:', error);
+        throw error;
+      }
 
       console.log('LA Metro API response:', data);
 
+      // Check if we got an error in the response
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
+
       // Transform the response to match our StandardArrival format
-      if (data && data.predictions) {
+      if (data && data.predictions && Array.isArray(data.predictions)) {
         const transformedArrivals: StandardArrival[] = data.predictions.map((pred: any) => ({
           route_name: pred.route_name || pred.route_id,
           headsign: pred.headsign || 'Unknown Destination',
@@ -80,6 +88,7 @@ export const LAMetroSchedule = () => {
           stop_name: pred.stop_name || 'Unknown Stop'
         }));
 
+        console.log('Transformed arrivals:', transformedArrivals);
         setArrivals(transformedArrivals);
         setLastUpdated(new Date().toLocaleTimeString());
         toast({
@@ -88,6 +97,7 @@ export const LAMetroSchedule = () => {
           duration: 2000
         });
       } else {
+        console.log('No predictions in response, checking for other data formats');
         setArrivals([]);
         toast({
           title: "No arrivals found",
