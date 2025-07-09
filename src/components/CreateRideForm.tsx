@@ -31,6 +31,20 @@ interface CreateRideFormProps {
   }>;
 }
 
+// Station data for each city and line
+const STATION_DATA_BY_CITY: { [key: string]: { [line: string]: string[] } } = {
+  chicago: {
+    "Red Line": ["Howard", "Jarvis", "Morse", "Loyola", "Granville", "Thorndale", "Bryn Mawr", "Berwyn", "Argyle", "Lawrence", "Wilson", "Sheridan", "Addison", "Belmont", "Fullerton", "North/Clybourn", "Clark/Division", "Chicago/State", "Grand/State", "Lake/State", "Monroe/State", "Jackson/State", "Harrison", "Roosevelt", "Cermak-Chinatown", "Sox-35th", "47th", "Garfield", "63rd", "69th", "79th", "87th", "95th/Dan Ryan"],
+    "Blue Line": ["O'Hare", "Rosemont", "Cumberland", "Harlem (O'Hare)", "Jefferson Park", "Montrose", "Irving Park", "Addison", "Belmont", "Logan Square", "California", "Western", "Damen", "Division", "Chicago", "Grand", "Clark/Lake", "Washington", "Monroe", "Jackson", "LaSalle", "Clinton", "UIC-Halsted", "Racine", "Illinois Medical District", "Western (Forest Park)", "Kedzie-Homan", "Pulaski", "Cicero", "Austin", "Oak Park", "Harlem (Forest Park)", "Forest Park"],
+    "Brown Line": ["Kimball", "Kedzie", "Francisco", "Rockwell", "Western", "Damen", "Montrose", "Irving Park", "Addison", "Paulina", "Southport", "Belmont", "Wellington", "Diversey", "Fullerton", "Armitage", "Sedgwick", "Chicago", "Merchandise Mart", "Clark/Lake", "State/Lake", "Washington/Wells", "Quincy/Wells", "LaSalle/Van Buren", "Harold Washington Library"],
+    "Green Line": ["Harlem/Lake", "Oak Park", "Ridgeland", "Austin", "Central", "Laramie", "Cicero", "Pulaski", "Conservatory", "Kedzie", "California", "Ashland/63rd", "Halsted", "Indiana", "35th-Bronzeville-IIT", "Roosevelt", "Cermak-McCormick Place", "Clark/Lake"],
+    "Orange Line": ["Midway", "Pulaski", "Kedzie", "Western", "35th/Archer", "Ashland", "Halsted", "Roosevelt", "Harold Washington Library", "LaSalle/Van Buren", "Quincy/Wells", "Washington/Wells", "Clark/Lake"],
+    "Pink Line": ["54th/Cermak", "Cicero", "Kostner", "Pulaski", "Central Park", "Kedzie", "California", "Western", "Damen", "18th", "Polk", "Ashland", "Morgan", "Clinton", "Clark/Lake"],
+    "Purple Line": ["Linden", "Central", "Noyes", "Foster", "Davis", "Dempster", "Main", "South Blvd", "Howard", "Wilson", "Belmont", "Fullerton", "Armitage", "Sedgwick", "Chicago", "Merchandise Mart", "Clark/Lake"],
+    "Yellow Line": ["Howard", "Oakton-Skokie", "Dempster-Skokie"]
+  }
+};
+
 // Default transit lines for cities
 const TRANSIT_LINES_BY_CITY: { [key: string]: Array<{ name: string; color: string }> } = {
   chicago: [
@@ -142,6 +156,20 @@ export const CreateRideForm = ({
   const universities = cityData?.universities || [];
   const availableTransitLines = transitLines || TRANSIT_LINES_BY_CITY[cityData?.id || 'chicago'] || [];
   const agencyName = cityData?.agency || 'Transit';
+
+  // Get available stations for the selected line
+  const availableStations = formData.transit_line 
+    ? STATION_DATA_BY_CITY[cityData?.id || 'chicago']?.[formData.transit_line] || []
+    : [];
+
+  // Reset station when line changes
+  const handleLineChange = (value: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      transit_line: value,
+      station_name: "" // Reset station when line changes
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,7 +286,7 @@ export const CreateRideForm = ({
               <Label htmlFor="transit_line">{agencyName} Line</Label>
               <Select 
                 value={formData.transit_line} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, transit_line: value }))}
+                onValueChange={handleLineChange}
                 required
               >
                 <SelectTrigger className="bg-background">
@@ -279,13 +307,33 @@ export const CreateRideForm = ({
 
             <div className="space-y-2">
               <Label htmlFor="station">Station</Label>
-              <Input
-                id="station"
-                value={formData.station_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, station_name: e.target.value }))}
-                placeholder="Station name"
-                required
-              />
+              {formData.transit_line && availableStations.length > 0 ? (
+                <Select 
+                  value={formData.station_name} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, station_name: value }))}
+                  required
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select station" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-[100] max-h-60 overflow-y-auto">
+                    {availableStations.map(station => (
+                      <SelectItem key={station} value={station}>
+                        {station}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="station"
+                  value={formData.station_name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, station_name: e.target.value }))}
+                  placeholder={formData.transit_line ? "Station name" : "Select a line first"}
+                  disabled={!formData.transit_line}
+                  required
+                />
+              )}
             </div>
           </div>
 
