@@ -57,8 +57,9 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
             </Avatar>
           )}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <LanguageToggle />
+          <div className="w-px h-6 bg-border/30"></div>
           <ThemeToggle />
         </div>
         <div className="w-16 h-16 md:w-20 md:h-20"> {/* Spacer for balance */}
