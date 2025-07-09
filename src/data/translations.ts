@@ -15,6 +15,21 @@ export const translations = {
     // Common buttons
     "Report Incident": "Report Incident",
     "Emergency": "Emergency",
+    "Emergency Alert": "Emergency Alert",
+    "Report Issues": "Report Issues",
+    "Find Ride Partners": "Find Ride Partners",
+    "Real-time Transit Data": "Real-time Transit Data",
+    "Quick Report": "Quick Report",
+    "Join me on RAILSAVIOR for safer transit across major US cities!": "Join me on RAILSAVIOR for safer transit across major US cities!",
+    "Share RAILSAVIOR": "Share RAILSAVIOR",
+    "Help build a safer transit community by sharing with other riders": "Help build a safer transit community by sharing with other riders",
+    "Scan to join": "Scan to join",
+    "Share with Other Riders": "Share with Other Riders",
+    "Add to Home Screen": "Add to Home Screen",
+    "Link copied!": "Link copied!",
+    "Share this link with other riders.": "Share this link with other riders.",
+    "Unable to share": "Unable to share",
+    "Please copy the URL manually to share.": "Please copy the URL manually to share.",
     "Join Ride": "Join Ride",
     "Create Ride": "Create Ride",
     "View Profile": "View Profile",
@@ -28,6 +43,15 @@ export const translations = {
     "Delete": "Delete",
     "Edit": "Edit",
     "Close": "Close",
+    
+    // Emergency and alerts
+    "🚨 EMERGENCY ALERT ACTIVATED! 🚨": "🚨 EMERGENCY ALERT ACTIVATED! 🚨",
+    "Your location has been shared and help is on the way!": "Your location has been shared and help is on the way!",
+    
+    // Navigation items
+    "INCIDENTS": "INCIDENTS",
+    "GROUP UP": "GROUP UP", 
+    "SCHEDULE": "SCHEDULE",
     
     // Incident types
     "Safety Concern": "Safety Concern",
@@ -103,6 +127,21 @@ export const translations = {
     // Common buttons
     "Report Incident": "Reportar Incidente",
     "Emergency": "Emergencia",
+    "Emergency Alert": "Alerta de Emergencia",
+    "Report Issues": "Reportar Problemas",
+    "Find Ride Partners": "Encontrar Compañeros de Viaje",
+    "Real-time Transit Data": "Datos de Tránsito en Tiempo Real",
+    "Quick Report": "Reporte Rápido",
+    "Join me on RAILSAVIOR for safer transit across major US cities!": "¡Únete a mí en RAILSAVIOR para un tránsito más seguro en las principales ciudades de Estados Unidos!",
+    "Share RAILSAVIOR": "Compartir RAILSAVIOR",
+    "Help build a safer transit community by sharing with other riders": "Ayuda a construir una comunidad de tránsito más segura compartiendo con otros usuarios",
+    "Scan to join": "Escanear para unirse",
+    "Share with Other Riders": "Compartir con Otros Usuarios",
+    "Add to Home Screen": "Agregar a Pantalla de Inicio",
+    "Link copied!": "¡Enlace copiado!",
+    "Share this link with other riders.": "Comparte este enlace con otros usuarios.",
+    "Unable to share": "No se puede compartir",
+    "Please copy the URL manually to share.": "Por favor copia la URL manualmente para compartir.",
     "Join Ride": "Unirse al Viaje",
     "Create Ride": "Crear Viaje",
     "View Profile": "Ver Perfil",
@@ -116,6 +155,15 @@ export const translations = {
     "Delete": "Eliminar",
     "Edit": "Editar",
     "Close": "Cerrar",
+    
+    // Emergency and alerts
+    "🚨 EMERGENCY ALERT ACTIVATED! 🚨": "🚨 ¡ALERTA DE EMERGENCIA ACTIVADA! 🚨",
+    "Your location has been shared and help is on the way!": "¡Tu ubicación ha sido compartida y la ayuda está en camino!",
+    
+    // Navigation items
+    "INCIDENTS": "INCIDENTES",
+    "GROUP UP": "AGRUPARSE",
+    "SCHEDULE": "HORARIOS",
     
     // Incident types
     "Safety Concern": "Preocupación de Seguridad",

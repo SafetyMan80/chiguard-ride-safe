@@ -11,6 +11,7 @@ import { Share, QrCode, Smartphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAddToHomeScreen } from "@/hooks/useAddToHomeScreen";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { User } from "@supabase/supabase-js";
 
 interface MainContentProps {
@@ -24,12 +25,13 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
   const { toast } = useToast();
   const { isInstallable, promptInstall } = useAddToHomeScreen();
   const { trackUserAction, trackPageView } = useAnalytics();
+  const { t } = useLanguage();
 
   const handleEmergencyActivated = () => {
     trackUserAction('emergency_button_clicked');
     toast({
-      title: "🚨 EMERGENCY ALERT ACTIVATED! 🚨",
-      description: "Your location has been shared and help is on the way!",
+      title: t("🚨 EMERGENCY ALERT ACTIVATED! 🚨"),
+      description: t("Your location has been shared and help is on the way!"),
       variant: "destructive"
     });
   };
@@ -38,7 +40,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
     const url = window.location.href;
     const shareData = {
       title: 'RAILSAVIOR - Safety App for Rail Commuters',
-      text: 'Join me on RAILSAVIOR for safer transit across major US cities!',
+      text: t("Join me on RAILSAVIOR for safer transit across major US cities!"),
       url: url
     };
 
@@ -49,8 +51,8 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
         // Fallback to clipboard
         await navigator.clipboard.writeText(url);
         toast({
-          title: "Link copied!",
-          description: "Share this link with other riders.",
+          title: t("Link copied!"),
+          description: t("Share this link with other riders."),
         });
       }
     } catch (error) {
@@ -59,14 +61,14 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
       try {
         await navigator.clipboard.writeText(url);
         toast({
-          title: "Link copied!",
-          description: "Share this link with other riders.",
+          title: t("Link copied!"),
+          description: t("Share this link with other riders."),
         });
       } catch (clipboardError) {
         console.log('Clipboard error:', clipboardError);
         toast({
-          title: "Unable to share",
-          description: "Please copy the URL manually to share.",
+          title: t("Unable to share"),
+          description: t("Please copy the URL manually to share."),
           variant: "destructive"
         });
       }
@@ -78,29 +80,29 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
       id: "emergency",
       title: "SOS",
       icon: "🚨",
-      description: "Emergency Alert",
+      description: t("Emergency Alert"),
       color: "bg-gradient-to-br from-chicago-red to-chicago-red/90 text-white border-chicago-red/20 shadow-[var(--shadow-emergency)] hover:shadow-[var(--shadow-emergency)]",
       priority: true
     },
     {
       id: "incidents",
-      title: "INCIDENTS",
+      title: t("INCIDENTS"),
       icon: "📝",
-      description: "Report Issues",
+      description: t("Report Issues"),
       color: "bg-card/95 backdrop-blur-md text-card-foreground border-border/50 hover:bg-muted/50 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)]",
     },
     {
       id: "groups",
-      title: "GROUP UP",
+      title: t("GROUP UP"),
       icon: "👥",
-      description: "Find Ride Partners",
+      description: t("Find Ride Partners"),
       color: "bg-card/95 backdrop-blur-md text-card-foreground border-border/50 hover:bg-muted/50 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)]",
     },
     {
       id: "schedule",
-      title: "SCHEDULE",
+      title: t("SCHEDULE"),
       icon: "🚇",
-      description: "Real-time Transit Data",
+      description: t("Real-time Transit Data"),
       color: "bg-card/95 backdrop-blur-md text-card-foreground border-border/50 hover:bg-muted/50 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)]",
     },
   ];
@@ -114,7 +116,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
               <EmergencySOSButton />
             </div>
             <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold mb-4">Quick Report</h2>
+              <h2 className="text-xl font-semibold mb-4">{t("Quick Report")}</h2>
               <MultiCityIncidentReport />
             </div>
           </div>
@@ -176,12 +178,12 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                      <div className="p-2 bg-chicago-blue/10 rounded-full">
                        <Share className="w-4 h-4" />
                      </div>
-                     Share RAILSAVIOR
+                     {t("Share RAILSAVIOR")}
                    </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-sm text-muted-foreground text-center">
-                    Help build a safer transit community by sharing with other riders
+                    {t("Help build a safer transit community by sharing with other riders")}
                   </p>
                   
                   <div className="flex flex-col items-center space-y-4">
@@ -193,7 +195,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                           alt="QR Code to share app" 
                           className="w-32 h-32 border-2 border-chicago-blue/20 rounded-lg"
                         />
-                        <p className="text-xs text-muted-foreground">Scan to join</p>
+                        <p className="text-xs text-muted-foreground">{t("Scan to join")}</p>
                       </div>
                     )}
                     
@@ -204,7 +206,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                         className="w-full touch-target"
                       >
                         <Share className="w-4 h-4 mr-2" />
-                        Share with Other Riders
+                        {t("Share with Other Riders")}
                       </Button>
                       
                       {isInstallable && (
@@ -214,7 +216,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                           className="w-full touch-target"
                         >
                           <Smartphone className="w-4 h-4 mr-2" />
-                          Add to Home Screen
+                          {t("Add to Home Screen")}
                         </Button>
                       )}
                     </div>

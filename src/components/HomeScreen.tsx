@@ -13,6 +13,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useOffline } from "@/hooks/useOffline";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useLanguage } from "@/hooks/useLanguage";
 import QRCode from "qrcode";
 import type { User } from "@supabase/supabase-js";
 
@@ -26,6 +27,7 @@ export const HomeScreen = () => {
   const navigate = useNavigate();
   const { isOnline, saveUserProfile, saveEmergencyContacts } = useOffline();
   const { trackAppLaunch, trackPageView } = useAnalytics();
+  const { t } = useLanguage();
 
   // Pull to refresh functionality
   const handleRefresh = async () => {
@@ -156,7 +158,7 @@ export const HomeScreen = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Logo className="w-20 h-20 mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("Loading...")}</p>
         </div>
       </div>
     );
