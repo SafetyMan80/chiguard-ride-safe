@@ -61,9 +61,8 @@ serve(async (req) => {
             "harlem-lake": "30047",
             "garfield": "30099",
             "kimball": "30297",
-            "merchandise-mart": "30768",
             "54th-cermak": "30098"
-            // Removed invalid station IDs 30307 and 30308
+            // Removed invalid station IDs 30307, 30308, and 30768
           };
           stopId = stationMapping[requestBody.station] || requestBody.station;
           console.log('🚆 CTA Mapped station:', requestBody.station, '->', stopId);
@@ -114,11 +113,11 @@ serve(async (req) => {
       const majorStationsForRoute: { [key: string]: string[] } = {
         'Red': ['30173', '30089', '30057'], // Howard, 95th/Dan Ryan, Fullerton
         'Blue': ['30171', '30044', '30077'], // O'Hare, Forest Park, Logan Square
-        'Brn': ['30297', '30057', '30768'], // Kimball, Fullerton, Merchandise Mart
+        'Brn': ['30297', '30057', '30131'], // Kimball, Fullerton, Clark/Lake
         'G': ['30131', '30047', '30099'], // Clark/Lake, Harlem/Lake, Garfield
         'Org': ['30063', '30001'], // Midway, Roosevelt
         'Pink': ['30098', '30131'], // 54th/Cermak, Clark/Lake
-        'P': ['30173', '30768'], // Howard, Merchandise Mart (removed invalid 30307)
+        'P': ['30173', '30131'], // Howard, Clark/Lake (removed invalid 30307, 30768)
         'Y': ['30173'] // Howard (removed invalid 30308)
       };
       
@@ -129,7 +128,7 @@ serve(async (req) => {
       console.log('🚆 CTA Fetching multiple stations for route:', routeId, 'stations:', stations);
     } else {
       // Default: Get comprehensive data from major hub stations that serve multiple lines
-      // Removed invalid station IDs 30307 and 30308 that were causing API errors
+      // Removed invalid station IDs 30307, 30308, and 30768 that were causing API errors
       const majorHubStations = [
         '30131', // Clark/Lake (Blue, Brown, Green, Orange, Pink, Purple)
         '30173', // Howard (Red, Purple, Yellow)
@@ -141,8 +140,7 @@ serve(async (req) => {
         '30044', // Forest Park (Blue)
         '30297', // Kimball (Brown)
         '30098', // 54th/Cermak (Pink)
-        '30047', // Harlem/Lake (Green)
-        '30768'  // Merchandise Mart (Brown, Purple)
+        '30047'  // Harlem/Lake (Green)
       ];
       
       apiUrls = majorHubStations.map(stationId => 
