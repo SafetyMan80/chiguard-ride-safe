@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { FeedMessage } from "https://cdn.skypack.dev/gtfs-realtime-bindings@1.2.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -99,83 +98,45 @@ serve(async (req) => {
       });
 
     } else if (action === 'predictions') {
-      // Use LA Metro's public GTFS-rt feeds (no API key required)
-      const AGENCY = 'lametro';
-      const tripUpdatesUrl = `https://api.metro.net/gtfs-rt/trip-updates?agency_id=${AGENCY}`;
-      const vehiclePositionsUrl = `https://api.metro.net/gtfs-rt/vehicle-positions?agency_id=${AGENCY}`;
+      // For now, let's use a simpler approach - mock some data until we can get protobuf working
+      // LA Metro's GTFS-rt feeds require protobuf decoding which is complex in Deno
+      console.log('LA Metro predictions requested, returning mock data for now');
       
-      console.log('Fetching LA Metro real-time data from Metro Official API (no auth required)');
-      console.log('Trip updates URL:', tripUpdatesUrl);
-      console.log('Vehicle positions URL:', vehiclePositionsUrl);
+      const mockPredictions = [
+        {
+          route_name: 'Red Line',
+          headsign: 'North Hollywood',
+          arrival_time: '3',
+          delay_seconds: 0,
+          vehicle_id: 'RD001',
+          stop_name: 'Union Station'
+        },
+        {
+          route_name: 'Purple Line',
+          headsign: 'Wilshire/Western',
+          arrival_time: '7',
+          delay_seconds: 30,
+          vehicle_id: 'PU002',
+          stop_name: 'Pershing Square'
+        },
+        {
+          route_name: 'Blue Line',
+          headsign: 'Downtown Long Beach',
+          arrival_time: '12',
+          delay_seconds: 0,
+          vehicle_id: 'BL003',
+          stop_name: '7th St/Metro Center'
+        }
+      ];
 
-      // Fetch both trip updates and vehicle positions
-      const [tripResponse, vehicleResponse] = await Promise.all([
-        fetch(tripUpdatesUrl),
-        fetch(vehiclePositionsUrl)
-      ]);
-
-      if (!tripResponse.ok) {
-        console.error('Trip updates API error:', tripResponse.status, tripResponse.statusText);
-        throw new Error(`Trip updates API returned ${tripResponse.status}: ${tripResponse.statusText}`);
-      }
-
-      if (!vehicleResponse.ok) {
-        console.error('Vehicle positions API error:', vehicleResponse.status, vehicleResponse.statusText);
-        throw new Error(`Vehicle positions API returned ${vehicleResponse.status}: ${vehicleResponse.statusText}`);
-      }
-
-      // Decode protobuf responses
-      const tripBuffer = await tripResponse.arrayBuffer();
-      const vehicleBuffer = await vehicleResponse.arrayBuffer();
-      
-      const tripData = FeedMessage.decode(new Uint8Array(tripBuffer));
-      const vehicleData = FeedMessage.decode(new Uint8Array(vehicleBuffer));
-
-      console.log('Trip data entities:', tripData.entity?.length || 0);
-      console.log('Vehicle data entities:', vehicleData.entity?.length || 0);
-
-      // Transform the data to our format
-      const predictions: any[] = [];
-      const now = Date.now();
-      
-      // Process trip updates for predictions
-      if (tripData.entity && Array.isArray(tripData.entity)) {
-        tripData.entity.forEach((entity: any) => {
-          if (entity.tripUpdate && entity.tripUpdate.stopTimeUpdate) {
-            entity.tripUpdate.stopTimeUpdate.forEach((stopUpdate: any) => {
-              if (stopUpdate.arrival || stopUpdate.departure) {
-                const timeUpdate = stopUpdate.arrival || stopUpdate.departure;
-                const arrivalTime = timeUpdate.time;
-                
-                if (arrivalTime) {
-                  const minutesUntilArrival = Math.max(0, Math.round((arrivalTime * 1000 - now) / 60000));
-                  predictions.push({
-                    route_name: entity.tripUpdate.trip?.routeId || 'Unknown Route',
-                    headsign: entity.tripUpdate.trip?.tripHeadsign || 'Unknown Destination',
-                    arrival_time: minutesUntilArrival.toString(),
-                    delay_seconds: timeUpdate.delay || 0,
-                    vehicle_id: entity.tripUpdate.vehicle?.id || '',
-                    stop_name: stopUpdate.stopId || 'Unknown Stop'
-                  });
-                }
-              }
-            });
-          }
-        });
-      }
-
-      // Sort by arrival time
-      predictions.sort((a, b) => {
-        const timeA = parseInt(a.arrival_time) || 999;
-        const timeB = parseInt(b.arrival_time) || 999;
-        return timeA - timeB;
-      });
+      console.log('Returning mock predictions:', mockPredictions.length);
 
       return new Response(JSON.stringify({ 
-        predictions: predictions.slice(0, 20), // Limit to 20 predictions
+        predictions: mockPredictions,
         timestamp: new Date().toISOString(),
         location: { latitude, longitude, radius },
-        source: 'LA Metro Official API'
+        source: 'LA Metro Mock Data (protobuf decoding needed for real data)',
+        note: 'This is mock data. Real LA Metro GTFS-rt feeds require protobuf decoding.'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
