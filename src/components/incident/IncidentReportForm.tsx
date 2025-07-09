@@ -443,16 +443,47 @@ export const IncidentReportForm = ({ selectedCity, onSubmitSuccess }: IncidentRe
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Photo Evidence (Optional)</span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowCamera(true)}
-                className="flex items-center gap-2"
-              >
-                <Camera className="w-4 h-4" />
-                Add Photo
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/jpeg,image/jpg,image/png,image/webp';
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast({
+                            title: "File too large",
+                            description: "Please select an image smaller than 5MB.",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+                        const imageUrl = URL.createObjectURL(file);
+                        handleImageCapture(imageUrl);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  📱 Gallery
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCamera(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Camera className="w-4 h-4" />
+                  Camera
+                </Button>
+              </div>
             </div>
             
             {imageUrl && (

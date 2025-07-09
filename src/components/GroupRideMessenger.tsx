@@ -159,17 +159,30 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
     try {
       setUploadingPhoto(true);
       
-      // Create a file input to select photos
+      // Create a robust file input with multiple sources
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment';
+      input.accept = 'image/jpeg,image/jpg,image/png,image/webp';
+      input.multiple = false;
+      
+      // Set capture attribute for mobile devices to allow camera OR gallery
+      input.setAttribute('capture', 'environment');
       
       input.onchange = async (event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (!file) return;
 
         try {
+          // Validate file size and type
+          if (file.size > 5 * 1024 * 1024) {
+            throw new Error('Photo must be smaller than 5MB');
+          }
+
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+          if (!allowedTypes.includes(file.type)) {
+            throw new Error('Please select a JPEG, PNG, or WebP image');
+          }
+
           const { url, error } = await uploadFile(file, {
             bucket: 'group-chat-photos',
             folder: currentUser.id,
@@ -213,7 +226,7 @@ export const GroupRideMessenger = ({ rideId, rideTitle, onClose }: GroupRideMess
     } catch (error) {
       console.error('Error initiating photo upload:', error);
       toast({
-        title: "Failed to open camera",
+        title: "Failed to open photo picker",
         description: "Please try again.",
         variant: "destructive"
       });
