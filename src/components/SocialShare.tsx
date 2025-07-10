@@ -84,21 +84,11 @@ export const SocialShare = ({
         shareUrl_platform = `https://twitter.com/intent/tweet?text=${encodedMessage}&url=${encodedUrl}`;
         break;
       case 'instagram':
-        // Instagram doesn't support direct URL sharing, so we'll copy the message
-        handleCopyLink();
-        toast({
-          title: "Message copied!",
-          description: "Paste this in your Instagram story or post!",
-        });
-        return;
+        shareUrl_platform = `https://www.instagram.com/`;
+        break;
       case 'tiktok':
-        // TikTok doesn't support direct URL sharing, so we'll copy the message
-        handleCopyLink();
-        toast({
-          title: "Message copied!",
-          description: "Paste this in your TikTok caption!",
-        });
-        return;
+        shareUrl_platform = `https://www.tiktok.com/`;
+        break;
       default:
         return;
     }
