@@ -72,7 +72,9 @@ export const LAMetroSchedule = () => {
         const transformedArrivals: StandardArrival[] = data.predictions.map((pred: any) => ({
           route_name: pred.route_name || pred.route_id,
           headsign: pred.headsign || 'Unknown Destination',
-          arrival_time: pred.arrival_time || 'Unknown',
+          arrivalTime: pred.arrival_time || 'Unknown',
+          line: pred.route_name || 'Unknown Line',
+          destination: pred.headsign || 'Unknown Destination',
           delay_seconds: pred.delay_seconds || 0,
           vehicle_id: pred.vehicle_id || '',
           stop_name: pred.stop_name || 'Unknown Stop'
