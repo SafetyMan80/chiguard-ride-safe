@@ -1,11 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Share2, Facebook, Twitter, Instagram, Link2, MessageCircle } from "lucide-react";
+import { Share2, Facebook, Twitter, Instagram, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { getTransitSystemFromCoordinates } from "@/utils/cityDetection";
 
 interface SocialShareProps {
   userName?: string;
@@ -22,22 +19,8 @@ export const SocialShare = ({
 }: SocialShareProps) => {
   const [isSharing, setIsSharing] = useState(false);
   const { toast } = useToast();
-  const { latitude, longitude, getCurrentLocation } = useGeolocation();
   
-  // Auto-detect transit system based on location
-  const detectedTransitLine = latitude && longitude 
-    ? getTransitSystemFromCoordinates(latitude, longitude)
-    : transitLine || "Public Transit";
-    
-  // Debug logging
-  console.log('SocialShare GPS Debug:', { latitude, longitude, detectedTransitLine });
-
-  // Get location on component mount
-  useEffect(() => {
-    getCurrentLocation();
-  }, [getCurrentLocation]);
-
-  const shareMessage = customMessage || `${userName} is traveling safe on the ${detectedTransitLine} with RailSavior! 🚇✨ #RailSavior #SafeCommute`;
+  const shareMessage = customMessage || `${userName} is commuting safely with RailSavior! 🚇✨ #RailSavior #SafeCommute`;
   const shareUrl = window.location.origin;
 
   const handleNativeShare = async () => {
