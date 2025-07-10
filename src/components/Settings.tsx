@@ -17,6 +17,8 @@ import { IDVerification } from "./IDVerification";
 import { SecurityAudit } from "./SecurityAudit";
 import { NotificationSettings } from "./NotificationSettings";
 import { ThemeToggle } from "./ThemeToggle";
+import { LoadTestRunner } from "./testing/LoadTestRunner";
+import { IncidentTestRunner } from "./testing/IncidentTestRunner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -26,7 +28,7 @@ interface SettingsProps {
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'profile-edit' | 'verification' | 'security' | 'notifications'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'profile-edit' | 'verification' | 'security' | 'notifications' | 'load-testing' | 'incident-testing'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -96,6 +98,39 @@ export const Settings = ({ user }: SettingsProps) => {
 
   if (activeView === 'notifications') {
     return <NotificationSettings onBack={() => setActiveView('settings')} />;
+  }
+
+  if (activeView === 'security') {
+    return (
+      <div className="space-y-4">
+        <Button onClick={() => setActiveView('settings')} variant="outline">
+          ← Back to Settings
+        </Button>
+        <SecurityAudit />
+      </div>
+    );
+  }
+
+  if (activeView === 'load-testing') {
+    return (
+      <div className="space-y-4">
+        <Button onClick={() => setActiveView('settings')} variant="outline">
+          ← Back to Settings
+        </Button>
+        <LoadTestRunner />
+      </div>
+    );
+  }
+
+  if (activeView === 'incident-testing') {
+    return (
+      <div className="space-y-4">
+        <Button onClick={() => setActiveView('settings')} variant="outline">
+          ← Back to Settings
+        </Button>
+        <IncidentTestRunner />
+      </div>
+    );
   }
 
   return (
@@ -263,6 +298,20 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={() => setActiveView('security')}
           >
             {t("🔒 Security Audit (Admin)")}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('load-testing')}
+          >
+            {t("⚡ Load Testing")}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('incident-testing')}
+          >
+            {t("🧪 Incident Testing")}
           </Button>
           <Button 
             variant="outline" 
