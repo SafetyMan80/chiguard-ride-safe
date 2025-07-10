@@ -172,7 +172,7 @@ export const useLocationService = () => {
     return minDistance < 0.7 ? closestCity : null;
   };
 
-  const getCurrentLocation = useCallback(async (options = {}) => {
+  const getCurrentLocation = useCallback(async (options: any = {}) => {
     setLoading(true);
     
     try {
@@ -229,16 +229,21 @@ export const useLocationService = () => {
         setUserCity(detectedCity);
         locationData.city = detectedCity;
         
-        toast({
-          title: "Location Detected",
-          description: `You'll receive ${getCityDisplayName(detectedCity)} transit alerts`,
-        });
+        // Only show toast if explicitly requested (not on automatic checks)
+        if (options.showToast) {
+          toast({
+            title: "Location Detected",
+            description: `You'll receive ${getCityDisplayName(detectedCity)} transit alerts`,
+          });
+        }
       } else {
         setUserCity(null);
-        toast({
-          title: "Location Detected",
-          description: "You'll receive alerts for all transit systems",
-        });
+        if (options.showToast) {
+          toast({
+            title: "Location Detected",
+            description: "You'll receive alerts for all transit systems",
+          });
+        }
       }
 
       setLocation(locationData);
@@ -316,10 +321,7 @@ export const useLocationService = () => {
     return cityNames[cityId] || cityId;
   };
 
-  // Initialize location on mount
-  useEffect(() => {
-    checkLocationPermissions();
-  }, []);
+  // Removed automatic location check on mount to prevent popup
 
   return {
     location,

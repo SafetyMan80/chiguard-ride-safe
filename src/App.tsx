@@ -27,12 +27,8 @@ const App = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
-      // Initialize location on app start
-      try {
-        await getCurrentLocation();
-      } catch (error) {
-        console.log('Location initialization failed:', error);
-      }
+      // Removed automatic location initialization to avoid popup
+      // Location will only be requested when needed for specific features
       
       // Show loading screen for 2 seconds as requested
       setTimeout(() => {
@@ -41,7 +37,7 @@ const App = () => {
     };
 
     initializeApp();
-  }, [getCurrentLocation]);
+  }, []); // Removed getCurrentLocation dependency
 
   if (isLoading) {
     return <LoadingScreen />;
