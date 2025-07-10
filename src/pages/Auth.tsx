@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/hooks/use-toast";
+import { Facebook, Twitter, Chrome } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -100,6 +102,30 @@ const Auth = () => {
     }
   };
 
+  const handleSocialAuth = async (provider: 'facebook' | 'twitter' | 'google') => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Social auth error:', error);
+      toast({
+        title: "Social Login Error",
+        description: error.message || "Failed to connect with social media. Please try again.",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8">
@@ -162,6 +188,50 @@ const Auth = () => {
                 {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
               </Button>
             </form>
+
+            {/* Social Login Section */}
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">or continue with</span>
+                <Separator className="flex-1" />
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSocialAuth('facebook')}
+                  disabled={loading}
+                  className="flex items-center gap-2"
+                >
+                  <Facebook className="w-4 h-4" />
+                  <span className="hidden sm:inline">Facebook</span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSocialAuth('twitter')}
+                  disabled={loading}
+                  className="flex items-center gap-2"
+                >
+                  <Twitter className="w-4 h-4" />
+                  <span className="hidden sm:inline">Twitter</span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSocialAuth('google')}
+                  disabled={loading}
+                  className="flex items-center gap-2"
+                >
+                  <Chrome className="w-4 h-4" />
+                  <span className="hidden sm:inline">Google</span>
+                </Button>
+              </div>
+            </div>
 
             <div className="mt-6 text-center">
               <button

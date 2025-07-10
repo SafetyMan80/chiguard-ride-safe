@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { EmergencySOSButton } from "@/components/EmergencySOSButton";
 import { MultiCitySchedule } from "@/components/MultiCitySchedule";
 import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
 import { Settings } from "@/components/Settings";
+import { SocialShare } from "@/components/SocialShare";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
@@ -12,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAddToHomeScreen } from "@/hooks/useAddToHomeScreen";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useLanguage } from "@/hooks/useLanguage";
+import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 interface MainContentProps {
@@ -26,6 +28,30 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
   const { isInstallable, promptInstall } = useAddToHomeScreen();
   const { trackUserAction, trackPageView } = useAnalytics();
   const { t } = useLanguage();
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  // Fetch user profile for personalized sharing
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user?.id) {
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('full_name, notification_city')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (data) {
+            setUserProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+        }
+      }
+    };
+    
+    fetchProfile();
+  }, [user?.id]);
 
   const handleEmergencyActivated = () => {
     trackUserAction('emergency_button_clicked');
@@ -171,8 +197,20 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                 ))}
               </div>
               
+              {/* Social Share Component */}
+              <SocialShare
+                userName={userProfile?.full_name || "Someone"}
+                transitLine={userProfile?.notification_city === 'chicago' ? 'CTA' : 
+                           userProfile?.notification_city === 'nyc' ? 'MTA' :
+                           userProfile?.notification_city === 'washington_dc' ? 'Metro' :
+                           userProfile?.notification_city === 'atlanta' ? 'MARTA' :
+                           userProfile?.notification_city === 'philadelphia' ? 'SEPTA' :
+                           userProfile?.notification_city === 'denver' ? 'RTD' :
+                           'Public Transit'}
+              />
+              
               {/* Share Section */}
-              <Card className="mt-8 glass-card shadow-[var(--shadow-elevated)] border-chicago-blue/10">
+              <Card className="mt-6 glass-card shadow-[var(--shadow-elevated)] border-chicago-blue/10">
                 <CardHeader className="text-center pb-4">
                    <CardTitle className="text-lg text-chicago-blue flex items-center justify-center gap-2 font-semibold">
                      <div className="p-2 bg-chicago-blue/10 rounded-full">
