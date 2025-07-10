@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CitySelector } from "./CitySelector";
 import { CityScheduleWrapper } from "./CityScheduleWrapper";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { ScheduleLoadingSkeleton } from "./LoadingStates";
 import { useLanguage } from "@/hooks/useLanguage";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const MultiCitySchedule = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [showWarning, setShowWarning] = useState(true);
   const { t } = useLanguage();
 
   console.log('🏙️ MultiCitySchedule rendered with selectedCity:', selectedCity);
@@ -43,6 +53,23 @@ export const MultiCitySchedule = () => {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
+        <AlertDialog open={showWarning} onOpenChange={setShowWarning}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                ⚠️ Schedule Disclaimer
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm">
+                Schedule feature is not guaranteed to be accurate and is meant to be used as a general guide to routes and timing. For most accurate schedule information go to that specific city's commuter website.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setShowWarning(false)}>
+                I Understand
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <CitySelector onCitySelect={handleCitySelect} />
       </div>
     </ErrorBoundary>
