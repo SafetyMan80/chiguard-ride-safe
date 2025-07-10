@@ -100,6 +100,11 @@ export const MBTASchedule = () => {
   // Auto-refresh every 30 seconds when component is visible
   useVisibilityAwareInterval(fetchMBTASchedule, 30000);
 
+  // Initial load - fetch immediately when component mounts
+  useEffect(() => {
+    fetchMBTASchedule();
+  }, []); // Empty dependency array ensures this only runs on mount
+
   // Initial load
   useEffect(() => {
     fetchMBTASchedule();

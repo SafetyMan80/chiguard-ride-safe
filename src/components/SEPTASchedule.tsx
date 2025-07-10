@@ -121,6 +121,11 @@ export const SEPTASchedule = () => {
   // Use visibility-aware interval for better performance
   useVisibilityAwareInterval(fetchArrivals, 60000); // Reduced to 60 seconds
 
+  // Initial load - fetch immediately when component mounts
+  useEffect(() => {
+    fetchArrivals();
+  }, []); // Empty dependency array ensures this only runs on mount
+
   useEffect(() => {
     fetchArrivals();
   }, [selectedLine, selectedStation]);

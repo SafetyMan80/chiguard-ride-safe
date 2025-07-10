@@ -142,11 +142,11 @@ export const MTASchedule = () => {
     fetchArrivals();
   }, [selectedLine, selectedStation]);
 
-  // Initial load
+  // Initial load - fetch immediately when component mounts
   useEffect(() => {
     console.log('MTA component mounted, initial fetchArrivals call');
     fetchArrivals();
-  }, []);
+  }, []); // Empty dependency array ensures this only runs on mount
 
   // Reset station when line changes
   const handleLineChange = (newLine: string) => {
