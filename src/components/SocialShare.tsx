@@ -21,7 +21,7 @@ export const SocialShare = ({
   const { toast } = useToast();
   
   const shareMessage = customMessage || `${userName} is traveling safe with RailSavior and so should you! 🚇✨ #RailSavior #SafeCommute`;
-  const shareUrl = window.location.origin;
+  const shareUrl = "https://railsavior.com";
 
   const handleNativeShare = async () => {
     if (navigator.share) {
