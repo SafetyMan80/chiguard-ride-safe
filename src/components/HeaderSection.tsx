@@ -4,19 +4,36 @@ import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/useLanguage";
-import { User } from "lucide-react";
+import { User, RotateCcw } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface HeaderSectionProps {
   user?: SupabaseUser | null;
+  onRefresh?: () => void;
 }
 
-export const HeaderSection = ({ user }: HeaderSectionProps) => {
+export const HeaderSection = ({ user, onRefresh }: HeaderSectionProps) => {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { t } = useLanguage();
+
+  const handleRefresh = async () => {
+    if (!onRefresh || isRefreshing) return;
+    
+    setIsRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      // Add a small delay to show the refresh animation
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 500);
+    }
+  };
 
   useEffect(() => {
     const fetchProfilePhoto = async () => {
@@ -58,6 +75,16 @@ export const HeaderSection = ({ user }: HeaderSectionProps) => {
           )}
         </div>
         <div className="flex items-center space-x-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="h-8 w-8 p-0 rounded-full hover:bg-chicago-blue/10 transition-colors"
+            title={t("Refresh Page")}
+          >
+            <RotateCcw className={`w-4 h-4 text-chicago-blue ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
           <LanguageToggle />
           <div className="w-px h-6 bg-border/30"></div>
           <ThemeToggle />

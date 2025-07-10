@@ -195,7 +195,7 @@ export const HomeScreen = () => {
         />
         
       <SystemHealthIndicator />
-      <HeaderSection user={user} />
+      <HeaderSection user={user} onRefresh={handleRefresh} />
 
         <ErrorBoundary>
           <MainContent 
