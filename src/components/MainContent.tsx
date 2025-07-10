@@ -199,9 +199,6 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                 ))}
               </div>
               
-              {/* Social Share Tester (for testing) */}
-              <SocialShareTester />
-              
               {/* Social Share Component */}
               <SocialShare
                 userName={userProfile?.full_name || "Someone"}
