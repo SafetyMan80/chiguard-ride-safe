@@ -129,6 +129,21 @@ export const LoadTestRunner = () => {
     };
   };
 
+  const getTransitLinesForCity = (cityId: string): string[] => {
+    const transitLineMap: Record<string, string[]> = {
+      'chicago': ['Red Line', 'Blue Line', 'Brown Line', 'Green Line', 'Orange Line', 'Pink Line', 'Purple Line', 'Yellow Line'],
+      'nyc': ['4', '5', '6', '7', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'J', 'L', 'M', 'N', 'Q', 'R', 'W', 'Z'],
+      'denver': ['A Line', 'B Line', 'C Line', 'D Line', 'E Line', 'F Line', 'G Line', 'H Line', 'N Line', 'R Line', 'W Line'],
+      'washington_dc': ['Red Line', 'Blue Line', 'Orange Line', 'Silver Line', 'Green Line', 'Yellow Line'],
+      'philadelphia': ['Market-Frankford Line', 'Broad Street Line', 'Regional Rail'],
+      'atlanta': ['Red Line', 'Gold Line', 'Blue Line', 'Green Line'],
+      'boston': ['Red Line', 'Blue Line', 'Orange Line', 'Green Line', 'Silver Line'],
+      'san_francisco': ['Chicago CTA', 'NYC MTA', 'DC Metro', 'SEPTA', 'MARTA', 'Boston MBTA'], // Using general transit names for SF
+      'los_angeles': ['Chicago CTA'] // Using Chicago CTA as fallback for LA
+    };
+    return transitLineMap[cityId] || ['Red Line'];
+  };
+
   const simulateIncidentLoad = async (cityId: string, cityName: string): Promise<LoadTestMetrics['incidentReports']> => {
     addLog(`🚨 Starting incident load test for ${cityName} (${INCIDENTS_PER_CITY} concurrent reports)`);
     
@@ -147,18 +162,23 @@ export const LoadTestRunner = () => {
       };
     }
 
+    // Get valid transit lines for this city
+    const transitLines = getTransitLinesForCity(cityId);
+
     // Create concurrent incident reports
     for (let i = 0; i < INCIDENTS_PER_CITY; i++) {
       const promise = (async () => {
         const requestStart = Date.now();
         try {
           const incidentType = INCIDENT_TYPES[i % INCIDENT_TYPES.length];
+          const transitLine = transitLines[i % transitLines.length]; // Use actual transit line names
+          
           const { data, error } = await supabase
             .from('incident_reports')
             .insert({
               reporter_id: user.id,
               incident_type: incidentType,
-              transit_line: cityId,
+              transit_line: transitLine,
               location_name: `Load Test Station ${i + 1}`,
               description: `Load test ${incidentType} incident #${i + 1} for ${cityName}`,
               latitude: 40.7589 + (Math.random() - 0.5) * 0.1,
