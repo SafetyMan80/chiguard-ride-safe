@@ -105,6 +105,14 @@ export const SocialShare = ({
           description: "Paste this in your Instagram story or post!",
         });
         return;
+      case 'tiktok':
+        // TikTok doesn't support direct URL sharing, so we'll copy the message
+        handleCopyLink();
+        toast({
+          title: "Message copied!",
+          description: "Paste this in your TikTok caption!",
+        });
+        return;
       default:
         return;
     }
@@ -134,30 +142,13 @@ export const SocialShare = ({
           <p className="text-sm text-muted-foreground italic">"{shareMessage}"</p>
         </div>
         
-        {/* Native Share Button */}
-        <Button 
-          onClick={handleNativeShare}
-          disabled={isSharing}
-          variant="chicago"
-          className="w-full"
-        >
-          <Share2 className="w-4 h-4 mr-2" />
-          {isSharing ? "Sharing..." : "Share Now"}
-        </Button>
-        
-        <div className="flex items-center gap-2">
-          <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or share to</span>
-          <Separator className="flex-1" />
-        </div>
-        
         {/* Social Media Buttons */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <Button
             variant="outline"
             size="sm"
             onClick={() => handleSocialShare('facebook')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover-scale"
           >
             <Facebook className="w-4 h-4" />
             Facebook
@@ -167,7 +158,7 @@ export const SocialShare = ({
             variant="outline"
             size="sm"
             onClick={() => handleSocialShare('twitter')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover-scale"
           >
             <Twitter className="w-4 h-4" />
             Twitter
@@ -177,7 +168,7 @@ export const SocialShare = ({
             variant="outline"
             size="sm"
             onClick={() => handleSocialShare('instagram')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover-scale"
           >
             <Instagram className="w-4 h-4" />
             Instagram
@@ -186,11 +177,11 @@ export const SocialShare = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleCopyLink}
-            className="flex items-center gap-2"
+            onClick={() => handleSocialShare('tiktok')}
+            className="flex items-center gap-2 hover-scale"
           >
-            <Link2 className="w-4 h-4" />
-            Copy Link
+            <MessageCircle className="w-4 h-4" />
+            TikTok
           </Button>
         </div>
       </CardContent>
