@@ -264,6 +264,32 @@ export const Settings = ({ user }: SettingsProps) => {
         </CardContent>
       </Card>
 
+      {/* Testing Tools */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-purple-600 rounded text-white flex items-center justify-center text-xs font-bold">🧪</div>
+            {t("Testing Tools")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('load-testing')}
+          >
+            {t("⚡ Load Testing")}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setActiveView('incident-testing')}
+          >
+            {t("🧪 Incident Testing")}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Account */}
       <Card>
         <CardHeader>
@@ -298,20 +324,6 @@ export const Settings = ({ user }: SettingsProps) => {
             onClick={() => setActiveView('security')}
           >
             {t("🔒 Security Audit (Admin)")}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full justify-start"
-            onClick={() => setActiveView('load-testing')}
-          >
-            {t("⚡ Load Testing")}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full justify-start"
-            onClick={() => setActiveView('incident-testing')}
-          >
-            {t("🧪 Incident Testing")}
           </Button>
           <Button 
             variant="outline" 
