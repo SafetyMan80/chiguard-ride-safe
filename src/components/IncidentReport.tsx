@@ -65,7 +65,30 @@ const INCIDENT_TYPES = [
   "Other"
 ];
 
-const fetchIncidentReports = async (): Promise<IncidentReportData[]> => {
+const fetchIncidentReports = async (cityId?: string): Promise<IncidentReportData[]> => {
+  if (cityId) {
+    // Filter by specific city using direct table query
+    const { data, error } = await supabase
+      .from('incident_reports')
+      .select('id, reporter_id, incident_type, transit_line, location_name, description, latitude, longitude, accuracy, image_url, status, created_at, updated_at')
+      .eq('status', 'active')
+      .eq('transit_line', cityId)
+      .order('created_at', { ascending: false })
+      .limit(25);
+    
+    if (error) {
+      console.error('Error fetching city-specific incident reports:', error);
+      throw error;
+    }
+    
+    // Add reporter_name as Anonymous User for consistency
+    return (data || []).map(incident => ({
+      ...incident,
+      reporter_name: 'Anonymous User'
+    }));
+  }
+  
+  // Fallback to all incidents if no city specified
   const { data, error } = await supabase.rpc('get_incident_reports_with_reporter');
   
   if (error) {
@@ -231,9 +254,9 @@ export const IncidentReport = ({ selectedCity }: IncidentReportProps) => {
   }, []);
 
   // Fetch incident reports with React Query
-  const { data: incidents = [], isLoading, error } = useQuery({
-    queryKey: ['incident-reports'],
-    queryFn: fetchIncidentReports,
+  const { data: incidents = [], isLoading, error } = useQuery<IncidentReportData[]>({
+    queryKey: ['incident-reports', selectedCity?.id || selectedCityId],
+    queryFn: () => fetchIncidentReports(selectedCity?.id || selectedCityId),
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
