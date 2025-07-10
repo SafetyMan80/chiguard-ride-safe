@@ -17,8 +17,6 @@ import { IDVerification } from "./IDVerification";
 import { SecurityAudit } from "./SecurityAudit";
 import { NotificationSettings } from "./NotificationSettings";
 import { ThemeToggle } from "./ThemeToggle";
-import { LoadTestRunner } from "./testing/LoadTestRunner";
-import { IncidentTestRunner } from "./testing/IncidentTestRunner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface SettingsProps {
@@ -28,7 +26,7 @@ interface SettingsProps {
 export const Settings = ({ user }: SettingsProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'profile-edit' | 'verification' | 'security' | 'notifications' | 'load-testing' | 'incident-testing'>('settings');
+  const [activeView, setActiveView] = useState<'settings' | 'terms' | 'privacy' | 'safety' | 'profile' | 'profile-edit' | 'verification' | 'security' | 'notifications'>('settings');
 
   const handleSignOut = async () => {
     try {
@@ -111,27 +109,6 @@ export const Settings = ({ user }: SettingsProps) => {
     );
   }
 
-  if (activeView === 'load-testing') {
-    return (
-      <div className="space-y-4">
-        <Button onClick={() => setActiveView('settings')} variant="outline">
-          ← Back to Settings
-        </Button>
-        <LoadTestRunner />
-      </div>
-    );
-  }
-
-  if (activeView === 'incident-testing') {
-    return (
-      <div className="space-y-4">
-        <Button onClick={() => setActiveView('settings')} variant="outline">
-          ← Back to Settings
-        </Button>
-        <IncidentTestRunner />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -264,31 +241,6 @@ export const Settings = ({ user }: SettingsProps) => {
         </CardContent>
       </Card>
 
-      {/* Testing Tools */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-purple-600 rounded text-white flex items-center justify-center text-xs font-bold">🧪</div>
-            {t("Testing Tools")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button 
-            variant="outline" 
-            className="w-full justify-start"
-            onClick={() => setActiveView('load-testing')}
-          >
-            {t("⚡ Load Testing")}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full justify-start"
-            onClick={() => setActiveView('incident-testing')}
-          >
-            {t("🧪 Incident Testing")}
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Account */}
       <Card>
