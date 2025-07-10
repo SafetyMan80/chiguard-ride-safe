@@ -6,7 +6,7 @@ import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
 import { Settings } from "@/components/Settings";
 import { SocialShare } from "@/components/SocialShare";
-import { SocialShareTester } from "@/components/SocialShareTester";
+
 import { getTransitSystemFromCity } from "@/utils/transitSystemDetection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
