@@ -20,7 +20,7 @@ export const SocialShare = ({
   const [isSharing, setIsSharing] = useState(false);
   const { toast } = useToast();
   
-  const shareMessage = customMessage || `${userName} is commuting safely with RailSavior! 🚇✨ #RailSavior #SafeCommute`;
+  const shareMessage = customMessage || `${userName} is traveling safe with RailSavior and so should you! 🚇✨ #RailSavior #SafeCommute`;
   const shareUrl = window.location.origin;
 
   const handleNativeShare = async () => {
