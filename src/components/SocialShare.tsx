@@ -28,6 +28,9 @@ export const SocialShare = ({
   const detectedTransitLine = latitude && longitude 
     ? getTransitSystemFromCoordinates(latitude, longitude)
     : transitLine || "Public Transit";
+    
+  // Debug logging
+  console.log('SocialShare GPS Debug:', { latitude, longitude, detectedTransitLine });
 
   // Get location on component mount
   useEffect(() => {
