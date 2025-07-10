@@ -6,8 +6,8 @@ import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
 import { Settings } from "@/components/Settings";
 import { SocialShare } from "@/components/SocialShare";
-
-import { getTransitSystemFromCity } from "@/utils/transitSystemDetection";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { getTransitSystemFromCoordinates } from "@/utils/cityDetection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
@@ -30,9 +30,10 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
   const { isInstallable, promptInstall } = useAddToHomeScreen();
   const { trackUserAction, trackPageView } = useAnalytics();
   const { t } = useLanguage();
+  const { latitude, longitude, getCurrentLocation } = useGeolocation();
   const [userProfile, setUserProfile] = useState<any>(null);
 
-  // Fetch user profile for personalized sharing
+  // Fetch user profile and get location
   useEffect(() => {
     const fetchProfile = async () => {
       if (user?.id) {
@@ -53,7 +54,8 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
     };
     
     fetchProfile();
-  }, [user?.id]);
+    getCurrentLocation(); // Get GPS location for transit detection
+  }, [user?.id, getCurrentLocation]);
 
   const handleEmergencyActivated = () => {
     trackUserAction('emergency_button_clicked');
@@ -202,7 +204,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
               {/* Social Share Component */}
               <SocialShare
                 userName={userProfile?.full_name || "Someone"}
-                transitLine={getTransitSystemFromCity(userProfile?.notification_city)}
+                transitLine={latitude && longitude ? getTransitSystemFromCoordinates(latitude, longitude) : undefined}
               />
               
               {/* Share Section */}
