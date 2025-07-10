@@ -67,12 +67,26 @@ const INCIDENT_TYPES = [
 
 const fetchIncidentReports = async (cityId?: string): Promise<IncidentReportData[]> => {
   if (cityId) {
-    // Filter by specific city using direct table query
+    // Map city IDs to the actual transit_line values used in the database
+    const cityToTransitMap: Record<string, string[]> = {
+      'chicago': ['chicago', 'Chicago CTA', 'Red Line', 'Blue Line', 'Brown Line', 'Green Line', 'Orange Line', 'Pink Line', 'Purple Line', 'Yellow Line'],
+      'nyc': ['nyc', 'NYC MTA', 'MTA', '4', '5', '6', '7', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'J', 'L', 'M', 'N', 'Q', 'R', 'W', 'Z'],
+      'denver': ['denver', 'RTD', 'A Line', 'B Line', 'C Line', 'D Line', 'E Line', 'F Line', 'G Line', 'H Line', 'N Line', 'R Line', 'W Line'],
+      'washington_dc': ['washington_dc', 'DC Metro', 'WMATA', 'Red Line', 'Blue Line', 'Orange Line', 'Silver Line', 'Green Line', 'Yellow Line'],
+      'atlanta': ['atlanta', 'MARTA', 'Red Line', 'Gold Line', 'Green Line', 'Blue Line'],
+      'philadelphia': ['philadelphia', 'SEPTA'],
+      'boston': ['boston', 'MBTA'],
+      'san_francisco': ['san_francisco', 'BART/MUNI', 'BART', 'MUNI']
+    };
+
+    const transitLines = cityToTransitMap[cityId] || [cityId];
+    
+    // Filter by specific city using multiple transit_line values
     const { data, error } = await supabase
       .from('incident_reports')
       .select('id, reporter_id, incident_type, transit_line, location_name, description, latitude, longitude, accuracy, image_url, status, created_at, updated_at')
       .eq('status', 'active')
-      .eq('transit_line', cityId)
+      .in('transit_line', transitLines)
       .order('created_at', { ascending: false })
       .limit(25);
     

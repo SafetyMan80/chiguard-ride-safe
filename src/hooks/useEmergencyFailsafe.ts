@@ -150,6 +150,15 @@ export const useEmergencyFailsafe = () => {
         cityName: 'San Francisco'
       };
     }
+    // Denver area (roughly)
+    else if (location.latitude >= 39.6 && location.latitude <= 39.8 && 
+             location.longitude >= -105.1 && location.longitude <= -104.8) {
+      cityInfo = {
+        transitLine: 'RTD',
+        locationName: 'SOS incident reported RTD',
+        cityName: 'Denver'
+      };
+    }
 
     return cityInfo;
   };
