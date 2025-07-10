@@ -6,6 +6,8 @@ import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
 import { Settings } from "@/components/Settings";
 import { SocialShare } from "@/components/SocialShare";
+import { SocialShareTester } from "@/components/SocialShareTester";
+import { getTransitSystemFromCity } from "@/utils/transitSystemDetection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share, QrCode, Smartphone } from "lucide-react";
@@ -197,16 +199,13 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                 ))}
               </div>
               
+              {/* Social Share Tester (for testing) */}
+              <SocialShareTester />
+              
               {/* Social Share Component */}
               <SocialShare
                 userName={userProfile?.full_name || "Someone"}
-                transitLine={userProfile?.notification_city === 'chicago' ? 'CTA' : 
-                           userProfile?.notification_city === 'nyc' ? 'MTA' :
-                           userProfile?.notification_city === 'washington_dc' ? 'Metro' :
-                           userProfile?.notification_city === 'atlanta' ? 'MARTA' :
-                           userProfile?.notification_city === 'philadelphia' ? 'SEPTA' :
-                           userProfile?.notification_city === 'denver' ? 'RTD' :
-                           'Public Transit'}
+                transitLine={getTransitSystemFromCity(userProfile?.notification_city)}
               />
               
               {/* Share Section */}
