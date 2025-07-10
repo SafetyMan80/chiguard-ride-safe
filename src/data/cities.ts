@@ -82,7 +82,7 @@ export const CITIES_WITH_RAIL: City[] = [
     description: "Regional Rail and Subway System",
     railLines: ["Market-Frankford", "Broad Street", "Regional Rail"],
     color: "bg-purple-600",
-    available: true
+    available: false
   },
   {
     id: "los_angeles",

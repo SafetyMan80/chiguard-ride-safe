@@ -47,13 +47,13 @@ export const CitySelector = ({ onCitySelect }: CitySelectorProps) => {
         <CardContent className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>{t("🚊 Currently Available:")}</strong> {t("Chicago CTA, New York City MTA, Denver RTD, Washington D.C. Metro, Atlanta MARTA, Boston MBTA, and Philadelphia SEPTA with real-time schedules, station search, and system information.")}
+              <strong>{t("🚊 Currently Available:")}</strong> {t("Chicago CTA, New York City MTA, Denver RTD, Washington D.C. Metro, Atlanta MARTA, Boston MBTA, Los Angeles Metro, and San Francisco BART/MUNI with real-time schedules, station search, and system information.")}
             </p>
           </div>
           
           <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
             <p className="text-sm text-yellow-800">
-              <strong>{t("🚧 Coming Soon:")}</strong> {t("Real-time integration for LA Metro with the same features.")}
+              <strong>{t("🚧 Coming Soon:")}</strong> {t("Real-time integration for Philadelphia SEPTA with the same features.")}
             </p>
           </div>
           
