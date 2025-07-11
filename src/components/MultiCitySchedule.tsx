@@ -52,7 +52,7 @@ export const MultiCitySchedule = () => {
 
   return (
     <ErrorBoundary>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-6xl mx-auto px-4">
         <AlertDialog open={showWarning} onOpenChange={setShowWarning}>
           <AlertDialogContent className="max-w-md">
             <AlertDialogHeader>

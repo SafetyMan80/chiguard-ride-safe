@@ -42,7 +42,7 @@ export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-6xl mx-auto px-4">
       <Button
         variant="outline"
         onClick={onBack}

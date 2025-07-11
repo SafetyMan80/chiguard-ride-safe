@@ -12,7 +12,7 @@ export const CitySelector = ({ onCitySelect }: CitySelectorProps) => {
   const { t } = useLanguage();
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -24,7 +24,7 @@ export const CitySelector = ({ onCitySelect }: CitySelectorProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {CITIES_WITH_RAIL.map((city) => (
               <CityCard 
                 key={city.id} 

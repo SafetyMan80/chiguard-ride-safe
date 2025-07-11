@@ -37,7 +37,7 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
 }) => {
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header Card */}
       <Card>
         <CardHeader>
@@ -60,7 +60,7 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Line and Station Selectors */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <Select value={selectedLine} onValueChange={onLineChange}>
               <SelectTrigger className="flex-1">
                 <SelectValue placeholder="Select Line" />
@@ -158,14 +158,15 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
 
       {/* Arrivals Display */}
       {arrivals.length > 0 ? (
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold">
             Real-time Arrivals ({arrivals.length})
           </h3>
-          {arrivals.slice(0, 10).map((arrival, index) => (
-            <Card key={index} className="animate-fade-in">
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {arrivals.slice(0, 10).map((arrival, index) => (
+              <Card key={index} className="animate-fade-in">
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-4 h-4 rounded-full ${getLineColor(arrival.line)}`} />
                     <div>
@@ -205,7 +206,8 @@ export const StandardScheduleLayout: React.FC<StandardScheduleLayoutProps> = ({
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
         <Card>
