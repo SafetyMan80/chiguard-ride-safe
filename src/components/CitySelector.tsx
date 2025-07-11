@@ -24,7 +24,7 @@ export const CitySelector = ({ onCitySelect }: CitySelectorProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 xl:grid-cols-8 gap-4">
             {CITIES_WITH_RAIL.map((city) => (
               <CityCard 
                 key={city.id} 
