@@ -21,6 +21,7 @@ import "./utils/manualIncidentTest"; // Make manual test available in console
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   
   // Initialize push notifications and location services
   const { isRegistered } = usePushNotifications();
@@ -29,20 +30,28 @@ const App = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
+      // Set up auth listener first
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        setAuthReady(true);
+      });
+      
       // Wait for auth to initialize
       const { data: { session } } = await supabase.auth.getSession();
       setAuthInitialized(true);
+      setAuthReady(true);
       
-      // Show loading screen for 2 seconds as requested
+      // Show loading screen for 2 seconds as requested, but only after auth is ready
       setTimeout(() => {
         setIsLoading(false);
-      }, 2000);
+      }, 1000);
+
+      return () => subscription.unsubscribe();
     };
 
     initializeApp();
   }, []);
 
-  if (isLoading || !authInitialized) {
+  if (isLoading || !authInitialized || !authReady) {
     return <LoadingScreen />;
   }
 
