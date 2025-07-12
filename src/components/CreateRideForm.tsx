@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Plus, X } from "lucide-react";
 
 interface CreateRideFormProps {
@@ -223,6 +224,7 @@ export const CreateRideForm = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Get universities and transit lines for the current city
   const universities = cityData?.universities || [];
@@ -491,10 +493,10 @@ export const CreateRideForm = ({
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? "Creating..." : "Create Ride"}
+              {isSubmitting ? t("Creating...") : t("Create Ride")}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+              {t("Cancel")}
             </Button>
           </div>
         </form>

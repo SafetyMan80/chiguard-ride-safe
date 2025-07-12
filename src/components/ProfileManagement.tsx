@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { User, Mail, Phone, MapPin, GraduationCap, Calendar, Shield, ArrowLeft, Edit, Download, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 
 interface Profile {
@@ -35,6 +36,7 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchProfile();
@@ -62,8 +64,8 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
       if (error) {
         console.error('Error fetching profile:', error);
         toast({
-          title: "Error",
-          description: "Failed to load profile information",
+          title: t("Error"),
+          description: t("Failed to load profile information"),
           variant: "destructive"
         });
         return;
@@ -73,8 +75,8 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
-        title: "Error", 
-        description: "An unexpected error occurred",
+        title: t("Error"), 
+        description: t("An unexpected error occurred"),
         variant: "destructive"
       });
     } finally {

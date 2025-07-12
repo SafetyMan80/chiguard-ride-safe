@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Facebook, Twitter, Chrome } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
@@ -16,6 +17,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -147,11 +149,11 @@ const Auth = () => {
         {/* Auth Form */}
         <Card>
           <CardHeader>
-            <CardTitle>{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
+            <CardTitle>{isSignUp ? t("Create Account") : t("Welcome Back")}</CardTitle>
             <CardDescription>
               {isSignUp 
-                ? "Create your account to get started with RAILSAVIOR. Students: use your university email for instant verification!" 
-                : "Sign in to your account to continue"
+                ? t("Create your account to get started with RAILSAVIOR. Students: use your university email for instant verification!") 
+                : t("Sign in to your account to continue")
               }
             </CardDescription>
           </CardHeader>
@@ -185,7 +187,7 @@ const Auth = () => {
                 variant="chicago"
                 disabled={loading}
               >
-                {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+                {loading ? t("Loading...") : isSignUp ? t("Create Account") : t("Sign In")}
               </Button>
             </form>
 
@@ -193,7 +195,7 @@ const Auth = () => {
             <div className="mt-6 space-y-4">
               <div className="flex items-center gap-2">
                 <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">or continue with</span>
+                <span className="text-xs text-muted-foreground">{t("or continue with")}</span>
                 <Separator className="flex-1" />
               </div>
               
@@ -240,8 +242,8 @@ const Auth = () => {
                 className="text-sm text-chicago-blue hover:underline"
               >
                 {isSignUp 
-                  ? "Already have an account? Sign in" 
-                  : "Don't have an account? Sign up"
+                  ? t("Already have an account? Sign in") 
+                  : t("Don't have an account? Sign up")
                 }
               </button>
             </div>

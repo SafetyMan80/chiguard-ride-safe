@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Plus, Users, MapPin, Clock, Search, X, Trash2, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { ProfileView } from "./ProfileView";
 import { GroupRideMessenger } from "./GroupRideMessenger";
 import { RideCardSkeleton } from "./LoadingSkeleton";
@@ -42,6 +43,7 @@ export const GeneralGroupRides = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string>("");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -425,10 +427,10 @@ export const GeneralGroupRides = () => {
 
               <div className="flex gap-3">
                 <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? "Creating..." : "Create Ride"}
+                  {loading ? t("Creating...") : t("Create Ride")}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowCreateForm(false)}>
-                  Cancel
+                  {t("Cancel")}
                 </Button>
               </div>
             </form>

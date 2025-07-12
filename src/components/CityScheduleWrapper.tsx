@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 import { MTASchedule } from "./MTASchedule";
 import { CTASchedule } from "./CTASchedule";
 import { WMATASchedule } from "./WMATASchedule";
@@ -16,6 +17,8 @@ interface CityScheduleWrapperProps {
 }
 
 export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps) => {
+  const { t } = useLanguage();
+  
   const renderScheduleComponent = () => {
     switch (cityId) {
       case "chicago":
@@ -37,7 +40,7 @@ export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps
       case "san_francisco":
         return <SF511Schedule onBack={onBack} />;
       default:
-        return <div>Schedule not available</div>;
+        return <div>{t("Schedule not available")}</div>;
     }
   };
 
@@ -49,7 +52,7 @@ export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps
         className="flex items-center gap-2"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to City Selection
+        {t("Back to City Selection")}
       </Button>
       {renderScheduleComponent()}
     </div>

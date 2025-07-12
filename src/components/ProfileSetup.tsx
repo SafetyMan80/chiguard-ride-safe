@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 import { sanitizeInput, validateLocation } from "@/lib/security";
 import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 
@@ -43,6 +44,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
     message: string;
   }>({ isValidated: false, universityName: null, message: "" });
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchUniversities();
@@ -189,14 +191,14 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
       if (error) throw error;
 
       toast({
-        title: "Profile saved!",
-        description: "Your profile has been created successfully.",
+        title: t("Profile saved!"),
+        description: t("Your profile has been created successfully."),
       });
 
       onProfileComplete();
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t("Error"),
         description: error.message,
         variant: "destructive",
       });
@@ -398,7 +400,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
           </div>
 
           <Button type="submit" className="w-full" variant="chicago" disabled={loading}>
-            {loading ? "Saving..." : "Save Profile"}
+            {loading ? t("Saving...") : t("Save Profile")}
           </Button>
         </form>
       </CardContent>
