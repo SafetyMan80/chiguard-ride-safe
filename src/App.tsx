@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { supabase } from "@/integrations/supabase/client";
 
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useLocationService } from "@/hooks/useLocationService";
@@ -19,6 +20,7 @@ import "./utils/manualIncidentTest"; // Make manual test available in console
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
   
   // Initialize push notifications and location services
   const { isRegistered } = usePushNotifications();
@@ -27,8 +29,9 @@ const App = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
-      // Removed automatic location initialization to avoid popup
-      // Location will only be requested when needed for specific features
+      // Wait for auth to initialize
+      const { data: { session } } = await supabase.auth.getSession();
+      setAuthInitialized(true);
       
       // Show loading screen for 2 seconds as requested
       setTimeout(() => {
@@ -37,9 +40,9 @@ const App = () => {
     };
 
     initializeApp();
-  }, []); // Removed getCurrentLocation dependency
+  }, []);
 
-  if (isLoading) {
+  if (isLoading || !authInitialized) {
     return <LoadingScreen />;
   }
 
