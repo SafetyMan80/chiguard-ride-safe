@@ -1,6 +1,6 @@
 {
-  "name": "Rail Savior",
-  "short_name": "Rail Savior",
+  "name": "RailSafe",
+  "short_name": "RailSafe",
   "description": "Safety Driven Community Powered",
   "start_url": "/?utm_source=pwa",
   "display": "standalone",

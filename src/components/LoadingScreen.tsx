@@ -8,7 +8,7 @@ export const LoadingScreen = () => {
           <Logo className="w-full h-full drop-shadow-xl animate-float-towards-screen" />
         </div>
         <h1 className="text-5xl font-urbanist font-black text-chicago-gunmetal dark:text-white tracking-tight text-center transform-gpu will-change-transform">
-          RAILSAVIOR
+          RAILSAFE
         </h1>
       </div>
       

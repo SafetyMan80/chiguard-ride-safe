@@ -123,7 +123,7 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
           <section>
             <h3 className="font-semibold mb-2">8. Children's Privacy</h3>
             <p className="text-muted-foreground">
-              RAILSAVIOR is not intended for children under 13. We do not knowingly collect personal information 
+              RailSafe is not intended for children under 13. We do not knowingly collect personal information 
               from children under 13. If we become aware of such collection, we will delete the information immediately.
             </p>
           </section>
@@ -141,7 +141,7 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
             <h3 className="font-semibold mb-2">10. Contact Us</h3>
             <div className="text-muted-foreground space-y-2">
               <p>For privacy-related questions or requests:</p>
-              <p>• Email: privacy@railsavior.app</p>
+              <p>• Email: privacy@railsafe.app</p>
               <p>• In-app support through Settings</p>
               <p>• Response time: Within 5 business days</p>
             </div>
