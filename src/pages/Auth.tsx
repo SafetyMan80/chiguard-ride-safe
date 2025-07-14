@@ -67,7 +67,7 @@ const Auth = () => {
           // User was created and signed in immediately (email confirmation disabled)
           toast({
             title: "Account created and signed in!",
-            description: "Welcome to RAILSAVIOR!",
+            description: "Welcome to RailSafe!",
           });
         }
       } else {
@@ -138,7 +138,7 @@ const Auth = () => {
           </div>
           <div className="space-y-1">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-chicago-blue to-chicago-navy bg-clip-text text-transparent">
-              RAILSAVIOR
+              RailSafe
             </h1>
             <p className="text-sm text-muted-foreground">
               Safety Driven...Community Powered
@@ -152,7 +152,7 @@ const Auth = () => {
             <CardTitle>{isSignUp ? t("Create Account") : t("Welcome Back")}</CardTitle>
             <CardDescription>
               {isSignUp 
-                ? t("Create your account to get started with RAILSAVIOR. Students: use your university email for instant verification!") 
+                ? t("Create your account to get started with RailSafe. Students: use your university email for instant verification!") 
                 : t("Sign in to your account to continue")
               }
             </CardDescription>

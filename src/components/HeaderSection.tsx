@@ -100,7 +100,7 @@ export const HeaderSection = ({ user, onRefresh }: HeaderSectionProps) => {
               <Logo className="relative w-32 h-32 md:w-36 md:h-36 drop-shadow-2xl" />
             </div>
             <h1 className="text-3xl md:text-4xl font-proxima text-black dark:text-white tracking-tight text-center">
-              <span className="font-black">RAIL</span><span className="font-normal">SAVIOR</span>
+              <span className="font-black">RAIL</span><span className="font-normal">SAFE</span>
             </h1>
           </div>
         </CardHeader>
