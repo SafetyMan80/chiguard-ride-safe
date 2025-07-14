@@ -233,6 +233,7 @@ export const Settings = ({ user }: SettingsProps) => {
             <p><span className="font-medium">{t("Established")}:</span> 2025</p>
             <p><span className="font-medium">{t("Mission")}:</span> {t("Community-powered safety for rail commuters across major US cities")}</p>
             <p><span className="font-medium">{t("Coverage")}:</span> {t("All major US cities with rail service")}</p>
+            <p><span className="font-medium">{t("Contact")}:</span> info@railsafeapp.com</p>
             <p><span className="font-medium">{t("Disclaimer")}:</span> {t("Not affiliated with LA Metro, MTA (New York), WMATA (Washington D.C.), SEPTA (Philadelphia), MARTA (Atlanta), CTA (Chicago), or any other transit authority")}</p>
             <p className="text-muted-foreground italic pt-2">
               {t("RailSafe is an independent safety platform built by and for transit communities nationwide to enhance rail safety through real-time incident reporting and group ride coordination.")}
