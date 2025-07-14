@@ -10,7 +10,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
     // Check localStorage first, then system preference
-    const savedTheme = localStorage.getItem('railsavior-theme') as Theme;
+    const savedTheme = localStorage.getItem('railsafe-theme') as Theme;
     if (savedTheme) return savedTheme;
     
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -26,7 +26,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     root.classList.add(theme);
     
     // Save to localStorage
-    localStorage.setItem('railsavior-theme', theme);
+    localStorage.setItem('railsafe-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

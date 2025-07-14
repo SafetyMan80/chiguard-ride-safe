@@ -145,7 +145,7 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `railsavior-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `railsafe-data-export-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -394,7 +394,7 @@ export const ProfileManagement = ({ onBack, onEdit }: ProfileManagementProps) =>
               Export My Data
             </Button>
             <p className="text-xs text-muted-foreground">
-              Download a complete copy of all your data stored in RAILSAVIOR
+              Download a complete copy of all your data stored in RailSafe
             </p>
             
             <AlertDialog>

@@ -222,7 +222,7 @@ export const IDVerification = ({ onVerificationComplete, onBack, requiredUnivers
             <CardDescription>
               {idType === 'student_id' || requiredUniversity
                 ? "Upload your student ID to verify your university enrollment and access student group rides."
-                : "Upload a clear photo of your ID for verification. This helps ensure the safety of all RAILSAVIOR users."
+                : "Upload a clear photo of your ID for verification. This helps ensure the safety of all RailSafe users."
               }
             </CardDescription>
           </div>

@@ -155,7 +155,7 @@ export const RealisticTrain3D = ({ interactive = false, onInteraction }: Realist
             {/* Train Details */}
             <div className="absolute bottom-2 left-4 right-4 flex justify-between items-center">
               <div className="bg-yellow-400 rounded px-2 py-1 text-xs font-bold text-black shadow-md">
-                RAILSAVIOR
+                RailSafe
               </div>
               <div className="bg-red-500 w-3 h-3 rounded-full animate-pulse shadow-md" />
             </div>

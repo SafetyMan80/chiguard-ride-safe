@@ -69,8 +69,8 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
   const handleShare = async () => {
     const url = window.location.href;
     const shareData = {
-      title: 'RAILSAVIOR - Safety App for Rail Commuters',
-      text: t("Join me on RAILSAVIOR for safer transit across major US cities!"),
+       title: 'RailSafe - Safety App for Rail Commuters',
+       text: t("Join me on RailSafe for safer transit across major US cities!"),
       url: url
     };
 
@@ -214,7 +214,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                      <div className="p-2 bg-chicago-blue/10 rounded-full">
                        <Share className="w-4 h-4" />
                      </div>
-                     {t("Share RAILSAVIOR")}
+                     {t("Share RailSafe")}
                    </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

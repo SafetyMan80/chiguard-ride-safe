@@ -219,7 +219,7 @@ export const ProfileSetup = ({ onProfileComplete, onBack }: ProfileSetupProps) =
           <div>
             <CardTitle>Complete Your Profile</CardTitle>
             <CardDescription>
-              Please provide your information to continue with RAILSAVIOR
+              Please provide your information to continue with RailSafe
             </CardDescription>
           </div>
         </div>

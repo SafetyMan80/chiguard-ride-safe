@@ -265,7 +265,7 @@ export const IncidentReportForm = ({ selectedCity, onSubmitSuccess }: IncidentRe
 
       toast({
         title: "✅ Report Submitted Successfully!",
-        description: "Your incident report has been shared with other RAILSAVIOR users.",
+        description: "Your incident report has been shared with other RailSafe users.",
       });
 
       onSubmitSuccess();

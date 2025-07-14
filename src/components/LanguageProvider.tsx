@@ -8,12 +8,12 @@ interface LanguageProviderProps {
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const [language, setLanguage] = useState<Language>(() => {
-    const savedLanguage = localStorage.getItem('railsavior-language') as Language;
+    const savedLanguage = localStorage.getItem('railsafe-language') as Language;
     return savedLanguage || 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('railsavior-language', language);
+    localStorage.setItem('railsafe-language', language);
   }, [language]);
 
   const toggleLanguage = () => {

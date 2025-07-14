@@ -20,15 +20,15 @@ export const SocialShare = ({
   const [isSharing, setIsSharing] = useState(false);
   const { toast } = useToast();
   
-  const shareMessage = customMessage || `${userName} is traveling safe with RailSavior and so should you! 🚇✨ #RailSavior #SafeCommute`;
-  const shareUrl = "https://railsavior.com";
+  const shareMessage = customMessage || `${userName} is traveling safe with RailSafe and so should you! 🚇✨ #RailSafe #SafeCommute`;
+  const shareUrl = "https://railsafe.com";
 
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
         setIsSharing(true);
         await navigator.share({
-          title: "RailSavior - Safe Transit",
+          title: "RailSafe - Safe Transit",
           text: shareMessage,
           url: shareUrl,
         });
@@ -109,7 +109,7 @@ export const SocialShare = ({
           Share Your Safe Journey
         </CardTitle>
         <CardDescription>
-          Let friends know you're traveling safely with RailSavior
+          Let friends know you're traveling safely with RailSafe
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

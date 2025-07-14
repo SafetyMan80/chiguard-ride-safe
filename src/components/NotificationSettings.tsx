@@ -38,7 +38,7 @@ export const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
       Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
           new Notification('Test Notification', {
-            body: 'This is a test notification from RailSavior',
+            body: 'This is a test notification from RailSafe',
             icon: '/icon-192.png'
           });
           toast({
@@ -167,7 +167,7 @@ export const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
             <p>If you're not receiving notifications:</p>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
               <li>Check your device's notification settings</li>
-              <li>Ensure RailSavior has notification permissions</li>
+              <li>Ensure RailSafe has notification permissions</li>
               <li>Try the test notification above</li>
               <li>Restart the app if issues persist</li>
             </ul>
