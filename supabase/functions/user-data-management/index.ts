@@ -62,7 +62,7 @@ serve(async (req: Request) => {
           headers: {
             ...corsHeaders,
             "Content-Type": "application/json",
-            "Content-Disposition": `attachment; filename="railsavior-data-export-${new Date().toISOString().split('T')[0]}.json"`
+            "Content-Disposition": `attachment; filename="railsafe-data-export-${new Date().toISOString().split('T')[0]}.json"`
           }
         }
       );

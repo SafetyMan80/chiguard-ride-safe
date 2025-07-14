@@ -184,7 +184,7 @@ async function sendFCMNotification(token: string, payload: NotificationPayload) 
         body: payload.body,
         icon: '/icon-192.png',
         badge: '/icon-192.png',
-        click_action: 'https://railsavior.app'
+        click_action: 'https://railsafeapp.com'
       },
       data: payload.data || {},
       priority: payload.priority === 'high' ? 'high' : 'normal'

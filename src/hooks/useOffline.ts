@@ -44,7 +44,7 @@ export const useOffline = () => {
 
   const openDB = (): Promise<IDBDatabase> => {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('rail-savior-offline', 1);
+      const request = indexedDB.open('railsafe-offline', 1);
       
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve(request.result);
