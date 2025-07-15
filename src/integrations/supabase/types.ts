@@ -402,6 +402,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          blocked_until: string | null
+          created_at: string | null
+          endpoint: string
+          id: string
+          ip_address: unknown
+          request_count: number | null
+          updated_at: string | null
+          user_id: string | null
+          window_start: string | null
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          ip_address: unknown
+          request_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          ip_address?: unknown
+          request_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       security_audit_logs: {
         Row: {
           action_type: string
@@ -562,6 +598,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bootstrap_first_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       cleanup_old_data: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -601,6 +641,14 @@ export type Database = {
           reporter_name: string
         }[]
       }
+      get_security_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric: string
+          value: number
+          period: string
+        }[]
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -634,6 +682,15 @@ export type Database = {
           _ip_address?: unknown
         }
         Returns: string
+      }
+      validate_file_upload: {
+        Args: {
+          _file_name: string
+          _file_size: number
+          _mime_type: string
+          _bucket_name: string
+        }
+        Returns: boolean
       }
       validate_university_email: {
         Args: { email_address: string }
