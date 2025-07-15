@@ -1,0 +1,233 @@
+config:
+  target: 'https://adb12d6e-2ce6-4ba8-bed5-ca9f7fdf994b.lovableproject.com'
+  phases:
+    # Gradual ramp-up to simulate realistic user growth
+    - duration: 300  # 5 minutes
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 600  # 10 minutes
+      arrivalRate: 50
+      name: "Morning commute start"
+    - duration: 900  # 15 minutes
+      arrivalRate: 100
+      name: "Peak morning rush"
+    - duration: 1800 # 30 minutes
+      arrivalRate: 150
+      name: "Sustained morning peak"
+    - duration: 600  # 10 minutes
+      arrivalRate: 50
+      name: "Post-rush hour"
+    - duration: 1200 # 20 minutes
+      arrivalRate: 30
+      name: "Mid-day normal usage"
+    - duration: 900  # 15 minutes
+      arrivalRate: 120
+      name: "Evening rush hour"
+    - duration: 300  # 5 minutes
+      arrivalRate: 20
+      name: "Cool down"
+  
+  environments:
+    production:
+      target: 'https://adb12d6e-2ce6-4ba8-bed5-ca9f7fdf994b.lovableproject.com'
+      supabase: 'https://jhvdfihloyjdfrvbegqh.supabase.co'
+      
+  variables:
+    chicago_lines:
+      - "red"
+      - "blue" 
+      - "brown"
+      - "green"
+      - "orange"
+      - "purple"
+      - "pink"
+      - "yellow"
+    
+    chicago_stations:
+      - "clark-lake"
+      - "fullerton"
+      - "belmont"
+      - "howard"
+      - "95th-dan-ryan"
+      - "roosevelt"
+      - "ohare"
+      - "forest-park"
+      - "jefferson-park"
+      - "logan-square"
+      - "midway"
+      - "harlem-lake"
+      - "garfield"
+      - "kimball"
+      - "54th-cermak"
+    
+    incident_types:
+      - "harassment"
+      - "theft"
+      - "medical"
+      - "suspicious"
+      - "delay"
+      - "emergency"
+    
+    chicago_locations:
+      - "Union Station"
+      - "Downtown"
+      - "Loop"
+      - "North Side"
+      - "South Side"
+      - "West Side"
+      - "Lincoln Park"
+      - "Wicker Park"
+
+  payload:
+    path: "./test-data.csv"
+    fields:
+      - user_id
+      - user_type
+      - home_station
+      - work_station
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    
+  pool: 50  # Connection pool size
+
+scenarios:
+  - name: "Commuter User Flow"
+    weight: 60  # 60% of users are commuters
+    flow:
+      - post:
+          url: "/functions/v1/cta-schedule"
+          headers:
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Content-Type: "application/json"
+          json:
+            line: "{{ $randomPick(chicago_lines) }}"
+            station: "{{ $randomPick(chicago_stations) }}"
+          capture:
+            - json: "$.success"
+              as: "schedule_success"
+      
+      - think: 2
+      
+      - get:
+          url: "/rest/v1/group_rides"
+          qs:
+            select: "*"
+            status: "eq.active"
+            order: "departure_time.asc"
+            limit: "20"
+          headers:
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+      
+      - think: 3
+      
+      - get:
+          url: "/rest/v1/incident_reports"
+          qs:
+            select: "*"
+            status: "eq.active"
+            transit_line: "eq.chicago"
+            order: "created_at.desc"
+            limit: "25"
+          headers:
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+
+  - name: "Safety Reporter User Flow"  
+    weight: 25  # 25% of users actively report incidents
+    flow:
+      - post:
+          url: "/rest/v1/incident_reports"
+          headers:
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Content-Type: "application/json"
+            Prefer: "return=minimal"
+          json:
+            incident_type: "{{ $randomPick(incident_types) }}"
+            transit_line: "chicago"
+            location_name: "{{ $randomPick(chicago_locations) }}"
+            description: "Load test incident report"
+            reporter_id: "00000000-0000-0000-0000-000000000000"
+            latitude: "{{ $randomFloat(41.7, 41.95) }}"
+            longitude: "{{ $randomFloat(-87.8, -87.5) }}"
+            accuracy: "{{ $randomInt(5, 50) }}"
+            status: "active"
+      
+      - think: 3
+      
+      # Test SOS system occasionally (10% chance)
+      - ifTrue: "{{ $randomInt(1, 10) === 1 }}"
+        then:
+          - post:
+              url: "/functions/v1/emergency-backup"
+              headers:
+                Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+                Content-Type: "application/json"
+              json:
+                id: "sos-test-{{ $timestamp() }}"
+                type: "sos"
+                location:
+                  latitude: "{{ $randomFloat(41.7, 41.95) }}"
+                  longitude: "{{ $randomFloat(-87.8, -87.5) }}"
+                  accuracy: "{{ $randomInt(5, 20) }}"
+                timestamp: "{{ $isoTimestamp() }}"
+                details: "Load test SOS activation"
+                status: "pending"
+
+  - name: "Heavy User Flow"
+    weight: 15  # 15% are heavy users
+    flow:
+      # Multiple schedule checks
+      - loop:
+          count: 3
+          over:
+            - post:
+                url: "/functions/v1/cta-schedule"
+                headers:
+                  Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+                  Content-Type: "application/json"
+                json:
+                  line: "{{ $randomPick(chicago_lines) }}"
+                  station: "{{ $randomPick(chicago_stations) }}"
+            - think: 1
+      
+      # Create group ride
+      - post:
+          url: "/rest/v1/group_rides"
+          headers:
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Content-Type: "application/json"
+            Prefer: "return=minimal"
+          json:
+            creator_id: "00000000-0000-0000-0000-000000000000"
+            cta_line: "{{ $randomPick(chicago_lines) }}"
+            station_name: "{{ $randomPick(chicago_stations) }}"
+            university_name: "University of Chicago"
+            departure_time: "{{ $isoTimestamp() }}"
+            max_spots: "{{ $randomInt(2, 6) }}"
+            description: "Load test group ride"
+            status: "active"
+      
+      - think: 3
+      
+      # Create general group ride  
+      - post:
+          url: "/rest/v1/general_group_rides"
+          headers:
+            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpodmRmaWhsb3lqZGZydmJlZ3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzOTY0NzcsImV4cCI6MjA2Njk3MjQ3N30.PKHuvCrWU4GIezagMTvbAuzwEIqPrjp5ANsO0tvpJvY"
+            Content-Type: "application/json"
+            Prefer: "return=minimal"
+          json:
+            creator_id: "00000000-0000-0000-0000-000000000000"
+            title: "Load Test Ride"
+            departure_location: "{{ $randomPick(chicago_locations) }}"
+            destination_location: "{{ $randomPick(chicago_locations) }}"
+            departure_time: "{{ $isoTimestamp() }}"
+            max_spots: "{{ $randomInt(3, 8) }}"
+            description: "General load test ride"
+            status: "active"
