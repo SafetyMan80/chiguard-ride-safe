@@ -3,6 +3,7 @@ import { HomeScreen } from "@/components/HomeScreen";
 import { AdminBootstrap } from "@/components/AdminBootstrap";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LoadTester } from "@/components/LoadTester";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { Navigate } from "react-router-dom";
@@ -12,6 +13,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAdminBootstrap, setShowAdminBootstrap] = useState(false);
+  const [showLoadTester, setShowLoadTester] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -76,6 +78,35 @@ const Index = () => {
       <ErrorBoundary>
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
           <AdminBootstrap />
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  // Check for load testing query parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('loadtest') === 'true') {
+      setShowLoadTester(true);
+    }
+  }, []);
+
+  // Show load tester if requested
+  if (showLoadTester) {
+    return (
+      <ErrorBoundary>
+        <div className="min-h-screen bg-background text-foreground p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-4">
+              <button 
+                onClick={() => setShowLoadTester(false)}
+                className="text-primary hover:underline"
+              >
+                ← Back to App
+              </button>
+            </div>
+            <LoadTester />
+          </div>
         </div>
       </ErrorBoundary>
     );
