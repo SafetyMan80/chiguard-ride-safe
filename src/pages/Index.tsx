@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { HomeScreen } from "@/components/HomeScreen";
-import { AdminBootstrap } from "@/components/AdminBootstrap";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadTester } from "@/components/LoadTester";
@@ -12,7 +11,6 @@ const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAdminBootstrap, setShowAdminBootstrap] = useState(false);
   const [showLoadTester, setShowLoadTester] = useState(false);
 
   // Check for load testing query parameter
@@ -30,13 +28,6 @@ const Index = () => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
-        // Check if we need to show admin bootstrap
-        if (session?.user) {
-          setTimeout(() => {
-            checkAdminBootstrap();
-          }, 1000);
-        }
       }
     );
 
@@ -45,32 +36,10 @@ const Index = () => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
-      if (session?.user) {
-        setTimeout(() => {
-          checkAdminBootstrap();
-        }, 1000);
-      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const checkAdminBootstrap = async () => {
-    try {
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('role', 'admin')
-        .limit(1);
-
-      if (!roles || roles.length === 0) {
-        setShowAdminBootstrap(true);
-      }
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-    }
-  };
 
   if (loading) {
     return <LoadingScreen />;
@@ -78,17 +47,6 @@ const Index = () => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
-  }
-
-  // Show admin bootstrap if needed
-  if (showAdminBootstrap) {
-    return (
-      <ErrorBoundary>
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-          <AdminBootstrap />
-        </div>
-      </ErrorBoundary>
-    );
   }
 
   // Show load tester if requested
