@@ -12,6 +12,9 @@ export const usePushNotifications = () => {
     // Only initialize push notifications on mobile platforms
     if (!Capacitor.isNativePlatform()) {
       console.log('Push notifications not available on web platform');
+      // Set default state for web platforms
+      setIsRegistered(false);
+      setToken('');
       return;
     }
 

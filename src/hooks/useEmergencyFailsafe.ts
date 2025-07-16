@@ -257,6 +257,16 @@ export const useEmergencyFailsafe = () => {
       for (const method of deliveryMethods) {
         try {
           await method();
+          
+          // Also trigger browser notification for immediate local feedback
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('🚨 SOS Emergency Alert Sent', {
+              body: `Emergency reported in ${cityInfo.cityName} at ${new Date().toLocaleTimeString()}`,
+              icon: '/icon-192.png',
+              requireInteraction: true
+            });
+          }
+          
           toast({
             title: "✅ Emergency Report Sent",
             description: `SOS incident filed in ${cityInfo.cityName} - ${cityInfo.transitLine}`,

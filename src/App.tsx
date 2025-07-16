@@ -40,6 +40,16 @@ const App = () => {
       setAuthInitialized(true);
       setAuthReady(true);
       
+      // Request browser notification permission for SOS alerts
+      if ('Notification' in window && Notification.permission === 'default') {
+        try {
+          const permission = await Notification.requestPermission();
+          console.log('Notification permission:', permission);
+        } catch (error) {
+          console.log('Notification permission request failed:', error);
+        }
+      }
+      
       // Show loading screen for 2 seconds as requested, but only after auth is ready
       setTimeout(() => {
         setIsLoading(false);
