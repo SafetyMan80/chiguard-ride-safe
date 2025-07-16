@@ -15,6 +15,14 @@ const Index = () => {
   const [showAdminBootstrap, setShowAdminBootstrap] = useState(false);
   const [showLoadTester, setShowLoadTester] = useState(false);
 
+  // Check for load testing query parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('loadtest') === 'true') {
+      setShowLoadTester(true);
+    }
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -82,14 +90,6 @@ const Index = () => {
       </ErrorBoundary>
     );
   }
-
-  // Check for load testing query parameter
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('loadtest') === 'true') {
-      setShowLoadTester(true);
-    }
-  }, []);
 
   // Show load tester if requested
   if (showLoadTester) {
