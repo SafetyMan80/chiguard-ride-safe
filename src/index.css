@@ -54,19 +54,19 @@ All colors MUST be HSL.
     --gradient-subtle: linear-gradient(180deg, hsl(var(--chicago-accent)), rgba(255,255,255,0.8));
     --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
     
-    /* Premium shadows - Enhanced for iOS/modern app feel */
+    /* Premium shadows - Enhanced for iOS/modern app feel with better light mode visibility */
     --shadow-soft: 0 8px 32px hsl(var(--chicago-blue) / 0.12);
     --shadow-emergency: 0 8px 32px hsl(var(--chicago-red) / 0.25);
-    --shadow-card: 0 2px 16px hsl(213 20% 20% / 0.08);
-    --shadow-floating: 0 8px 32px hsl(213 20% 20% / 0.12);
-    --shadow-elevated: 0 4px 20px hsl(213 20% 20% / 0.1);
-    --shadow-interactive: 0 2px 8px hsl(213 20% 20% / 0.15);
+    --shadow-card: 0 2px 16px hsl(213 20% 20% / 0.15);
+    --shadow-floating: 0 8px 32px hsl(213 20% 20% / 0.18);
+    --shadow-elevated: 0 4px 20px hsl(213 20% 20% / 0.16);
+    --shadow-interactive: 0 2px 8px hsl(213 20% 20% / 0.2);
     
     /* Blur effects for modern look */
     --blur-light: blur(16px);
     --blur-heavy: blur(24px);
 
-    --border: 213 25% 88%;
+    --border: 213 25% 85%;
     --input: 213 25% 94%;
     --ring: 203 65% 66%;
 
