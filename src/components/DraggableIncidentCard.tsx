@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LocationDisplay } from "@/components/LocationDisplay";
 
 interface IncidentReportData {
   id: string;
@@ -153,9 +154,12 @@ export const DraggableIncidentCard = ({
               )}
               
               {incident.latitude && incident.longitude && (
-                <div className="text-xs text-muted-foreground mt-1">
-                  📍 GPS: {incident.latitude}, {incident.longitude}
-                  {incident.accuracy && ` (±${Math.round(incident.accuracy)}m)`}
+                <div className="mt-1">
+                  <LocationDisplay 
+                    latitude={incident.latitude}
+                    longitude={incident.longitude}
+                    accuracy={incident.accuracy}
+                  />
                 </div>
               )}
             </div>
