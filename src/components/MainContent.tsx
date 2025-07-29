@@ -6,6 +6,7 @@ import { MultiCityIncidentReport } from "@/components/MultiCityIncidentReport";
 import { GroupRideSelector } from "@/components/GroupRideSelector";
 import { Settings } from "@/components/Settings";
 import { SocialShare } from "@/components/SocialShare";
+import { SafetyMap } from "@/components/SafetyMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTransitSystemFromCoordinates } from "@/utils/cityDetection";
 import { Button } from "@/components/ui/button";
@@ -149,6 +150,12 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
               <h2 className="text-xl font-semibold mb-4">{t("Quick Report")}</h2>
               <MultiCityIncidentReport />
             </div>
+          </div>
+        );
+      case "safety-map":
+        return (
+          <div className="h-[70vh]">
+            <SafetyMap selectedCity={userProfile?.notification_city} />
           </div>
         );
       case "incidents":

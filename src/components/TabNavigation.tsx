@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Home, AlertTriangle, FileText, Users, Calendar, Settings } from "lucide-react";
+import { Home, AlertTriangle, FileText, Users, Calendar, Settings, MapPin } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface TabNavigationProps {
@@ -24,6 +24,12 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
       icon: AlertTriangle, 
       badge: "⚡",
       priority: true
+    },
+    { 
+      id: "safety-map", 
+      label: "Safety Map", 
+      icon: MapPin, 
+      badge: "🛡️" 
     },
     { 
       id: "incidents", 
