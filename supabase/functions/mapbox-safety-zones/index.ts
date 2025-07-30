@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN');
+console.log('MAPBOX_TOKEN configured:', !!MAPBOX_TOKEN);
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
