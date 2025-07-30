@@ -27,19 +27,22 @@ export const SafetyMap: React.FC<SafetyMapProps> = ({ selectedCity }) => {
 
       try {
         // Get Mapbox token from edge function first
-        const { data: tokenData } = await supabase.functions.invoke('mapbox-safety-zones', {
+        const { data: tokenData, error: tokenError } = await supabase.functions.invoke('mapbox-safety-zones', {
           body: { action: 'get_token' }
         });
         
+        if (tokenError) {
+          console.error('Token fetch error:', tokenError);
+          throw new Error(`Failed to fetch token: ${tokenError.message}`);
+        }
+        
         if (!tokenData?.token) {
-          toast({
-            title: "Map Error",
-            description: "Unable to load map configuration",
-            variant: "destructive"
-          });
-          return;
+          console.error('No token in response:', tokenData);
+          throw new Error("No Mapbox token received from server");
         }
 
+        console.log('Successfully got Mapbox token');
+        
         // Initialize map with secure token
         mapboxgl.accessToken = tokenData.token;
         
