@@ -69,7 +69,7 @@ export const SafetyMap: React.FC<SafetyMapProps> = ({ selectedCity }) => {
         console.error('Map initialization error:', error);
         toast({
           title: "Map Error",
-          description: "Failed to initialize map",
+          description: error instanceof Error ? error.message : "Failed to initialize map",
           variant: "destructive"
         });
         setIsLoading(false);

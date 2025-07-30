@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN') || 'pk.eyJ1Ijoiam9uaGFuZDgwIiwiYSI6ImNtZG9xNmFvbTA0anMybG9vemRzNzFiaHMifQ.9Y5TdXPfg1132d1HSfVipg';
+const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN');
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -14,11 +14,27 @@ const supabase = createClient(
 )
 
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
     const { action } = await req.json().catch(() => ({}));
     
     // Handle token request
     if (action === 'get_token') {
+      if (!MAPBOX_TOKEN) {
+        console.error('MAPBOX_TOKEN not configured');
+        return new Response(
+          JSON.stringify({ error: 'Mapbox token not configured' }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ token: MAPBOX_TOKEN }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
