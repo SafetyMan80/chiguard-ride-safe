@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Shield, AlertTriangle } from 'lucide-react';
 
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam9uaGFuZDgwIiwiYSI6ImNtZG9xNmFvbTA0anMybG9vemRzNzFiaHMifQ.9Y5TdXPfg1132d1HSfVipg';
+// Token will be handled securely in the edge function
 
 interface SafetyMapProps {
   selectedCity?: string;
@@ -22,32 +22,61 @@ export const SafetyMap: React.FC<SafetyMapProps> = ({ selectedCity }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    const initializeMap = async () => {
+      if (!mapContainer.current) return;
 
-    // Initialize map
-    mapboxgl.accessToken = MAPBOX_TOKEN;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-87.6298, 41.8781], // Chicago center
-      zoom: 11,
-      pitch: 30,
-    });
+      try {
+        // Get Mapbox token from edge function first
+        const { data: tokenData } = await supabase.functions.invoke('mapbox-safety-zones', {
+          body: { action: 'get_token' }
+        });
+        
+        if (!tokenData?.token) {
+          toast({
+            title: "Map Error",
+            description: "Unable to load map configuration",
+            variant: "destructive"
+          });
+          return;
+        }
 
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
+        // Initialize map with secure token
+        mapboxgl.accessToken = tokenData.token;
+        
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/mapbox/dark-v11',
+          center: [-87.6298, 41.8781], // Chicago center
+          zoom: 11,
+          pitch: 30,
+        });
 
-    // Load safety zones when map loads
-    map.current.on('load', () => {
-      loadSafetyZones();
-      setIsLoading(false);
-    });
+        // Add navigation controls
+        map.current.addControl(
+          new mapboxgl.NavigationControl({
+            visualizePitch: true,
+          }),
+          'top-right'
+        );
+
+        // Load safety zones when map loads
+        map.current.on('load', () => {
+          loadSafetyZones();
+          setIsLoading(false);
+        });
+
+      } catch (error) {
+        console.error('Map initialization error:', error);
+        toast({
+          title: "Map Error",
+          description: "Failed to initialize map",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+      }
+    };
+
+    initializeMap();
 
     // Cleanup
     return () => {

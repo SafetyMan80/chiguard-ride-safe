@@ -58,7 +58,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
   ];
 
   return (
-    <div className="flex justify-around py-3 px-2 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)]">
+    <div className="flex justify-between py-2 px-1 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)] overflow-x-auto">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;
@@ -70,8 +70,8 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               size="sm"
               onClick={() => onTabChange(tab.id)}
               className={`
-                flex flex-col items-center gap-1.5 h-auto py-2 px-2 min-h-[60px] min-w-[48px] justify-center
-                touch-target-large rounded-2xl transition-all duration-300 ease-out relative group
+                flex flex-col items-center gap-1 h-auto py-1.5 px-1 min-h-[50px] min-w-[44px] max-w-[60px] justify-center
+                touch-target-large rounded-xl transition-all duration-300 ease-out relative group
                 bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent
                 ${isActive 
                   ? 'text-chicago-blue shadow-[var(--shadow-interactive)] scale-105 border-2 border-black dark:border-white' 
@@ -92,7 +92,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               
               {/* Label with improved typography */}
               <span className={`
-                text-xs font-medium relative z-10 transition-all duration-200
+                text-[10px] font-medium relative z-10 transition-all duration-200 text-center leading-tight
                 ${isActive ? 'font-semibold text-chicago-blue' : ''}
               `}>
                 {tab.label}
