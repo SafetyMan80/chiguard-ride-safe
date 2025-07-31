@@ -15,16 +15,23 @@ const supabase = createClient(
 )
 
 serve(async (req) => {
+  console.log('Function invoked with method:', req.method);
+  console.log('Request URL:', req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('Parsing request body...');
     const { action } = await req.json().catch(() => ({}));
+    console.log('Request action:', action);
     
     // Handle token request
     if (action === 'get_token') {
+      console.log('Token request received');
       if (!MAPBOX_TOKEN) {
         console.error('MAPBOX_TOKEN not configured');
         return new Response(
@@ -36,6 +43,7 @@ serve(async (req) => {
         );
       }
       
+      console.log('Returning Mapbox token, length:', MAPBOX_TOKEN.length);
       return new Response(
         JSON.stringify({ token: MAPBOX_TOKEN }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
