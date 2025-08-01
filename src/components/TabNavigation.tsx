@@ -26,12 +26,6 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
       priority: true
     },
     { 
-      id: "safety-map", 
-      label: "Safety Map", 
-      icon: MapPin, 
-      badge: "🛡️" 
-    },
-    { 
       id: "incidents", 
       label: t("Reports"), 
       icon: FileText, 
