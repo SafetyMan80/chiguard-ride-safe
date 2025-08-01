@@ -47,8 +47,15 @@ export const SafetyMap: React.FC<SafetyMapProps> = ({ selectedCity }) => {
 
         console.log('Successfully got Mapbox token, length:', tokenData.token.length);
         
+        // Validate token format (should start with 'pk.')
+        if (!tokenData.token.startsWith('pk.')) {
+          throw new Error('Invalid Mapbox token format - must be a public token starting with "pk."');
+        }
+        
         // Initialize map with secure token
         mapboxgl.accessToken = tokenData.token;
+        
+        console.log('Mapbox access token set successfully');
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
