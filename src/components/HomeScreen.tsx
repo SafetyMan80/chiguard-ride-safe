@@ -207,10 +207,8 @@ export const HomeScreen = () => {
         </ErrorBoundary>
 
         {/* Enhanced Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-background/98 backdrop-blur-xl border-t border-border/30 shadow-[var(--shadow-floating)] z-50 safe-area-bottom">
-          <div className="max-w-md mx-auto">
-            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-          </div>
+        <nav className="z-50">
+          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         </nav>
       </div>
     </ErrorBoundary>

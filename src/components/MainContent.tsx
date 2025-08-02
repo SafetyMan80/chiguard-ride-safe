@@ -165,7 +165,7 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
           <div className="space-y-8">
             <div className="text-center space-y-6">
               
-              <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                 {navigationItems.map((item) => (
                   <button
                     key={item.id}
@@ -179,9 +179,10 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
                         ? 'bg-gradient-to-br from-chicago-red via-chicago-red to-red-600 text-white shadow-[var(--shadow-emergency)]' 
                         : 'card-modern card-interactive hover:bg-muted/30'
                       } 
-                      p-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] 
-                      transition-all duration-300 ease-out flex flex-col items-center space-y-2
-                      touch-target min-h-[96px] justify-center relative overflow-hidden
+                      p-4 rounded-2xl hover:scale-[1.02] active:scale-[0.96] 
+                      transition-all duration-200 ease-out flex flex-col items-center space-y-2
+                      touch-target min-h-[100px] justify-center relative overflow-hidden
+                      border border-border/30 hover:border-chicago-blue/30
                     `}
                   >
                     {item.id === 'emergency' && (
@@ -269,8 +270,10 @@ export const MainContent = ({ activeTab, setActiveTab, user, qrCodeUrl }: MainCo
   };
 
   return (
-    <main className="flex-1 p-6 pb-32 max-w-md mx-auto w-full">
-      {renderActiveTab()}
+    <main className="flex-1 p-4 pb-24 max-w-md mx-auto w-full">
+      <div className="space-y-4">
+        {renderActiveTab()}
+      </div>
     </main>
   );
 };

@@ -12,14 +12,14 @@ export const CityCard = ({ city, onCitySelect }: CityCardProps) => {
   
   return (
     <Card
-      className={`cursor-pointer transition-all duration-200 touch-target-large ${
+      className={`cursor-pointer transition-all duration-200 touch-target ${
         city.available
-          ? "hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/20 active:scale-100"
+          ? "hover:scale-[1.02] hover:shadow-[var(--shadow-elevated)] border border-border/50 hover:border-chicago-blue/30 active:scale-[0.98]"
           : "opacity-60 cursor-not-allowed"
       }`}
       onClick={() => onCitySelect(city.id, city.available)}
     >
-      <CardContent className="p-6 min-h-[140px] flex flex-col justify-between space-y-3">
+      <CardContent className="p-4 min-h-[140px] flex flex-col justify-between space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-4 h-4 rounded-full ${city.color} flex-shrink-0`} />

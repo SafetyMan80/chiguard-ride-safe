@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { CityMap } from "./CityMap";
 import { MTASchedule } from "./MTASchedule";
 import { CTASchedule } from "./CTASchedule";
 import { WMATASchedule } from "./WMATASchedule";
@@ -45,16 +46,25 @@ export const CityScheduleWrapper = ({ cityId, onBack }: CityScheduleWrapperProps
   };
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto px-4">
-      <Button
-        variant="outline"
-        onClick={onBack}
-        className="flex items-center gap-2"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        {t("Back to City Selection")}
-      </Button>
-      {renderScheduleComponent()}
+    <div className="space-y-6 max-w-6xl mx-auto px-4 pb-4">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          className="flex items-center gap-2 touch-target"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          {t("Back to City Selection")}
+        </Button>
+      </div>
+      
+      {/* City Map */}
+      <CityMap cityId={cityId} className="mb-6" />
+      
+      {/* Schedule Component */}
+      <div className="space-y-4">
+        {renderScheduleComponent()}
+      </div>
     </div>
   );
 };

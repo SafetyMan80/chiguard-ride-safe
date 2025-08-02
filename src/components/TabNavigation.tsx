@@ -52,33 +52,33 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
   ];
 
   return (
-    <div className="flex justify-between py-2 px-1 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)] overflow-x-auto">
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-between py-2 px-1 bg-background/98 backdrop-blur-xl border-t border-border/50 shadow-[var(--shadow-floating)] safe-area-bottom">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;
         
         return (
-          <div key={tab.id} className="relative">
+          <div key={tab.id} className="relative flex-1 max-w-[80px]">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onTabChange(tab.id)}
               className={`
-                flex flex-col items-center gap-1 h-auto py-1.5 px-1 min-h-[50px] min-w-[44px] max-w-[60px] justify-center
-                touch-target-large rounded-xl transition-all duration-300 ease-out relative group
+                w-full flex flex-col items-center gap-1 h-auto py-2 px-1 min-h-[56px] justify-center
+                touch-target-large rounded-xl transition-all duration-200 ease-out relative group
                 bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent
                 ${isActive 
-                  ? 'text-chicago-blue shadow-[var(--shadow-interactive)] scale-105 border-2 border-black dark:border-white' 
-                  : 'text-muted-foreground hover:text-chicago-blue hover:scale-105 active:scale-95 hover:shadow-[var(--shadow-soft)] hover:border-2 hover:border-black dark:hover:border-white border-2 border-transparent'
+                  ? 'text-chicago-blue scale-105' 
+                  : 'text-muted-foreground hover:text-chicago-blue active:scale-95'
                 }
-                ${tab.priority ? 'hover:shadow-[var(--shadow-emergency)]' : ''}
+                ${tab.priority && !isActive ? 'text-chicago-red' : ''}
               `}
             >
               
               {/* Icon with enhanced styling */}
-              <div className={`relative z-10 transition-all duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
+              <div className={`relative z-10 transition-all duration-200 ${isActive ? 'scale-110' : ''}`}>
                 <Icon 
-                  size={20} 
+                  size={22} 
                   className={`${isActive ? 'text-chicago-blue' : ''} ${tab.priority && !isActive ? 'text-chicago-red' : ''}`}
                   strokeWidth={isActive ? 2.5 : 2}
                 />
@@ -94,7 +94,7 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
               
               {/* Active indicator dot */}
               {isActive && (
-                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-chicago-blue rounded-full animate-fade-in"></div>
+                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-chicago-blue rounded-full"></div>
               )}
             </Button>
             
