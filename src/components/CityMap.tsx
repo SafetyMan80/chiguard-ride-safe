@@ -63,8 +63,8 @@ export const CityMap = ({ cityId, className = "" }: CityMapProps) => {
     );
   }
 
-  // Create OpenStreetMap embed URL
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${config.center[0]-0.1},${config.center[1]-0.1},${config.center[0]+0.1},${config.center[1]+0.1}&layer=mapnik&marker=${config.center[1]},${config.center[0]}`;
+  // Create Google Maps embed URL (no API key needed for basic embed)
+  const mapUrl = `https://maps.google.com/maps?q=${config.center[1]},${config.center[0]}&hl=en&z=12&output=embed`;
 
   return (
     <Card className={`${className} overflow-hidden`}>
@@ -77,9 +77,10 @@ export const CityMap = ({ cityId, className = "" }: CityMapProps) => {
       <CardContent className="p-0">
         <iframe
           src={mapUrl}
-          className="w-full h-64 md:h-80 border-0"
+          className="w-full h-64 md:h-80 border-0 rounded-b-lg"
           title={`${config.name} Transit Map`}
           loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
         />
       </CardContent>
     </Card>
