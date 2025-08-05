@@ -1,6 +1,17 @@
 import React from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Navigation } from "lucide-react";
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default markers not showing
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface CityMapProps {
   cityId: string;
@@ -63,25 +74,32 @@ export const CityMap = ({ cityId, className = "" }: CityMapProps) => {
     );
   }
 
-  // OpenStreetMap embed - no API key required
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${config.center[0]-0.1},${config.center[1]-0.1},${config.center[0]+0.1},${config.center[1]+0.1}&amp;layer=mapnik`;
-
   return (
     <Card className={`${className} overflow-hidden`}>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Navigation className="w-5 h-5 text-chicago-blue" />
+          <Navigation className="w-5 h-5 text-primary" />
           {config.name} Transit Map
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="w-full h-64 md:h-80 rounded-b-lg overflow-hidden">
-          <iframe
-            src={mapUrl}
-            className="w-full h-full border-0"
-            title={`${config.name} Transit Map`}
-            loading="lazy"
-          />
+          <MapContainer
+            center={[config.center[1], config.center[0]]}
+            zoom={12}
+            className="w-full h-full"
+            zoomControl={true}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[config.center[1], config.center[0]]}>
+              <Popup>
+                {config.name} Transit Center
+              </Popup>
+            </Marker>
+          </MapContainer>
         </div>
       </CardContent>
     </Card>
