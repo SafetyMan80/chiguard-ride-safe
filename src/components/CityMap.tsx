@@ -63,12 +63,8 @@ export const CityMap = ({ cityId, className = "" }: CityMapProps) => {
     );
   }
 
-  // Use a different approach - direct map with mapbox or leaflet integration
-  // For now, let's try a different Google Maps approach that should work better
-  const mapUrl = `https://maps.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO6X0JQm1QFJ7M&q=${config.center[1]},${config.center[0]}&zoom=12`;
-  
-  // Fallback to a simple static map image if iframe doesn't work
-  const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${config.center[1]},${config.center[0]}&zoom=12&size=600x400&markers=color:red|${config.center[1]},${config.center[0]}&key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO6X0JQm1QFJ7M`;
+  // OpenStreetMap embed - no API key required
+  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${config.center[0]-0.1},${config.center[1]-0.1},${config.center[0]+0.1},${config.center[1]+0.1}&amp;layer=mapnik`;
 
   return (
     <Card className={`${className} overflow-hidden`}>
@@ -79,24 +75,13 @@ export const CityMap = ({ cityId, className = "" }: CityMapProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="relative w-full h-64 md:h-80 bg-muted rounded-b-lg overflow-hidden">
-          <img
-            src={staticMapUrl}
-            alt={`${config.name} Transit Map`}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              // If the image fails to load, show a fallback
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            }}
+        <div className="w-full h-64 md:h-80 rounded-b-lg overflow-hidden">
+          <iframe
+            src={mapUrl}
+            className="w-full h-full border-0"
+            title={`${config.name} Transit Map`}
+            loading="lazy"
           />
-          <div className="hidden absolute inset-0 flex items-center justify-center bg-muted">
-            <div className="text-center text-muted-foreground">
-              <MapPin className="w-8 h-8 mx-auto mb-2" />
-              <p className="text-sm">Map temporarily unavailable</p>
-              <p className="text-xs mt-1">{config.name} - {config.center[1]}, {config.center[0]}</p>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>
