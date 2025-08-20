@@ -85,18 +85,19 @@ serve(async (req) => {
 
     console.log('✅ Signup notification email sent successfully:', emailResult.data);
 
-    // Log the signup event for analytics
-    await supabase.functions.invoke('track-event', {
-      body: {
-        event_type: 'admin_notification_sent',
-        event_data: {
-          notification_type: 'new_user_signup',
-          user_email: user.email,
-          user_id: user.id,
-          email_id: emailResult.data?.id
-        }
+    // Log the signup event for analytics via RPC
+    const { error: trackError } = await supabase.rpc('track_event', {
+      _event_type: 'admin_notification_sent',
+      _event_data: {
+        notification_type: 'new_user_signup',
+        user_email: user.email,
+        user_id: user.id,
+        email_id: emailResult.data?.id
       }
     });
+    if (trackError) {
+      console.error('❌ Failed to record analytics event:', trackError);
+    }
 
     return new Response(
       JSON.stringify({

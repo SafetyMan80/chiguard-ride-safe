@@ -33,6 +33,33 @@ const App = () => {
       // Set up auth listener first
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         setAuthReady(true);
+        if (event === 'SIGNED_IN' && session?.user) {
+          const createdAt = new Date(((session.user as any).created_at) ?? new Date().toISOString());
+          const justCreated = Date.now() - createdAt.getTime() < 5 * 60 * 1000; // 5 minutes window
+          const notifiedKey = `signup_notified_${session.user.id}`;
+          const alreadyNotified = localStorage.getItem(notifiedKey) === 'true';
+
+          if (justCreated && !alreadyNotified) {
+            setTimeout(() => {
+              supabase.functions.invoke('notify-new-signup', {
+                body: {
+                  record: {
+                    id: session.user.id,
+                    email: session.user.email,
+                    created_at: (session.user as any).created_at ?? new Date().toISOString(),
+                    raw_user_meta_data: (session.user as any).user_metadata ?? {}
+                  }
+                }
+              }).then(({ data, error }) => {
+                if (error) console.error('Failed to invoke notify-new-signup:', error);
+                else {
+                  console.log('notify-new-signup invoked:', data);
+                  localStorage.setItem(notifiedKey, 'true');
+                }
+              });
+            }, 0);
+          }
+        }
       });
       
       // Wait for auth to initialize
